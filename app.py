@@ -1,4 +1,4 @@
-from flask import Flask, request, flash, redirect, render_template
+from flask import Flask, request, flash, redirect, render_template, jsonify
 from flask_wtf import FlaskForm
 from wtforms import FloatField, StringField
 from wtforms.validators import InputRequired
@@ -52,6 +52,59 @@ def add_expenses():
         return redirect('/')
     elif request.method == 'GET':
         return render_template('index.html', categories=categories, form=form)
+
+@app.route('/generate', methods=['GET', 'POST'])
+def generate():
+    cur.execute('''SELECT
+                C.NAME,
+                E.PRICE,
+                E.TAG,
+                E.TRANSACTION_DATE
+            FROM CATEGORY C
+            JOIN EXPENSES E ON C.ID = E.CATEGORY_ID ''')
+    query_res = cur.fetchall()
+
+    results = [{
+        'category': i[0],
+        'price': float(i[1]),
+        'description': i[2],
+        'transaction_date': i[3].strftime('%d.%m.%Y')} for i in query_res
+    ]
+    final_result = {'expenses': results}
+    return jsonify(final_result)
+# @app.route('/search_categories',methods=['GET'])
+# def search_categories():
+#     cur.execute('SELECT * FROM category')
+#     categories = cur.fetchall()
+#     return categories
+@app.route('/category', methods=['GET', 'POST'])
+def category():
+    cur.execute('SELECT * FROM category')
+    categories = cur.fetchall()
+    if request.method == 'POST':
+        category_id = request.form['category_id']
+        cur.execute('''
+            SELECT
+                PRICE,
+                TAG,
+                TRANSACTION_DATE
+            FROM EXPENSES
+            WHERE CATEGORY_ID = %s
+        ''', (category_id,))
+        query_res = cur.fetchall()
+
+        results = [{
+            'price': float(i[0]),
+            'description': i[1],
+            'transaction_date': i[2].strftime('%d.%m.%Y')} for i in query_res
+        ]
+        if not results:
+            flash('No expenses found for selected category.')
+
+        return render_template('category.html', final_result=results)
+    else:
+        return render_template('category.html',categories=categories)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

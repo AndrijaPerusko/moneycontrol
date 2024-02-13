@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category Expenses</title>
+</head>
+<body>
+    <h1>Category Expenses</h1>
+    <form action="/category" method="post">
+        <label for="category">Choose a category:</label>
+        <select id="category" name="category_id">
+            <option value="">Select category</option>
+            {% for category_id, category_name in categories %}
+                <option value="{{ category_id }}">{{ category_name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Show JSON</button>
+    </form>
+
+
+      <div id="jsonResult">
+        {% if final_result %}
+            <h2>Expenses:</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Price</th>
+                        <th>Description</th>
+                        <th>Transaction Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for expense in final_result %}
+                        <tr>
+                            <td>{{ expense.price }}</td>
+                            <td>{{ expense.description }}</td>
+                            <td>{{ expense.transaction_date }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                    <div>
+                        <a href="/category">Choose another category</a>
+                    </div>
+            </table>
+        {% endif %}
+    </div>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+                <a href="/category">Choose another category</a>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+</body>
+</html>

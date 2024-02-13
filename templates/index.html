@@ -53,5 +53,23 @@
             {% endif %}
         {% endwith %}
     </div>
+        <button id="showJsonButton">Show Transactions</button>
+    </div>
+    <div id="right-container">
+        <pre id="jsonOutput"></pre>
+    </div>
+
+    <script>
+        document.getElementById('showJsonButton').addEventListener('click', function() {
+
+            fetch('/generate')
+                .then(response => response.json())
+                .then(data => {
+
+                    document.getElementById('jsonOutput').textContent = JSON.stringify(data, null, 2);
+                })
+                .catch(error => console.error('Error fetching JSON:', error));
+        });
+    </script>
 </body>
 </html>
