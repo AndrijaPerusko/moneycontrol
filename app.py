@@ -17,6 +17,7 @@ class ExpenseForm(FlaskForm):
     description = StringField('Description', validators=[InputRequired()])
     date = StringField('Date (dd.mm.yyyy)', validators=[InputRequired()])
 
+
 @app.route('/', methods=['GET','POST'])
 @app.route('/add_expenses', methods=['GET','POST'])
 def add_expenses():
@@ -25,6 +26,7 @@ def add_expenses():
     categories = cur.fetchall()
     if form.validate_on_submit() and request.method == 'POST':
         price = form.price.data
+        print(price)
         description = form.description.data
         date = form.date.data
         category_id = request.form['category']
@@ -72,11 +74,8 @@ def generate():
     ]
     final_result = {'expenses': results}
     return jsonify(final_result)
-# @app.route('/search_categories',methods=['GET'])
-# def search_categories():
-#     cur.execute('SELECT * FROM category')
-#     categories = cur.fetchall()
-#     return categories
+
+
 @app.route('/category', methods=['GET', 'POST'])
 def category():
     cur.execute('SELECT * FROM category')
@@ -105,6 +104,36 @@ def category():
     else:
         return render_template('category.html',categories=categories)
 
+
+@app.route('/price_sort', methods=['GET','POST'])
+def price_sort():
+    if request.method == 'POST':
+        min_price = request.form['min_price']
+        max_price = request.form['max_price']
+        sort_order = request.form['sort_order']
+
+        if sort_order == 'asc':
+            sql_order = 'ASC'
+        else:
+            sql_order = 'DESC'
+
+        cur.execute(f'''SELECT C.NAME,
+                            E.PRICE,
+                            E.TAG,
+                            E.TRANSACTION_DATE
+                        FROM CATEGORY C
+                        JOIN EXPENSES E ON C.ID = E.CATEGORY_ID
+                        WHERE E.PRICE BETWEEN %s AND %s
+                        ORDER BY E.PRICE {sql_order}''', (min_price, max_price))
+        sql_query = cur.fetchall()
+        results = [{
+            'category': i[0],
+            'price': float(i[1]),
+            'tag': i[2],
+            'date': i[3].strftime('%d.%m.%Y')} for i in sql_query]
+
+        return render_template('price_filter.html', results=results)
+    return render_template('price_filter.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

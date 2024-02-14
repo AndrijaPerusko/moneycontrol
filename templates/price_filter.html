@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Price Filter</title>
+</head>
+<body>
+    <h1>Price Filter</h1>
+
+    <form action="/price_sort" method="post">
+        <label for="min_price">Min Price:</label>
+        <input type="number" id="min_price" name="min_price" step="0.01" required>
+
+        <label for="max_price">Max Price:</label>
+        <input type="number" id="max_price" name="max_price" step="0.01" required>
+
+        <p>Sort order:</p>
+        <label>
+            <input type="radio" name="sort_order" value="asc" checked>
+            Ascending
+        </label>
+        <label>
+            <input type="radio" name="sort_order" value="desc">
+            Descending
+        </label>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <h2>Results</h2>
+    
+    {% if results %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Tag</th>
+                    <th>Transaction Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for result in results %}
+                    <tr>
+                        <td>{{ result.category }}</td>
+                        <td>{{ result.price }}</td>
+                        <td>{{ result.tag }}</td>
+                        <td>{{ result.date }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No results to display.</p>
+    {% endif %}
+</body>
+</html>
