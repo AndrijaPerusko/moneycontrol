@@ -26,7 +26,6 @@ def add_expenses():
     categories = cur.fetchall()
     if form.validate_on_submit() and request.method == 'POST':
         price = form.price.data
-        print(price)
         description = form.description.data
         date = form.date.data
         category_id = request.form['category']
@@ -134,6 +133,53 @@ def price_sort():
 
         return render_template('price_filter.html', results=results)
     return render_template('price_filter.html')
+
+@app.route('/date_filter', methods=['GET','POST'])
+def date_fiter():
+    if request.method == 'POST':
+        start_date = request.form['start_date']
+        end_date = request.form['end_date']
+
+
+        if not start_date and not end_date:
+            flash("Error. You didn't select dates!")
+            return redirect('/date_filter')
+
+        try:
+            sd_datetime = datetime.strptime(start_date, '%d.%m.%Y')
+            ed_datetime = datetime.strptime(end_date, '%d.%m.%Y')
+        except ValueError:
+            flash('Invalid input or you didnt select start or end date!')
+            return redirect('/date_filter')
+
+        if sd_datetime > ed_datetime:
+            flash("Start date can't be greater that end date!")
+            return redirect('/date_filter')
+
+
+        cur.execute('''SELECT C.NAME,
+                            E.PRICE,
+                            E.TAG,
+                            E.TRANSACTION_DATE
+                        FROM CATEGORY C
+                        JOIN EXPENSES E ON C.ID = E.CATEGORY_ID
+                        WHERE E.TRANSACTION_DATE BETWEEN %s AND %s
+                        ORDER BY E.TRANSACTION_DATE DESC''', (sd_datetime, ed_datetime))
+        query_res = cur.fetchall()
+        if not query_res:
+            flash('No data for this date range!')
+            return redirect('/date_filter')
+        results = [{
+            'category': i[0],
+            'price': float(i[1]),
+            'tag': i[2],
+            'date': i[3].strftime('%d.%m.%Y')} for i in query_res]
+
+        return render_template('date_filter.html', results=results)
+    return render_template('date_filter.html')
+
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
