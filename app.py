@@ -215,6 +215,60 @@ def extract_expenses():
         mimetype='application/json',
         as_attachment=True,
 )
+def check_expenses_id():
+    cur.execute('''SELECT COUNT(EXPENSES_ID) FROM EXPENSES''')
+    res = cur.fetchone()
+    return res[0] + 1 if res else 1
+
+def category_id_name(category_name):
+    cur.execute("SELECT ID FROM CATEGORY WHERE name = %s", (category_name,))
+    category_id = cur.fetchone()
+    if category_id:
+        return category_id[0]
+    else:
+        return None
+
+@app.route('/import_json', methods = ['GET', 'POST'])
+def import_json():
+    if request.method == 'POST':
+        file = request.files['file']
+
+        if file.filename.endswith('.json'):
+            json_data = json.load(file)
+
+            try:
+                for item in json_data:
+                    category_name = item['category']
+                    if category_name:
+                        category_id = category_id_name(category_name),
+                        if category_id is not None:
+                            price = float(item['price']),
+                            date = item['date'],
+                            description = item['description'],
+                            expenses_id = item['expenses_id']
+
+                            if not expenses_id:
+                                expenses_id = check_expenses_id()
+
+                            cur.execute("INSERT INTO EXPENSES (expenses_id, price, transaction_date, tag, category_id) VALUES (%s,%s,%s,%s,%s)",
+                                        (expenses_id, price, date, description, category_id))
+                        else:
+                            flash('There is no category with that name.')
+                            return redirect('/')
+                    else:
+                        flash('Category name not provided!')
+                        return redirect('/')
+                db_conn.commit()
+                flash('Transaction successfully imported!')
+            except ValueError as e:
+                flash(f"Error importing data {e}")
+        else:
+            flash('Invalid file format. Please import JSON file!')
+        return redirect('/')
+    else:
+        return render_template('import_json.html')
+
+
 
 
 if __name__ == '__main__':
