@@ -1,9 +1,10 @@
-from flask import Flask, request, flash, redirect, render_template, jsonify
+from flask import Flask, request, flash, redirect, render_template, jsonify, send_file
 from flask_wtf import FlaskForm
 from wtforms import FloatField, StringField
 from wtforms.validators import InputRequired
 from datetime import datetime
 import psycopg2
+import json
 
 app = Flask(__name__)
 
@@ -178,7 +179,42 @@ def date_fiter():
         return render_template('date_filter.html', results=results)
     return render_template('date_filter.html')
 
+def load_json():
+    cur.execute('''SELECT
+                C.NAME,
+                E.EXPENSES_ID,
+                E.TAG,
+                E.PRICE,
+                E.TRANSACTION_DATE
+                FROM CATEGORY C
+                JOIN EXPENSES E ON C.ID = E.CATEGORY_ID
+                ORDER BY C.NAME''')
+    exp_data = cur.fetchall()
 
+    results = [{
+        'category': i[0],
+        'transaction #': i[1],
+        'description': i[2],
+        'price': float(i[3]),
+        'date': i[4].strftime('%d.%m.%Y')} for i in exp_data]
+
+    return results
+
+@app.route('/extract_expenses', methods=['GET'])
+def extract_expenses():
+    json_data = load_json()
+    filename = 'expenses.json'
+
+    json_object = json.dumps(json_data, indent=2)
+
+    with open(filename, 'w') as file:
+        file.write(json_object)
+
+    return send_file(
+        filename,
+        mimetype='application/json',
+        as_attachment=True,
+)
 
 
 if __name__ == '__main__':
