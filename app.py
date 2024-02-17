@@ -3,6 +3,7 @@ from flask_wtf import FlaskForm
 from wtforms import FloatField, StringField
 from wtforms.validators import InputRequired
 from datetime import datetime
+import matplotlib.pyplot as plt
 import psycopg2
 import json
 
@@ -267,9 +268,32 @@ def import_json():
         return redirect('/')
     else:
         return render_template('import_json.html')
+@app.route('/generate_chart', methods=['GET', 'POST'])
+def generate_chart():
+    if request.method == 'POST':
+        query = ("""SELECT C.NAME,
+                            SUM(E.PRICE)
+                    FROM CATEGORY C
+                    JOIN EXPENSES E ON C.ID = E.CATEGORY_ID
+                    GROUP BY C.NAME;""")
+        cur.execute(query)
+        query_result = cur.fetchall()
 
+        categories = [i[0] for i in query_result]
+        prices = [float(i[1]) for i in query_result]
 
+        plt.figure(figsize=(6,3))
+        plt.bar(categories, prices, color=['blue'])
+        plt.xlabel('Category')
+        plt.ylabel('Price')
+        plt.title('Expenses by category')
+        plt.xticks(rotation=45, fontsize=8)
 
+        graph = 'static/chart.jpg'
+        plt.savefig(graph)
+
+        return render_template('generate_chart.html', graph=graph)
+    return render_template('generate_chart.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
