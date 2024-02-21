@@ -6,6 +6,7 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 import psycopg2
 import json
+import string
 
 app = Flask(__name__)
 
@@ -20,41 +21,71 @@ class ExpenseForm(FlaskForm):
     date = StringField('Date (dd.mm.yyyy)', validators=[InputRequired()])
 
 
+def suggested_tags(description):
+    stop_words = {'and', 'on', 'at', 'or', 'but', 'if', 'then', 'else', 'when', 'a'}
+
+    # Provera tipa objekta pomoću if-else kontrole toka
+    if isinstance(description, str):
+        words = description.split()
+    else:
+        words = description
+
+    filtered_words = []
+    for word in words:
+        word = word.strip(string.punctuation)
+        if word and word.lower() not in stop_words:
+            filtered_words.append(word)
+
+    return filtered_words
+
+
+def get_categories():
+    cur.execute('SELECT * FROM category')
+    return cur.fetchall()
+
 @app.route('/', methods=['GET','POST'])
 @app.route('/add_expenses', methods=['GET','POST'])
 def add_expenses():
-    form = ExpenseForm()
-    cur.execute('SELECT * FROM category')
-    categories = cur.fetchall()
-    if form.validate_on_submit() and request.method == 'POST':
-        price = form.price.data
-        description = form.description.data
-        date = form.date.data
-        category_id = request.form['category']
+    if request.method == 'POST':
+        if 'next_step' in request.form:
+            price = request.form['price']
+            description = request.form['description']
+            date = request.form['date']
+            category_id = request.form['category']
+            tags = description.split()
+            return render_template('index.html', tags=tags, price=price,
+                                   description=description, date=date, category_id=category_id)
 
-        date_time = None
+        elif 'submit_expenses' in request.form:
+            price = request.form['price']
+            description = request.form['description']
+            date = request.form['date']
+            category_id = request.form['category']
+            tag = request.form['tag']
 
-        try:
-            date_time = datetime.strptime(date,"%d.%m.%Y")
-        except ValueError:
-            flash('Invalid input. Please put the correct form (dd.mm.yyyy)')
+            date_time = None
 
-        try:
-            price = float(price)
-            if price <=0:
-                raise ValueError('Invalid input.')
-        except ValueError:
-            flash('Error. Input has to be number and greater than zero!')
+            try:
+                date_time = datetime.strptime(date, "%d.%m.%Y")
+            except ValueError:
+                flash('Invalid input. Please put the correct form (dd.mm.yyyy)', 'error')
+
+            try:
+                price = float(price)
+                if price <= 0:
+                    raise ValueError('Invalid input.')
+            except ValueError:
+                flash('Error. Input has to be number and greater than zero!','error')
+                return redirect('/')
+            if date_time is not None:
+                cur.execute('INSERT INTO EXPENSES (CATEGORY_ID, PRICE, DESCRIPTION, TAG, TRANSACTION_DATE) VALUES (%s, %s, %s, %s, %s)',
+                            (category_id, price, description, tag, date_time))
+                db_conn.commit()
+                flash('Transaction successfully added to database!', 'success')
             return redirect('/')
 
-        if date_time is not None:
-            cur.execute('INSERT INTO EXPENSES (CATEGORY_ID, PRICE, TAG, TRANSACTION_DATE) VALUES (%s, %s, %s, %s)',
-                        (category_id, price, description, date_time))
-            db_conn.commit()
-            flash('Transaction successfully added to database!')
-        return redirect('/')
     elif request.method == 'GET':
-        return render_template('index.html', categories=categories, form=form)
+        return render_template('index.html', categories=get_categories())
 
 @app.route('/generate', methods=['GET', 'POST'])
 def generate():
@@ -218,7 +249,7 @@ def extract_expenses():
 )
 def check_expenses_id():
     cur.execute('''SELECT COUNT(EXPENSES_ID) FROM EXPENSES''')
-    res = cur.fetchone()
+    res = cur.fetchall()[0]
     return res[0] + 1 if res else 1
 
 def category_id_name(category_name):
@@ -241,26 +272,28 @@ def import_json():
                 for item in json_data:
                     category_name = item['category']
                     if category_name:
-                        category_id = category_id_name(category_name),
+                        category_id = category_id_name(category_name)
                         if category_id is not None:
-                            price = float(item['price']),
-                            date = item['date'],
-                            description = item['description'],
+                            price = float(item['price'])
+                            date = item['date']
+                            description = item['description']
                             expenses_id = item['expenses_id']
 
                             if not expenses_id:
                                 expenses_id = check_expenses_id()
 
-                            cur.execute("INSERT INTO EXPENSES (expenses_id, price, transaction_date, tag, category_id) VALUES (%s,%s,%s,%s,%s)",
-                                        (expenses_id, price, date, description, category_id))
+                            tags = suggested_tags(description)
+
+                            return render_template('submit_json.html', tags= tags, price = price,
+                                                   date=date, description=description, expenses_id=expenses_id,
+                                                   category_id=category_id)
+
                         else:
                             flash('There is no category with that name.')
-                            return redirect('/')
+                            return redirect('import_json.html')
                     else:
                         flash('Category name not provided!')
-                        return redirect('/')
-                db_conn.commit()
-                flash('Transaction successfully imported!')
+                        return redirect('import_json.html')
             except ValueError as e:
                 flash(f"Error importing data {e}")
         else:
@@ -268,6 +301,44 @@ def import_json():
         return redirect('/')
     else:
         return render_template('import_json.html')
+@app.route('/submit_json', methods=['POST'])
+def submit_json():
+    if request.method == 'POST':
+        price = request.form['price']
+        description = request.form['description']
+        date = request.form['date']
+        category_id = request.form['category']
+        tag = request.form['tag']
+        expenses_id = request.form.get('expenses_id')
+        print(tag)
+
+        date_time = None
+
+        for tag in request.form.getlist('tag'):
+            if tag:
+                selected_tag = tag
+                break
+
+        print(selected_tag)
+        try:
+            date_time = datetime.strptime(date, "%d.%m.%Y")
+        except ValueError:
+            flash('Invalid input. Please put the correct form (dd.mm.yyyy)', 'error')
+
+        try:
+            price = float(price)
+            if price <= 0:
+                raise ValueError('Invalid input.')
+        except ValueError:
+            flash('Error. Input has to be number and greater than zero!', 'error')
+            return redirect('/import_json')
+        if date_time is not None:
+            cur.execute('INSERT INTO EXPENSES (EXPENSES_ID, CATEGORY_ID, PRICE, DESCRIPTION, TAG, TRANSACTION_DATE) VALUES (%s, %s, %s, %s, %s, %s)',
+                        (expenses_id, category_id, price, description, selected_tag, date_time))
+            db_conn.commit()
+            flash('Transaction successfully added to database!', 'success')
+        return redirect('/import_json')
+
 @app.route('/generate_chart', methods=['GET', 'POST'])
 def generate_chart():
     if request.method == 'POST':

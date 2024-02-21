@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choose Tag</title>
+</head>
+<body>
+    <h1>Choose Tag</h1>
+    <form method="POST" action="/submit_json">
+        <ul>
+            {% for tag in tags %}
+            <li>
+                <input type="radio" id="{{ tag }}" name="tag" value="{{ tag }}" required>
+                <label for="{{ tag }}">{{ tag }}</label>
+            </li>
+            {% endfor %}
+        </ul>
+        <input type="hidden" name="price" value="{{ price }}">
+        <input type="hidden" name="description" value="{{ description }}">
+        <input type="hidden" name="date" value="{{ date }}">
+        <input type="hidden" name="category" value="{{ category_id }}">
+        <input type="hidden" name="tag" value="{{ tag }}">
+        <input type="hidden" name="expenses_id" value="{{ expenses_id }}">
+        <input type="submit" name="submit_expenses" value="Submit">
+    </form>
+</body>
+</html>

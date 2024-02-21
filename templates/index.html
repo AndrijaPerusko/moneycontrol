@@ -3,73 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expense Management</title>
+    <title>Add Expenses</title>
+    <style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+    }
+
+    .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+        text-align: center;
+        color: #333;
+    }
+
+    form {
+        margin-bottom: 20px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #555;
+    }
+
+    input[type="text"],
+    select {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 10px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+    }
+
+    input[type="submit"] {
+        width: auto;
+        padding: 10px 20px;
+        background-color: #4caf50;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    input[type="submit"]:hover {
+        background-color: #45a049;
+    }
+
+    ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .success-message {
+        color: #4caf50;
+    }
+
+    .error-message {
+        color: #f00;
+    }
+    </style>
 </head>
 <body>
-    <h1>Expense Management</h1>
-    <form action="{{ url_for('add_expenses') }}" method="post">
-        {{ form.hidden_tag() }}
-        <label for="category">Category:</label>
-        <select name="category">
-            {% for category in categories %}
-                <option value="{{ category[0] }}">{{ category[1] }}</option>
-            {% endfor %}
-        </select>
-        <br>
-        <label for="price">Price:</label>
-        <p>
-            {{ form.price(size=32) }}<br>
-            {% for error in form.price.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <br>
-        <label for="description">Description:</label>
-        <p>
-            {{ form.description(size=32) }}<br>
-            {% for error in form.description.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <br>
-        <label for="date">Date (dd.mm.yyyy):</label>
-        <p>
-            {{ form.date(size=32) }}<br>
-            {% for error in form.date.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <br>
-        <input type="submit" value="Submit">
-    </form>
-    <div>
+    <div class="container">
+        <h1>Add Expenses</h1>
         {% with messages = get_flashed_messages() %}
             {% if messages %}
-                <ul>
+                <div class="error-message">
                     {% for message in messages %}
-                        <li>{{ message }}</li>
+                        {{ message }}
                     {% endfor %}
-                </ul>
+                </div>
             {% endif %}
         {% endwith %}
-    </div>
-        <button id="showJsonButton">Show Transactions</button>
-    </div>
-    <div id="right-container">
-        <pre id="jsonOutput"></pre>
-    </div>
 
-    <script>
-        document.getElementById('showJsonButton').addEventListener('click', function() {
+        <form method="POST" action="/">
+            <label for="price">Price:</label>
+            <input type="text" id="price" name="price" required>
+            <label for="description">Description:</label>
+            <input type="text" id="description" name="description" required>
+            <label for="date">Date (dd.mm.yyyy):</label>
+            <input type="text" id="date" name="date" required>
+            <label for="category">Category:</label>
+            <select id="category" name="category">
+                {% for category in categories %}
+                    <option value="{{ category[0] }}">{{ category[1] }}</option>
+                {% endfor %}
+            </select>
+            <input type="submit" name="next_step" value="Next">
+        </form>
 
-            fetch('/generate')
-                .then(response => response.json())
-                .then(data => {
-
-                    document.getElementById('jsonOutput').textContent = JSON.stringify(data, null, 2);
-                })
-                .catch(error => console.error('Error fetching JSON:', error));
-        });
-    </script>
+        {% if tags %}
+            <h2>Choose Tag</h2>
+            <form method="POST" action="/">
+                {% for tag in tags %}
+                    <input type="radio" id="{{ tag }}" name="tag" value="{{ tag }}" required>
+                    <label for="{{ tag }}">{{ tag }}</label><br>
+                {% endfor %}
+                <input type="hidden" name="price" value="{{ price }}">
+                <input type="hidden" name="description" value="{{ description }}">
+                <input type="hidden" name="date" value="{{ date }}">
+                <input type="hidden" name="category" value="{{ category_id }}">
+                <br>
+                <input type="submit" name="submit_expenses" value="Submit">
+            </form>
+        {% endif %}
+    </div>
 </body>
 </html>
+
