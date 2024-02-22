@@ -1,47 +1,12 @@
-from flask import Flask, request, flash, redirect, render_template, jsonify, send_file
-from flask_wtf import FlaskForm
-from wtforms import FloatField, StringField
-from wtforms.validators import InputRequired
+from flask import request, render_template, flash, redirect, jsonify, send_file
+from money_control import app, db_conn, cur
+from money_control.utils import get_categories, load_json, check_expenses_id, category_id_name, suggested_tags
 from datetime import datetime
-import matplotlib.pyplot as plt
-import psycopg2
+import os
 import json
-import string
-
-app = Flask(__name__)
-
-app.secret_key = 'some_random_string'
-app.config['DATABASE_URL'] = 'postgresql://postgres:admin@localhost/money'
-db_conn = psycopg2.connect(app.config['DATABASE_URL'])
-cur = db_conn.cursor()
-
-class ExpenseForm(FlaskForm):
-    price = FloatField('Price', validators=[InputRequired()])
-    description = StringField('Description', validators=[InputRequired()])
-    date = StringField('Date (dd.mm.yyyy)', validators=[InputRequired()])
+import matplotlib.pyplot as plt
 
 
-def suggested_tags(description):
-    stop_words = {'and', 'on', 'at', 'or', 'but', 'if', 'then', 'else', 'when', 'a'}
-
-    # Provera tipa objekta pomoću if-else kontrole toka
-    if isinstance(description, str):
-        words = description.split()
-    else:
-        words = description
-
-    filtered_words = []
-    for word in words:
-        word = word.strip(string.punctuation)
-        if word and word.lower() not in stop_words:
-            filtered_words.append(word)
-
-    return filtered_words
-
-
-def get_categories():
-    cur.execute('SELECT * FROM category')
-    return cur.fetchall()
 
 @app.route('/', methods=['GET','POST'])
 @app.route('/add_expenses', methods=['GET','POST'])
@@ -87,6 +52,7 @@ def add_expenses():
     elif request.method == 'GET':
         return render_template('index.html', categories=get_categories())
 
+
 @app.route('/generate', methods=['GET', 'POST'])
 def generate():
     cur.execute('''SELECT
@@ -102,10 +68,10 @@ def generate():
         'category': i[0],
         'price': float(i[1]),
         'description': i[2],
-        'transaction_date': i[3].strftime('%d.%m.%Y')} for i in query_res
+        'date': i[3].strftime('%d.%m.%Y')} for i in query_res
     ]
-    final_result = {'expenses': results}
-    return jsonify(final_result)
+
+    return render_template('generate.html', results=results)
 
 
 @app.route('/category', methods=['GET', 'POST'])
@@ -151,7 +117,7 @@ def price_sort():
 
         cur.execute(f'''SELECT C.NAME,
                             E.PRICE,
-                            E.TAG,
+                            E.DESCRIPTION,
                             E.TRANSACTION_DATE
                         FROM CATEGORY C
                         JOIN EXPENSES E ON C.ID = E.CATEGORY_ID
@@ -161,11 +127,16 @@ def price_sort():
         results = [{
             'category': i[0],
             'price': float(i[1]),
-            'tag': i[2],
+            'description': i[2],
             'date': i[3].strftime('%d.%m.%Y')} for i in sql_query]
 
+        if not results:
+            flash('No results to display!')
+
         return render_template('price_filter.html', results=results)
+
     return render_template('price_filter.html')
+
 
 @app.route('/date_filter', methods=['GET','POST'])
 def date_fiter():
@@ -211,31 +182,11 @@ def date_fiter():
         return render_template('date_filter.html', results=results)
     return render_template('date_filter.html')
 
-def load_json():
-    cur.execute('''SELECT
-                C.NAME,
-                E.EXPENSES_ID,
-                E.TAG,
-                E.PRICE,
-                E.TRANSACTION_DATE
-                FROM CATEGORY C
-                JOIN EXPENSES E ON C.ID = E.CATEGORY_ID
-                ORDER BY C.NAME''')
-    exp_data = cur.fetchall()
-
-    results = [{
-        'category': i[0],
-        'transaction #': i[1],
-        'description': i[2],
-        'price': float(i[3]),
-        'date': i[4].strftime('%d.%m.%Y')} for i in exp_data]
-
-    return results
 
 @app.route('/extract_expenses', methods=['GET'])
 def extract_expenses():
     json_data = load_json()
-    filename = 'expenses.json'
+    filename = os.path.join(os.path.dirname(__file__), 'expenses.json')
 
     json_object = json.dumps(json_data, indent=2)
 
@@ -247,18 +198,7 @@ def extract_expenses():
         mimetype='application/json',
         as_attachment=True,
 )
-def check_expenses_id():
-    cur.execute('''SELECT COUNT(EXPENSES_ID) FROM EXPENSES''')
-    res = cur.fetchall()[0]
-    return res[0] + 1 if res else 1
 
-def category_id_name(category_name):
-    cur.execute("SELECT ID FROM CATEGORY WHERE name = %s", (category_name,))
-    category_id = cur.fetchone()
-    if category_id:
-        return category_id[0]
-    else:
-        return None
 
 @app.route('/import_json', methods = ['GET', 'POST'])
 def import_json():
@@ -301,6 +241,8 @@ def import_json():
         return redirect('/')
     else:
         return render_template('import_json.html')
+
+
 @app.route('/submit_json', methods=['POST'])
 def submit_json():
     if request.method == 'POST':
@@ -339,6 +281,7 @@ def submit_json():
             flash('Transaction successfully added to database!', 'success')
         return redirect('/import_json')
 
+
 @app.route('/generate_chart', methods=['GET', 'POST'])
 def generate_chart():
     if request.method == 'POST':
@@ -353,19 +296,17 @@ def generate_chart():
         categories = [i[0] for i in query_result]
         prices = [float(i[1]) for i in query_result]
 
-        plt.figure(figsize=(6,3))
+        plt.figure(figsize=(6,4))
         plt.bar(categories, prices, color=['blue'])
         plt.xlabel('Category')
         plt.ylabel('Price')
         plt.title('Expenses by category')
-        plt.xticks(rotation=45, fontsize=8)
+        # plt.xticks(rotation=25, fontsize=8, ha='right')
+        plt.xticks(rotation=25, fontsize=8)
+        plt.tight_layout()
 
-        graph = 'static/chart.jpg'
+        graph = os.path.join(app.root_path, 'static', 'chart.jpg')
         plt.savefig(graph)
 
-        return render_template('generate_chart.html', graph=graph)
+        return render_template('generate_chart.html', graph='static/chart.jpg')
     return render_template('generate_chart.html')
-
-if __name__ == '__main__':
-    app.run(debug=True)
-

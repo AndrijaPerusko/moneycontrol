@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Expenses</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #ccd8e5;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-left: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .content {
+            margin-left: 20px;
+            margin-right: 20px;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input[type="text"],
+        select,
+        input[type="date"] {
+            width: calc(100% - 16px);
+            padding: 8px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        input[type="submit"] {
+            width: auto;
+            padding: 10px 20px;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .success-message {
+            color: #4caf50;
+        }
+
+        .error-message {
+            color: #f00;
+        }
+        .button-container {
+            padding: 20px;
+            text-align: left;
+            margin-top: 5px;
+        }
+
+        .button-container a {
+            display: inline-block;
+            width: 175px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-right: 10px;
+            text-align: center;
+            line-height: 1;
+        }
+
+        .button-container a:last-child {
+            margin-right: 0;
+        }
+
+        .button-container a:hover {
+            background-color: #0056b3;
+        }
+
+        .new-button-container a {
+            margin: auto 20px;
+            display: inline-block;
+            width: 405px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-right: 10px;
+            text-align: center;
+            line-height: 1;
+        }
+
+        .button-container a:hover,
+        .new-button-container a:hover {
+            background-color: #0056b3;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 200px;
+            background-color: #ccd8e5;
+        }
+
+
+        .sidebar-buttons {
+            padding: 20px;
+        }
+
+        .sidebar-buttons a {
+            display: block;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .sidebar-buttons a:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Add Expenses</h1>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="error-message">
+                    {% for message in messages %}
+                        {{ message }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="/">
+            <label for="price">Price:</label>
+            <input type="text" id="price" name="price" required>
+            <label for="description">Description:</label>
+            <input type="text" id="description" name="description" required>
+            <label for="date">Date (dd.mm.yyyy):</label>
+            <input type="date" id="date" name="date" required>
+            <label for="category">Category:</label>
+            <select id="category" name="category">
+                {% for category in categories %}
+                    <option value="{{ category[0] }}">{{ category[1] }}</option>
+                {% endfor %}
+            </select>
+            <input type="submit" name="next_step" value="Next">
+        </form>
+
+        {% if tags %}
+            <h2>Choose Tag</h2>
+            <form method="POST" action="/">
+                {% for tag in tags %}
+                    <input type="radio" id="{{ tag }}" name="tag" value="{{ tag }}" required>
+                    <label for="{{ tag }}">{{ tag }}</label><br>
+                {% endfor %}
+                <input type="hidden" name="price" value="{{ price }}">
+                <input type="hidden" name="description" value="{{ description }}">
+                <input type="hidden" name="date" value="{{ date }}">
+                <input type="hidden" name="category" value="{{ category_id }}">
+                <br>
+                <input type="submit" name="submit_expenses" value="Submit">
+            </form>
+        {% endif %}
+    </div>
+    <div class="button-container">
+        <a href="/generate">Show expenses</a>
+        <a href="/extract_expenses">Download expenses</a>
+    </div>
+    <div class="new-button-container">
+        <a href="/import_json">Import expenses</a>
+    </div>
+    <div class="sidebar">
+        <div class="sidebar-buttons">
+            <a href="/generate_chart">Category chart</a>
+            <a href="/date_filter">Date filter</a>
+            <a href="/price_sort">Price filter</a>
+            <a href="/category">Category expenaces</a>
+        </div>
+    </div>
+</body>
+</html>
+

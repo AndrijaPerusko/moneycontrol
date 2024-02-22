@@ -1,0 +1,79 @@
+[
+  {
+    "category": "Bars and restaurants",
+    "transaction #": 11,
+    "description": "Hoi",
+    "price": 1000.0,
+    "date": "25.02.2024"
+  },
+  {
+    "category": "Bars and restaurants",
+    "transaction #": 32,
+    "description": "Wok",
+    "price": 1450.0,
+    "date": "22.02.2024"
+  },
+  {
+    "category": "Home repairs",
+    "transaction #": 26,
+    "description": "Plumber",
+    "price": 7000.0,
+    "date": "17.01.2024"
+  },
+  {
+    "category": "Other",
+    "transaction #": 27,
+    "description": "BalkanBet",
+    "price": 500.0,
+    "date": "21.02.2024"
+  },
+  {
+    "category": "Other",
+    "transaction #": 24,
+    "description": "Stand",
+    "price": 1000.0,
+    "date": "21.02.2024"
+  },
+  {
+    "category": "Other",
+    "transaction #": 29,
+    "description": "Headphones",
+    "price": 9000.0,
+    "date": "18.02.2024"
+  },
+  {
+    "category": "Other",
+    "transaction #": 30,
+    "description": "Logitech",
+    "price": 6500.0,
+    "date": "18.02.2024"
+  },
+  {
+    "category": "Other",
+    "transaction #": 28,
+    "description": "Headphones",
+    "price": 9000.0,
+    "date": "25.02.2024"
+  },
+  {
+    "category": "Other",
+    "transaction #": 2,
+    "description": "shiting",
+    "price": 650.0,
+    "date": "14.02.2024"
+  },
+  {
+    "category": "Other",
+    "transaction #": 25,
+    "description": "Money",
+    "price": 16000.0,
+    "date": "15.02.2024"
+  },
+  {
+    "category": "Wardrobe",
+    "transaction #": 31,
+    "description": "Shop",
+    "price": 500.0,
+    "date": "10.02.2024"
+  }
+]
