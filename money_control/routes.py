@@ -76,10 +76,12 @@ def generate():
 
 @app.route('/category', methods=['GET', 'POST'])
 def category():
-    cur.execute('SELECT * FROM category')
-    categories = cur.fetchall()
+    categories = get_categories()
     if request.method == 'POST':
         category_id = request.form['category_id']
+        if not category_id:
+            flash('Please select a category!')
+            return redirect('/category')
         cur.execute('''
             SELECT
                 PRICE,
@@ -98,9 +100,10 @@ def category():
         if not results:
             flash('No expenses found for selected category.')
 
-        return render_template('category.html', final_result=results)
-    else:
-        return render_template('category.html',categories=categories)
+        return render_template('category.html', categories=categories, final_result=results)
+    return render_template('category.html', categories=categories)
+
+
 
 
 @app.route('/price_sort', methods=['GET','POST'])

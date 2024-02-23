@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Expenses</title>
+    <link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -90,7 +91,7 @@
             display: inline-block;
             width: 175px;
             padding: 10px 20px;
-            background-color: #007bff;
+            background-color: #459aa6;
             color: #fff;
             text-decoration: none;
             border-radius: 4px;
@@ -104,7 +105,7 @@
         }
 
         .button-container a:hover {
-            background-color: #0056b3;
+            background-color: #03c8c98;
         }
 
         .new-button-container a {
@@ -112,7 +113,7 @@
             display: inline-block;
             width: 405px;
             padding: 10px 20px;
-            background-color: #007bff;
+            background-color: #459aa6;
             color: #fff;
             text-decoration: none;
             border-radius: 4px;
@@ -123,7 +124,7 @@
 
         .button-container a:hover,
         .new-button-container a:hover {
-            background-color: #0056b3;
+            background-color: #3c8c98;
         }
 
         .sidebar {
@@ -144,7 +145,7 @@
             display: block;
             margin-bottom: 10px;
             padding: 10px;
-            background-color: #007bff;
+            background-color: #459aa6;
             color: #fff;
             text-decoration: none;
             border-radius: 4px;
@@ -152,7 +153,7 @@
         }
 
         .sidebar-buttons a:hover {
-            background-color: #0056b3;
+            background-color: #3c8c98;
         }
     </style>
 </head>
@@ -175,7 +176,7 @@
             <label for="description">Description:</label>
             <input type="text" id="description" name="description" required>
             <label for="date">Date (dd.mm.yyyy):</label>
-            <input type="date" id="date" name="date" required>
+            <input type="text" id="date" name="date" required>
             <label for="category">Category:</label>
             <select id="category" name="category">
                 {% for category in categories %}
@@ -213,9 +214,16 @@
             <a href="/generate_chart">Category chart</a>
             <a href="/date_filter">Date filter</a>
             <a href="/price_sort">Price filter</a>
-            <a href="/category">Category expenaces</a>
+            <a href="/category">Category expenses</a>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            flatpickr("#date", {
+                dateFormat: "d.m.Y"
+            });
+        });
+    </script>
 </body>
 </html>
-

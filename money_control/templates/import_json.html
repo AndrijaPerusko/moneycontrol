@@ -47,6 +47,8 @@
         }
 
         input[type="submit"] {
+            margin-top: 10px;
+            margin-bottom: 20px;
             width: auto;
             padding: 10px 20px;
             background-color: #4caf50;
@@ -73,25 +75,41 @@
         .error-message {
             color: #f00;
         }
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+        }
+        .back-button:hover {
+            background-color: #45a049;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
+<button class="back-button" onclick="window.location.href='/';">Back</button>
 <div class="container">
     <h1>Import JSON</h1>
     <form method="POST" action="/import_json" enctype="multipart/form-data">
         <label for="file">Select JSON file:</label>
-        <input type="file" id="file" name="file" accept=".json" required><br>
+        <input type="file" id="file" name="file" accept=".json" required>
+        <br>
         <input type="submit" value="Next">
     </form>
 
-    <!-- Prikaz poruka o uspehu ili greškama -->
+
     {% with messages = get_flashed_messages() %}
-    {% if messages %}
-    <div class="success-message">
-        {% for message in messages %}
-        {{ message }}
-        {% endfor %}
-    </div>
+        {% if messages %}
+        <div class="success-message">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        </div>
     {% endif %}
     {% endwith %}
 </div>

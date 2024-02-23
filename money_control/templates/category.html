@@ -4,8 +4,122 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Category Expenses</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #ccd8e5;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        form {
+            max-width: 400px;
+            margin: 10px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        select {
+            width: calc(100% - 16px);
+            padding: 8px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            width: auto;
+            padding: 10px 20px;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #jsonResult {
+            max-width: 400px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        a {
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+            color: #088F8F;
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: #076d6d;
+        }
+
+        .error-message {
+            max-width: 400px;
+            color: #f00;
+            background-color: #ffe6e6;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            list-style-type: none;
+        }
+
+        .error-message li {
+            margin-bottom: 5px;
+        }
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+        }
+        .back-button:hover {
+            background-color: #45a049;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
+    <button class="back-button" onclick="window.location.href='/';">Back</button>
     <h1>Category Expenses</h1>
     <form action="/category" method="post">
         <label for="category">Choose a category:</label>
@@ -17,9 +131,16 @@
         </select>
         <button type="submit">Show JSON</button>
     </form>
-
-
-      <div id="jsonResult">
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="error-message" style="text-align: center; margin: 0 auto;">
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    <div id="jsonResult">
         {% if final_result %}
             <h2>Expenses:</h2>
             <table>
@@ -39,21 +160,8 @@
                         </tr>
                     {% endfor %}
                 </tbody>
-                    <div>
-                        <a href="/category">Choose another category</a>
-                    </div>
             </table>
         {% endif %}
     </div>
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <ul>
-            {% for message in messages %}
-                <li>{{ message }}</li>
-                <a href="/category">Choose another category</a>
-            {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
 </body>
 </html>
