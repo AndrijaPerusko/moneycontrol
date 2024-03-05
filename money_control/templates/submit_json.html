@@ -4,25 +4,97 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Choose Tag</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #ccd8e5;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+        }
+        .back-button:hover {
+            background-color: #45a049;
+            cursor: pointer;
+        }
+        .cancel-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+        }
+        .cancel-button:hover {
+            background-color: #45a049;
+            cursor: pointer;
+        }
+        .submit-button{
+            margin: 10px auto;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            margin-top:20px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+    </style>
 </head>
 <body>
-    <h1>Choose Tag</h1>
-    <form method="POST" action="/submit_json">
-        <ul>
-            {% for tag in tags %}
-            <li>
-                <input type="radio" id="{{ tag }}" name="tag" value="{{ tag }}" required>
-                <label for="{{ tag }}">{{ tag }}</label>
-            </li>
-            {% endfor %}
-        </ul>
-        <input type="hidden" name="price" value="{{ price }}">
-        <input type="hidden" name="description" value="{{ description }}">
-        <input type="hidden" name="date" value="{{ date }}">
-        <input type="hidden" name="category" value="{{ category_id }}">
-        <input type="hidden" name="tag" value="{{ tag }}">
-        <input type="hidden" name="expenses_id" value="{{ expenses_id }}">
-        <input type="submit" name="submit_expenses" value="Submit">
-    </form>
+<button class="back-button" onclick="window.location.href='/import_json';">Back</button>
+<button class="cancel-button" onclick="window.location.href='/';">Cancel</button>
+
+    <div class="container">
+        <h1>Choose Tag</h1>
+        <form method="POST" action="/submit_json" enctype="multipart/form-data">
+            <ul>
+                {% for tag in tags %}
+                <li>
+                    <input type="radio" id="{{ tag }}" name="tag" value="{{ tag }}" required>
+                    <label for="{{ tag }}">{{ tag }}</label>
+                </li>
+                {% endfor %}
+            </ul>
+            <input type="hidden" name="price" value="{{ price }}">
+            <input type="hidden" name="description" value="{{ description }}">
+            <input type="hidden" name="date" value="{{ date }}">
+            <input type="hidden" name="category" value="{{ category_id }}">
+            <input type="hidden" name="tag" value="{{ tag }}">
+            <input type="hidden" name="expenses_id" value="{{ expenses_id }}">
+            <input type="submit" name="submit_expenses" value="Submit" class="submit-button">
+        </form>
+    </div>
 </body>
 </html>

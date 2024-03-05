@@ -109,23 +109,35 @@ def category():
 @app.route('/price_sort', methods=['GET','POST'])
 def price_sort():
     if request.method == 'POST':
-        min_price = request.form['min_price']
+        start_price = request.form['start_price']
         max_price = request.form['max_price']
-        sort_order = request.form['sort_order']
 
-        if sort_order == 'asc':
-            sql_order = 'ASC'
+        if not start_price:
+            flash("You have to provide Start Price!")
+            return redirect('/price_sort')
+        if start_price and max_price:
+            if float(start_price) > float(max_price):
+                flash('Max price cant be lower then start price!')
+                return redirect('/price_sort')
+
+
+        if max_price:
+            cur.execute(f'''SELECT C.NAME,
+                                E.PRICE,
+                                E.DESCRIPTION,
+                                E.TRANSACTION_DATE
+                            FROM CATEGORY C
+                            JOIN EXPENSES E ON C.ID = E.CATEGORY_ID
+                            WHERE E.PRICE BETWEEN %s AND %s''', (start_price, max_price))
         else:
-            sql_order = 'DESC'
+            cur.execute(f'''SELECT C.NAME,
+                                E.PRICE,
+                                E.DESCRIPTION,
+                                E.TRANSACTION_DATE
+                            FROM CATEGORY C
+                            JOIN EXPENSES E ON C.ID = E.CATEGORY_ID
+                            WHERE E.PRICE = %s''', (start_price,))
 
-        cur.execute(f'''SELECT C.NAME,
-                            E.PRICE,
-                            E.DESCRIPTION,
-                            E.TRANSACTION_DATE
-                        FROM CATEGORY C
-                        JOIN EXPENSES E ON C.ID = E.CATEGORY_ID
-                        WHERE E.PRICE BETWEEN %s AND %s
-                        ORDER BY E.PRICE {sql_order}''', (min_price, max_price))
         sql_query = cur.fetchall()
         results = [{
             'category': i[0],
@@ -136,7 +148,9 @@ def price_sort():
         if not results:
             flash('No results to display!')
 
+
         return render_template('price_filter.html', results=results)
+
 
     return render_template('price_filter.html')
 
@@ -148,38 +162,49 @@ def date_fiter():
         end_date = request.form['end_date']
 
 
-        if not start_date and not end_date:
-            flash("Error. You didn't select dates!")
+        if not start_date:
+            flash("Error. You didn't select a start date!")
             return redirect('/date_filter')
 
         try:
             sd_datetime = datetime.strptime(start_date, '%d.%m.%Y')
-            ed_datetime = datetime.strptime(end_date, '%d.%m.%Y')
+            if end_date:
+                ed_datetime = datetime.strptime(end_date, '%d.%m.%Y')
         except ValueError:
             flash('Invalid input or you didnt select start or end date!')
             return redirect('/date_filter')
 
-        if sd_datetime > ed_datetime:
+        if end_date and sd_datetime > ed_datetime:
             flash("Start date can't be greater that end date!")
             return redirect('/date_filter')
 
+        if end_date:
+            cur.execute('''SELECT C.NAME,
+                                E.PRICE,
+                                E.DESCRIPTION,
+                                E.TRANSACTION_DATE
+                            FROM CATEGORY C
+                            JOIN EXPENSES E ON C.ID = E.CATEGORY_ID
+                            WHERE E.TRANSACTION_DATE BETWEEN %s AND %s
+                            ORDER BY E.TRANSACTION_DATE DESC''', (sd_datetime, ed_datetime))
+        else:
+            cur.execute('''SELECT C.NAME,
+                                E.PRICE,
+                                E.DESCRIPTION,
+                                E.TRANSACTION_DATE
+                            FROM CATEGORY C
+                            JOIN EXPENSES E ON C.ID = E.CATEGORY_ID
+                            WHERE E.TRANSACTION_DATE = %s
+                            ORDER BY E.TRANSACTION_DATE DESC''', (sd_datetime,))
 
-        cur.execute('''SELECT C.NAME,
-                            E.PRICE,
-                            E.TAG,
-                            E.TRANSACTION_DATE
-                        FROM CATEGORY C
-                        JOIN EXPENSES E ON C.ID = E.CATEGORY_ID
-                        WHERE E.TRANSACTION_DATE BETWEEN %s AND %s
-                        ORDER BY E.TRANSACTION_DATE DESC''', (sd_datetime, ed_datetime))
         query_res = cur.fetchall()
         if not query_res:
-            flash('No data for this date range!')
+            flash('No data for this date range or exact date!')
             return redirect('/date_filter')
         results = [{
             'category': i[0],
             'price': float(i[1]),
-            'tag': i[2],
+            'description': i[2],
             'date': i[3].strftime('%d.%m.%Y')} for i in query_res]
 
         return render_template('date_filter.html', results=results)
