@@ -235,8 +235,10 @@ def import_json():
 
         if file.filename.endswith('.json'):
             json_data = json.load(file)
+            all_data = []
 
             try:
+                max_expenses_id = None
                 for item in json_data:
                     category_name = item['category']
                     if category_name:
@@ -248,13 +250,22 @@ def import_json():
                             expenses_id = item['expenses_id']
 
                             if not expenses_id:
-                                expenses_id = check_expenses_id()
+                                if max_expenses_id is None:
+                                    max_expenses_id = check_expenses_id()
+
+                                expenses_id = max_expenses_id
+                                max_expenses_id +=1
 
                             tags = suggested_tags(description)
 
-                            return render_template('submit_json.html', tags= tags, price = price,
-                                                   date=date, description=description, expenses_id=expenses_id,
-                                                   category_id=category_id)
+                            all_data.append({
+                                'tags': tags,
+                                'price': price,
+                                'date': date,
+                                'description': description,
+                                'category_id': category_id,
+                                'expenses_id': expenses_id
+                            })
 
                         else:
                             flash('There is no category with that name.')
@@ -264,6 +275,7 @@ def import_json():
                         return redirect('import_json.html')
             except ValueError as e:
                 flash(f"Error importing data {e}")
+            return render_template('submit_json.html', all_data=all_data)
         else:
             flash('Invalid file format. Please import JSON file!')
         return redirect('/')
@@ -274,38 +286,36 @@ def import_json():
 @app.route('/submit_json', methods=['POST'])
 def submit_json():
     if request.method == 'POST':
-        price = request.form['price']
-        description = request.form['description']
-        date = request.form['date']
-        category_id = request.form['category']
-        tag = request.form['tag']
-        expenses_id = request.form.get('expenses_id')
-        print(tag)
+        for all_data in request.form.getlist('transaction_data'):
+            data = json.loads(all_data)
+            price = data['price']
+            description = data['description']
+            date = data['date']
+            category_id = data['category_id']
+            expenses_id = data['expenses_id']
 
-        date_time = None
 
-        for tag in request.form.getlist('tag'):
-            if tag:
-                selected_tag = tag
-                break
+            date_time = None
 
-        print(selected_tag)
-        try:
-            date_time = datetime.strptime(date, "%d.%m.%Y")
-        except ValueError:
-            flash('Invalid input. Please put the correct form (dd.mm.yyyy)', 'error')
+            selected_tag = request.form.get(f'tag_{expenses_id}')
 
-        try:
-            price = float(price)
-            if price <= 0:
-                raise ValueError('Invalid input.')
-        except ValueError:
-            flash('Error. Input has to be number and greater than zero!', 'error')
-            return redirect('/import_json')
-        if date_time is not None:
-            cur.execute('INSERT INTO EXPENSES (EXPENSES_ID, CATEGORY_ID, PRICE, DESCRIPTION, TAG, TRANSACTION_DATE) VALUES (%s, %s, %s, %s, %s, %s)',
-                        (expenses_id, category_id, price, description, selected_tag, date_time))
-            db_conn.commit()
+
+            try:
+                date_time = datetime.strptime(date, "%d.%m.%Y")
+            except ValueError:
+                flash('Invalid input. Please put the correct form (dd.mm.yyyy)', 'error')
+
+            try:
+                price = float(price)
+                if price <= 0:
+                    raise ValueError('Invalid input.')
+            except ValueError:
+                flash('Error. Input has to be number and greater than zero!', 'error')
+                return redirect('/import_json')
+            if date_time is not None:
+                cur.execute('INSERT INTO EXPENSES (EXPENSES_ID, CATEGORY_ID, PRICE, DESCRIPTION, TAG, TRANSACTION_DATE) VALUES (%s, %s, %s, %s, %s, %s)',
+                            (expenses_id, category_id, price, description, selected_tag, date_time))
+                db_conn.commit()
             flash('Transaction successfully added to database!', 'success')
         return redirect('/import_json')
 

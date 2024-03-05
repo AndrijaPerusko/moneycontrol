@@ -3,14 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Choose Tag</title>
+    <title>Submit JSON Data</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
             background-color: #ccd8e5;
         }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+        }
 
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin: 0 -10px;
+        }
+
+        .card {
+            width: calc(33.3% - 20px);
+            margin-bottom: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .card h2 {
+            margin-top: 0;
+        }
+
+        .tags-list {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 10px;
+        }
+
+        .tags-list li {
+            margin-bottom: 5px;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .submit-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        input[type="submit"] {
+            margin-top: 10px;
+            margin-bottom: 20px;
+            width: auto;
+            padding: 10px 20px;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
         .back-button {
             position: absolute;
             top: 20px;
@@ -39,61 +102,38 @@
             background-color: #45a049;
             cursor: pointer;
         }
-        .submit-button{
-            margin: 10px auto;
-            background-color: #4caf50;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-        }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            margin-top:20px;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-
-        form {
-            margin-bottom: 20px;
-        }
-        ul {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-        }
     </style>
 </head>
 <body>
-<button class="back-button" onclick="window.location.href='/import_json';">Back</button>
-<button class="cancel-button" onclick="window.location.href='/';">Cancel</button>
-
+    <button class="back-button" onclick="window.location.href='/import_json';">Back</button>
+    <button class="cancel-button" onclick="window.location.href='/';">Cancel</button>
     <div class="container">
-        <h1>Choose Tag</h1>
-        <form method="POST" action="/submit_json" enctype="multipart/form-data">
-            <ul>
-                {% for tag in tags %}
-                <li>
-                    <input type="radio" id="{{ tag }}" name="tag" value="{{ tag }}" required>
-                    <label for="{{ tag }}">{{ tag }}</label>
-                </li>
+        <h1>Submit JSON Data</h1>
+        <form method="POST" action="/submit_json">
+            <div class="card-container">
+                {% for all_data in all_data %}
+                    {% set data = all_data | tojson | safe %}
+                    <input type="hidden" name="transaction_data" value='{{ data }}'>
+                    <div class="card">
+                        <h2>Transaction # {{ all_data.expenses_id }}</h2>
+                        <p><strong>Price:</strong> {{ all_data.price }}</p>
+                        <p><strong>Description:</strong> {{ all_data.description }}</p>
+                        <p><strong>Date:</strong> {{ all_data.date }}</p>
+                        <p><strong>Category ID:</strong> {{ all_data.category_id }}</p>
+                        <p><strong>Expenses ID:</strong> {{ all_data.expenses_id }}</p>
+                        <h3>Choose Tag</h3>
+                        <ul class="tags-list">
+                            {% for tag in all_data.tags %}
+                                <li>
+                                    <input type="radio" id="{{ tag }}" name="tag_{{ all_data.expenses_id }}" value="{{ tag }}">
+                                    <label for="{{ tag }}">{{ tag }}</label>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
                 {% endfor %}
-            </ul>
-            <input type="hidden" name="price" value="{{ price }}">
-            <input type="hidden" name="description" value="{{ description }}">
-            <input type="hidden" name="date" value="{{ date }}">
-            <input type="hidden" name="category" value="{{ category_id }}">
-            <input type="hidden" name="tag" value="{{ tag }}">
-            <input type="hidden" name="expenses_id" value="{{ expenses_id }}">
-            <input type="submit" name="submit_expenses" value="Submit" class="submit-button">
+            </div>
+            <input type="submit" name="submit_expenses" value="Submit">
         </form>
     </div>
 </body>
