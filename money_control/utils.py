@@ -1,35 +1,49 @@
 from money_control import cur
 import string
+import re
 
 def get_categories():
     cur.execute('SELECT * FROM category')
     return cur.fetchall()
 
 def load_json():
-    cur.execute('''SELECT
-                C.NAME,
-                E.EXPENSES_ID,
-                E.TAG,
-                E.PRICE,
-                E.TRANSACTION_DATE
-                FROM CATEGORY C
-                JOIN EXPENSES E ON C.ID = E.CATEGORY_ID
-                ORDER BY C.NAME''')
+    cur.execute('''
+        SELECT
+            E.Expenses_id,
+            E.TRANSACTION_DATE,
+            E.DESCRIPTION,
+            E.PRICE,
+            C.Name AS Category,
+            array_agg(T.Name) AS Tags
+        FROM
+            Expenses E
+        LEFT JOIN
+            Category C ON E.CATEGORY_ID = C.ID
+        LEFT JOIN
+            Expense_Tag ET ON E.Expenses_id = ET.Expenses_id
+        LEFT JOIN
+            Tag T ON ET.Tag_id = T.ID
+        GROUP BY
+            E.Expenses_id, E.TRANSACTION_DATE, E.DESCRIPTION, E.PRICE, C.Name
+        ORDER BY
+            E.expenses_id
+    ''')
     exp_data = cur.fetchall()
 
     results = [{
-        'category': i[0],
-        'transaction #': i[1],
+        'category': i[4],
+        'transaction #': i[0],
+        'date': i[1].strftime('%d.%m.%Y'),
         'description': i[2],
         'price': float(i[3]),
-        'date': i[4].strftime('%d.%m.%Y')} for i in exp_data]
+        'tags': i[5] if i[5] else []
+    } for i in exp_data]
 
     return results
-
 def check_expenses_id():
-    cur.execute('''SELECT COUNT(EXPENSES_ID) FROM EXPENSES''')
-    res = cur.fetchall()[0]
-    return res[0] + 1 if res else 1
+    cur.execute('''SELECT MAX(EXPENSES_ID) FROM EXPENSES''')
+    last_expenses_id = cur.fetchone()[0]
+    return last_expenses_id + 1 if last_expenses_id is not None else 1
 
 def category_id_name(category_name):
     cur.execute("SELECT ID FROM CATEGORY WHERE name = %s", (category_name,))
@@ -46,16 +60,23 @@ def suggested_tags(description):
         words = description.split()
     else:
         words = description
-    # words = description.split() if isinstance(description, str) else description
 
-    filtered_words = []
+    unique_tags = set()
     for word in words:
         word = word.strip(string.punctuation)
         if word and word.lower() not in stop_words:
-            filtered_words.append(word)
+            unique_tags.add(word.lower())
 
-    # filtered_words = [word.strip(string.punctuation).lower() for word in words
-    #                   if word.strip(string.punctuation).lower() not in stop_words
-    #                   and word.strip(string.punctuation) ]
+    return list(unique_tags)
 
-    return filtered_words
+
+def validate_custom_tags(custom_tags):
+    pattern = re.compile(r'^[a-zA-Z0-9,\s]+$')
+    for tag in custom_tags:
+        if not pattern.match(tag):
+            return False
+    return True
+
+def is_valid_custom_tag(tag):
+    pattern = r'^[a-zA-Z0-9,\s]+$'
+    return bool(re.match(pattern, tag))

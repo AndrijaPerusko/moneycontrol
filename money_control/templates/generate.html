@@ -2,8 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
-</head>
+    <title>Your Transactions</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -14,25 +13,27 @@
         h1 {
             text-align: center;
         }
-
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
         table {
             margin-top: 20px;
             border-collapse: collapse;
-            width: 100%;
+            width: 120%;
         }
-
         th, td {
             padding: 8px;
             text-align: left;
         }
-
         th {
             background-color: #f2f2f2;
         }
         .back-button {
             position: absolute;
             top: 20px;
-            left: 20px;
+            margin-left: 230px;
             background-color: #4caf50;
             color: white;
             border: none;
@@ -44,31 +45,40 @@
             cursor: pointer;
         }
     </style>
+</head>
 <body>
-    <h1>Your Transactions</h1>
+    {% include 'sidebar.html' %}
     <button class="back-button" onclick="window.location.href='/';">Back</button>
-    {% if results %}
-        <h2>Results</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Category</th>
-                    <th>Price</th>
-                    <th>Description</th>
-                    <th>Transaction Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for result in results %}
+     <div class="container">
+        <div>
+            <h1>Your Transactions</h1>
+            {% if results %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Description</th>
+                        <th>Transaction Date</th>
+                        <th>Tags</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result in results %}
                     <tr>
                         <td>{{ result.category }}</td>
                         <td>{{ result.price }}</td>
                         <td>{{ result.description }}</td>
                         <td>{{ result.date }}</td>
+                        <td>
+                            [{{ result.tag | join(', ') }}]
+                        </td>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+        </div>
+    </div>
 </body>
 </html>

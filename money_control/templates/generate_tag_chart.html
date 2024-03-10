@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate Tag Chart</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #ccd8e5;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        .center {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .chart-container {
+            width: 80%;
+            margin: 0 auto;
+            text-align: center;
+        }
+        img.chart-img {
+            max-width: 100%;
+        }
+        .alert {
+            background-color: #ffffcc;
+            border: 1px solid #ffeb3b;
+            color: #333;
+            padding: 10px;
+            margin: 0 auto;
+            width: 400px;
+            text-align: center;
+        }
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            margin-left: 230px;
+        }
+        .back-button:hover {
+            background-color: #45a049;
+            cursor: pointer;
+        }
+        button[type="submit"] {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            margin-left: 30px;
+        }
+        button[type="submit"]:hover {
+            background-color: #45a049;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <button class="back-button" onclick="window.location.href='/generate_chart';">Back</button>
+    <div class="center">
+        <h1>Generate Tag Chart</h1>
+        <form method="POST" action="/generate_tag_chart">
+            <label for="category">Select Category:</label>
+            <select name="category" id="category">
+                {% for category in categories %}
+                <option value="{{ category[0] }}">{{ category[1] }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit">Generate Chart</button>
+        </form>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="alert">
+                        {% for message in messages %}
+                            <span>{{ message }}</span>
+                        {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <div class="chart-container">
+            {% if chart_img %}
+                <img src="data:image/jpeg;base64,{{ chart_img }}" alt="Tag Chart" class="chart-img">
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

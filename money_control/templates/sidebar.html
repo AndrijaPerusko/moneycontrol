@@ -1,0 +1,45 @@
+<!-- sidebar.html -->
+<style>
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 200px;
+        background-color: #333;
+        padding: 20px;
+    }
+
+    .sidebar h2 {
+        margin-bottom: 20px;
+        color: #333;
+    }
+
+    .sidebar-buttons a {
+        display: block;
+        margin-bottom: 10px;
+        padding: 10px;
+        background-color: #459aa6;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 4px;
+        text-align: center;
+    }
+
+    .sidebar-buttons a:hover {
+        background-color: #3c8c98;
+    }
+</style>
+
+<div class="sidebar">
+    <div class="sidebar-buttons">
+        <a href="/">Home</a>
+        <a href="/import_json">Import expenses</a>
+        <a href="/generate_chart">Category chart</a>
+        <a href="/date_filter">Date filter</a>
+        <a href="/price_sort">Price filter</a>
+        <a href="/category">Category expenses</a>
+        <a href="/generate">Show expenses</a>
+        <a href="/extract_expenses">Download expenses</a>
+    </div>
+</div>

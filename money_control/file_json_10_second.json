@@ -1,0 +1,72 @@
+[
+    {
+      "category": "Other",
+      "description": "Iznajmljivanje bicikla",
+      "price": 950,
+      "date": "16.03.2024",
+      "expenses_id":""
+    },
+   {
+      "category": "Bills",
+      "description": "MTS Internet",
+      "price": 100,
+      "date": "02.03.2024",
+      "expenses_id":""
+    },
+     {
+      "category": "Bars and restaurants",
+      "description": "Restoran Bela Reka",
+      "price": 3000,
+      "date": "15.04.2024",
+      "expenses_id":""
+    },
+     {
+      "category": "Home repairs",
+      "description": "Vodoinstalater",
+      "price": 2000,
+      "date": "11.02.2023",
+      "expenses_id":""
+    },
+      {
+      "category": "Bills",
+      "description": "Racun za odrzavanje zgrade",
+      "price": 600,
+      "date": "01.04.2024",
+      "expenses_id":""
+    },
+     {
+      "category": "Food order",
+      "description": "Picerija Grazzia",
+      "price": 1620,
+      "date": "15.03.2024",
+      "expenses_id":""
+    },
+     {
+      "category": "Presents",
+      "description": "Cvecara Jurija Gagarina",
+      "price": 2450,
+      "date": "15.04.2024",
+      "expenses_id":""
+    },
+     {
+      "category": "Other",
+      "description": "Gigatron",
+      "price": 4000,
+      "date": "16.02.2024",
+      "expenses_id":""
+    },
+     {
+      "category": "Groceries",
+      "description": "Immo Centar - Maxi",
+      "price": 1150,
+      "date": "02.04.2024",
+      "expenses_id":""
+    },
+     {
+      "category": "Household",
+      "description": "EKO Sijalice za lampu",
+      "price": 850,
+      "date": "15.02.2024",
+      "expenses_id":""
+    }
+]

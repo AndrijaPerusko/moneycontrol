@@ -55,57 +55,52 @@
             background-color: #45a049;
         }
 
-        #jsonResult {
-            max-width: 400px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-        }
 
         table {
-            width: 100%;
+            position: absolute;
+            width: calc(100% - 420px);
             border-collapse: collapse;
+            margin-left: 300px;
+
         }
 
         th, td {
             padding: 8px;
             border-bottom: 1px solid #ddd;
+            text-align: center;
         }
 
         th {
             background-color: #f2f2f2;
         }
 
-        a {
-            display: block;
-            margin-top: 20px;
-            text-align: center;
-            color: #088F8F;
-            text-decoration: none;
-        }
+<!--        a {-->
+<!--            display: block;-->
+<!--            margin-top: 20px;-->
+<!--            text-align: center;-->
+<!--            color: #088F8F;-->
+<!--            text-decoration: none;-->
+<!--        }-->
 
-        a:hover {
-            color: #076d6d;
-        }
+<!--        a:hover {-->
+<!--            color: #076d6d;-->
+<!--        }-->
 
-        .error-message {
-            max-width: 400px;
-            color: #f00;
-            background-color: #ffe6e6;
+        .alert.error {
+            background-color: #ffcccc;
+            border: 1px solid #ffcccc;
+            color: #333;
             padding: 10px;
-            border-radius: 4px;
-            margin-top: 10px;
-            list-style-type: none;
+            margin: 0 auto;
+            width: 425px;
+            text-align: center;
+            border-radius:8px;
         }
 
-        .error-message li {
-            margin-bottom: 5px;
-        }
         .back-button {
             position: absolute;
             top: 20px;
-            left: 20px;
+            margin-left: 250px;
             background-color: #4caf50;
             color: white;
             border: none;
@@ -119,6 +114,7 @@
     </style>
 </head>
 <body>
+    {% include 'sidebar.html' %}
     <button class="back-button" onclick="window.location.href='/';">Back</button>
     <h1>Category Expenses</h1>
     <form action="/category" method="post">
@@ -129,39 +125,42 @@
                 <option value="{{ category_id }}">{{ category_name }}</option>
             {% endfor %}
         </select>
-        <button type="submit">Show JSON</button>
+        <button type="submit">Show results</button>
     </form>
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <div class="error-message" style="text-align: center; margin: 0 auto;">
-                {% for message in messages %}
-                    <li>{{ message }}</li>
+    {% if final_result %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Price</th>
+                    <th>Description</th>
+                    <th>Transaction Date</th>
+                    <th>Tags</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for result in final_result %}
+                    <tr>
+                        <td>{{ result.price }}</td>
+                        <td>{{ result.description }}</td>
+                        <td>{{ result.transaction_date }}</td>
+                        <td>
+                            {% if result.tag %}
+                                [{{ result.tag | join(', ') }}]
+                            {% else %}
+                                No tags
+                            {% endif %}
+                        </td>
+                    </tr>
                 {% endfor %}
-            </div>
+            </tbody>
+        </table>
+    {% endif %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert {{ category }}">{{ message }}</div>
+            {% endfor %}
         {% endif %}
     {% endwith %}
-    <div id="jsonResult">
-        {% if final_result %}
-            <h2>Expenses:</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Price</th>
-                        <th>Description</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for expense in final_result %}
-                        <tr>
-                            <td>{{ expense.price }}</td>
-                            <td>{{ expense.description }}</td>
-                            <td>{{ expense.transaction_date }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% endif %}
-    </div>
 </body>
 </html>

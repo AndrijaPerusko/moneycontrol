@@ -1,197 +1,209 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Price Filter</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #ccd8e5;
-        }
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Price Filter</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 20px;
+                background-color: #ccd8e5;
+            }
 
-        h1 {
-            text-align: center;
-        }
+            h1 {
+                text-align: center;
+            }
 
-        form {
-            max-width: 400px;
-            margin: 0 auto;
-            margin-top:20px;
-            margin-bottom: 10px;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
+            form {
+                max-width: 400px;
+                margin: 0 auto;
+                margin-top:20px;
+                margin-bottom: 10px;
+                background-color: #fff;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
 
-        label {
-            display: block;
-            margin-bottom: 5px;
-        }
+            label {
+                display: block;
+                margin-bottom: 5px;
+            }
 
-        input[type="text"] {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            box-sizing: border-box;
-        }
+            input[type="text"] {
+                width: 100%;
+                padding: 8px;
+                margin-bottom: 10px;
+                border-radius: 5px;
+                border: 1px solid #ccc;
+                box-sizing: border-box;
+            }
 
-        button[type="submit"] {
-            width: 100%;
-            padding: 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
+            button[type="submit"] {
+                width: 100%;
+                padding: 10px;
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+            }
 
-        button[type="submit"]:hover {
-            background-color: #45a049;
-        }
+            button[type="submit"]:hover {
+                background-color: #45a049;
+            }
 
-        button[type="button"] {
-            width: 20%;
-            padding: 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            float: right;
-            margin-top: -6px;
-        }
+            button[type="button"] {
+                width: 20%;
+                padding: 10px;
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                float: right;
+                margin-top: -6px;
+            }
 
-        button[type="button"]:hover {
-            background-color: #45a049;
-        }
+            button[type="button"]:hover {
+                background-color: #45a049;
+            }
 
-        table {
-            border-collapse: collapse;
-            width: 80%;
-            margin: 20px auto;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
+            table {
+                border-collapse: collapse;
+                width: 70%;
+                margin: 20px auto;
+                background-color: #fff;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
 
-        th, td {
-            padding: 8px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
+            th, td {
+                padding: 8px;
+                text-align: left;
+                border-bottom: 1px solid #ddd;
+            }
 
-        tr:hover {
-            background-color: #f2f2f2;
-        }
-        .back-button {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background-color: #4caf50;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-        }
-        .back-button:hover {
-            background-color: #45a049;
-            cursor: pointer;
-        }
-        .error-message li {
-            margin-bottom: 5px;
-        }
-        .error-message {
-            max-width: 420px;
-            color: #f00;
-            background-color: #ffe6e6;
-            padding: 10px;
-            border-radius: 4px;
-            margin-top: 10px;
-            list-style-type: none;
-        }
-    </style>
-</head>
-<body>
-    <button class="back-button" onclick="window.location.href='/';">Back</button>
-    <form method="POST">
-        <label for="start_price">Start Price:</label>
-        <input type="text" id="start_price" name="start_price">
-        <label for="max_price">Max Price:</label>
-        <input type="text" id="max_price" name="max_price">
-        <button type="submit">Submit</button>
-    </form>
+            tr:hover {
+                background-color: #f2f2f2;
+            }
+            .back-button {
+                position: absolute;
+                top: 20px;
+                margin-left: 230px;
+                background-color: #4caf50;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 4px;
+            }
+            .back-button:hover {
+                background-color: #45a049;
+                cursor: pointer;
+            }
+            .alert.neutral {
+                background-color: #ffffcc;
+                border: 1px solid #ffeb3b;
+                color: #333;
+                padding: 10px;
+                margin: 0 auto;
+                width: 425px;
+                text-align: center;
+                border-radius:8px;
 
-    <form id="sortForm">
-        <input type="radio" name="sort_order" value="asc" id="ascRadio"> Ascending
-        <input type="radio" name="sort_order" value="desc" id="descRadio"> Descending
-        <button type="button" onclick="sortTable()">Sort</button>
-    </form>
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <div class="error-message" style="text-align: center; margin: 0 auto;">
-                {% for message in messages %}
-                    <li>{{ message }}</li>
+            }
+            .alert.error {
+                background-color: #ffcccc;
+                border: 1px solid #ff3333;
+                color: #333;
+                padding: 10px;
+                margin: 0 auto;
+                width: 425px;
+                text-align: center;
+                border-radius:8px;
+            }
+        </style>
+    </head>
+    <body>
+        {% include 'sidebar.html' %}
+        <button class="back-button" onclick="window.location.href='/';">Back</button>
+        <form method="POST">
+            <label for="start_price">Start Price:</label>
+            <input type="text" id="start_price" name="start_price">
+            <label for="max_price">Max Price:</label>
+            <input type="text" id="max_price" name="max_price">
+            <button type="submit">Submit</button>
+        </form>
+
+        <form id="sortForm">
+            <input type="radio" name="sort_order" value="asc" id="ascRadio"> Ascending
+            <input type="radio" name="sort_order" value="desc" id="descRadio"> Descending
+            <button type="button" onclick="sortTable()">Sort</button>
+        </form>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert {{ category }}">{{ message }}</div>
                 {% endfor %}
-            </div>
-        {% endif %}
-    {% endwith %}
-    <table id="priceTable">
-        <thead>
-            <tr>
-                <th>Category</th>
-                <th>Price</th>
-                <th>Description</th>
-                <th>Date</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for result in results %}
+            {% endif %}
+        {% endwith %}
+        <table id="priceTable">
+            <thead>
                 <tr>
-                    <td>{{ result.category }}</td>
-                    <td>{{ result.price }}</td>
-                    <td>{{ result.description }}</td>
-                    <td>{{ result.date }}</td>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Description</th>
+                    <th>Date</th>
+                    <th>Tags</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for result in results %}
+                    <tr>
+                        <td>{{ result.category }}</td>
+                        <td>{{ result.price }}</td>
+                        <td>{{ result.description }}</td>
+                        <td>{{ result.date }}</td>
+                        <td>
+                            [{{ result.tags | join(', ') }}]
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
-    <script>
-        function sortTable() {
-            var table, rows, switching, i, x, y, shouldSwitch;
-            table = document.getElementById("priceTable");
-            switching = true;
-            while (switching) {
-                switching = false;
-                rows = table.rows;
-                for (i = 1; i < (rows.length - 1); i++) {
-                    shouldSwitch = false;
-                    x = rows[i].getElementsByTagName("TD")[1].innerHTML.toLowerCase();
-                    y = rows[i + 1].getElementsByTagName("TD")[1].innerHTML.toLowerCase();
-                    var sortOrder = document.querySelector('input[name="sort_order"]:checked').value;
-                    if (sortOrder === "asc") {
-                        if (parseFloat(x) > parseFloat(y)) {
-                            shouldSwitch= true;
-                            break;
-                        }
-                    } else {
-                        if (parseFloat(x) < parseFloat(y)) {
-                            shouldSwitch= true;
-                            break;
+        <script>
+            function sortTable() {
+                var table, rows, switching, i, x, y, shouldSwitch;
+                table = document.getElementById("priceTable");
+                switching = true;
+                while (switching) {
+                    switching = false;
+                    rows = table.rows;
+                    for (i = 1; i < (rows.length - 1); i++) {
+                        shouldSwitch = false;
+                        x = rows[i].getElementsByTagName("TD")[1].innerHTML.toLowerCase();
+                        y = rows[i + 1].getElementsByTagName("TD")[1].innerHTML.toLowerCase();
+                        var sortOrder = document.querySelector('input[name="sort_order"]:checked').value;
+                        if (sortOrder === "asc") {
+                            if (parseFloat(x) > parseFloat(y)) {
+                                shouldSwitch= true;
+                                break;
+                            }
+                        } else {
+                            if (parseFloat(x) < parseFloat(y)) {
+                                shouldSwitch= true;
+                                break;
+                            }
                         }
                     }
-                }
-                if (shouldSwitch) {
-                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-                    switching = true;
+                    if (shouldSwitch) {
+                        rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                        switching = true;
+                    }
                 }
             }
-        }
-    </script>
-</body>
-</html>
+        </script>
+    </body>
+    </html>

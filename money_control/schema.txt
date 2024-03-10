@@ -1,0 +1,47 @@
+CREATE TABLE Category (
+    ID SERIAL PRIMARY KEY,
+    Name VARCHAR(255) UNIQUE NOT NULL
+);
+
+INSERT INTO Category (Name)
+VALUES
+	('Bars and restaurants'),
+	('Bills'),
+	('Car and transport'),
+	('Cosmetic services'),
+	('Food order'),
+	('Groceries'),
+	('Home repairs'),
+	('Household'),
+	('Housekeeping'),
+	('Medical'),
+	('Pets'),
+	('Presents'),
+	('Unplanned expenses'),
+	('Vacation'),
+	('Wardrobe'),
+	('Other');
+
+-- Kreiranje tabele Tag
+CREATE TABLE Tag (
+    ID SERIAL PRIMARY KEY,
+    Name VARCHAR(255) UNIQUE NOT NULL
+);
+
+CREATE TABLE Expenses (
+    Expenses_id SERIAL PRIMARY KEY,
+    TRANSACTION_DATE TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	DESCRIPTION VARCHAR(255) NOT NULL,
+    PRICE DECIMAL(10,2) NOT NULL,
+    CATEGORY_ID INT,
+    FOREIGN KEY (CATEGORY_ID) REFERENCES Category(ID)
+);
+
+-- Kreiranje tabele Expense_Tag za vezu n:m između Expenses i Tag tabela
+CREATE TABLE Expense_Tag (
+    Expenses_id INT,
+    Tag_id INT,
+    FOREIGN KEY (Expenses_id) REFERENCES Expenses(Expenses_id),
+    FOREIGN KEY (Tag_id) REFERENCES Tag(ID),
+    PRIMARY KEY (Expenses_id, Tag_id)
+);

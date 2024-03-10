@@ -59,8 +59,10 @@
 
         table {
             margin-top: 20px;
+            margin-right: auto;
+            margin-left: auto;
             border-collapse: collapse;
-            width: 100%;
+            width: 60%;
         }
 
         th, td {
@@ -74,7 +76,7 @@
         .back-button {
             position: absolute;
             top: 20px;
-            left: 20px;
+            margin-left: 230px;
             background-color: #4caf50;
             color: white;
             border: none;
@@ -85,21 +87,35 @@
             background-color: #45a049;
             cursor: pointer;
         }
-        .error-message li {
-            margin-bottom: 5px;
-        }
-        .error-message {
-            max-width: 420px;
-            color: #f00;
-            background-color: #ffe6e6;
+        .alert.neutral {
+            background-color: #ffffcc;
+            border: 1px solid #ffeb3b;
+            color: #333;
             padding: 10px;
-            border-radius: 4px;
-            margin-top: 10px;
-            list-style-type: none;
+            margin: 0 auto;
+            width: 425px;
+            text-align: center;
+            border-radius:8px;
+
+        }
+        .alert.error {
+            background-color: #ffcccc;
+            border: 1px solid #ff3333;
+            color: #333;
+            padding: 10px;
+            margin: 0 auto;
+            width: 425px;
+            text-align: center;
+            border-radius:8px;
+        }
+        h2 {
+            text-align: center;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
+    {% include 'sidebar.html' %}
     <button class="back-button" onclick="window.location.href='/';">Back</button>
     <h1>Date Filter</h1>
     <form action="/date_filter" method="POST">
@@ -112,13 +128,11 @@
         <input type="submit" value="Filter">
     </form>
 
-    {% with messages = get_flashed_messages() %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-            <div class="error-message" style="text-align: center; margin: 0 auto;">
-                {% for message in messages %}
-                    <li>{{ message }}</li>
-                {% endfor %}
-            </div>
+            {% for category, message in messages %}
+                <div class="alert {{ category }}">{{ message }}</div>
+            {% endfor %}
         {% endif %}
     {% endwith %}
 
@@ -131,6 +145,7 @@
                     <th>Price</th>
                     <th>Description</th>
                     <th>Date</th>
+                    <th>Tags</th>
                 </tr>
             </thead>
             <tbody>
@@ -140,6 +155,9 @@
                         <td>{{ result.price }}</td>
                         <td>{{ result.description }}</td>
                         <td>{{ result.date }}</td>
+                        <td>
+                            [{{ result.tags | join(', ') }}]
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>

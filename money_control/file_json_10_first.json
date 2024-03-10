@@ -1,0 +1,71 @@
+[
+    {
+      "category": "Wardrobe",
+      "description": "TC Usce",
+      "price": 9000,
+      "date": "18.03.2024",
+      "expenses_id":""
+    },
+   {
+      "category": "Other",
+      "description": "TC Piramida Kanibal",
+      "price": 1600,
+      "date": "22.03.2024",
+      "expenses_id":""
+    },
+     {
+      "category": "Vacation",
+      "description": "Letovanje na Adi Bojani",
+      "price": 60000,
+      "date": "01.09.2023",
+      "expenses_id":""
+    },
+     {
+      "category": "Car and transport",
+      "description": "Popravka Zokijevog automobila",
+      "price": 14000,
+      "date": "04.09.2023",
+      "expenses_id":""
+    },   {
+      "category": "Bars and restaurants",
+      "description": "Helga Pub",
+      "price": 1000,
+      "date": "08.04.2024",
+      "expenses_id":""
+    },
+     {
+      "category": "Groceries",
+      "description": "Maxi",
+      "price": 650,
+      "date": "08.04.2024",
+      "expenses_id":""
+    },
+     {
+      "category": "Other",
+      "description": "Opticat TC Piramida",
+      "price": 13000,
+      "date": "28.02.2024",
+      "expenses_id":""
+    },
+     {
+      "category": "Housekeeping",
+      "description": "Natasa spremanje",
+      "price": 2500,
+      "date": "11.04.2024",
+      "expenses_id":""
+    },
+     {
+      "category": "Unplanned expenses",
+      "description": "Pregled kod opticara",
+      "price": 500,
+      "date": "26.02.2024",
+      "expenses_id":""
+    },
+     {
+      "category": "Bills",
+      "description": "Racun za Yettel",
+      "price": 1800,
+      "date": "09.03.2024",
+      "expenses_id":""
+    }
+]

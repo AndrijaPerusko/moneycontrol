@@ -67,17 +67,31 @@
             margin: 0;
         }
 
-        .success-message {
-            color: #4caf50;
-        }
+        .alert.success {
+            background-color: #5cb85c;
+            border: 1px solid #5cb85c;
+            color: #333;
+            padding: 10px;
+            margin: 0 auto;
+            width: 620px;
+            text-align: center;
+            border-radius:8px;
 
-        .error-message {
-            color: #f00;
+        }
+        .alert.error {
+            background-color: #ffcccc;
+            border: 1px solid #ffcccc;
+            color: #333;
+            padding: 10px;
+            margin: 0 auto;
+            width: 620px;
+            text-align: center;
+            border-radius:8px;
         }
         .back-button {
             position: absolute;
             top: 20px;
-            left: 20px;
+            margin-left: 230px;
             background-color: #4caf50;
             color: white;
             border: none;
@@ -91,27 +105,24 @@
     </style>
 </head>
 <body>
-<button class="back-button" onclick="window.location.href='/';">Back</button>
+    {% include 'sidebar.html' %}
+    <button class="back-button" onclick="window.location.href='/';">Back</button>
 
-<div class="container">
-    <h1>Import File</h1>
-    <form method="POST" action="/import_json" enctype="multipart/form-data">
-        <label for="file">Select JSON file:</label>
-        <input type="file" id="file" name="file" accept=".json" required>
-        <br>
-        <input type="submit" value="Next">
-    </form>
-
-
-    {% with messages = get_flashed_messages() %}
+    <div class="container">
+        <h1>Import File</h1>
+        <form method="POST" action="/import_json" enctype="multipart/form-data">
+            <label for="file">Select JSON file:</label>
+            <input type="file" id="file" name="file" accept=".json" required>
+            <br>
+            <input type="submit" value="Next">
+        </form>
+    </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-        <div class="success-message">
-            {% for message in messages %}
-                {{ message }}
+            {% for category, message in messages %}
+                <div class="alert {{ category }}">{{ message }}</div>
             {% endfor %}
-        </div>
-    {% endif %}
+        {% endif %}
     {% endwith %}
-</div>
 </body>
 </html>

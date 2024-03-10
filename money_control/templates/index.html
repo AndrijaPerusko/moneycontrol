@@ -14,13 +14,13 @@
         }
 
         .container {
-            max-width: 400px;
-            margin: 20px auto;
+            max-width: 600px;
+            margin: 0 auto;
+            margin-top:20px;
             padding: 20px;
             background-color: #fff;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin-left: 20px;
         }
 
         h1 {
@@ -74,109 +74,41 @@
             margin: 0;
         }
 
-        .success-message {
-            color: #4caf50;
-        }
-
-        .error-message {
-            color: #f00;
-        }
-        .button-container {
-            padding: 20px;
-            text-align: left;
-            margin-top: 5px;
-        }
-
-        .button-container a {
-            display: inline-block;
-            width: 175px;
-            padding: 10px 20px;
-            background-color: #459aa6;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 4px;
-            margin-right: 10px;
-            text-align: center;
-            line-height: 1;
-        }
-
-        .button-container a:last-child {
-            margin-right: 0;
-        }
-
-        .button-container a:hover {
-            background-color: #03c8c98;
-        }
-
-        .new-button-container a {
-            margin: auto 20px;
-            display: inline-block;
-            width: 405px;
-            padding: 10px 20px;
-            background-color: #459aa6;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 4px;
-            margin-right: 10px;
-            text-align: center;
-            line-height: 1;
-        }
-
-        .button-container a:hover,
-        .new-button-container a:hover {
-            background-color: #3c8c98;
-        }
-
-        .sidebar {
-            position: fixed;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            width: 200px;
-            background-color: #ccd8e5;
-        }
-
-
-        .sidebar-buttons {
-            padding: 20px;
-        }
-
-        .sidebar-buttons a {
-            display: block;
-            margin-bottom: 10px;
+        .alert.success {
+            background-color: #5cb85c;
+            border: 1px solid #5cb85c;
+            color: #333;
             padding: 10px;
-            background-color: #459aa6;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 4px;
+            margin: 0 auto;
+            margin-top: 5px;
+            width: 625px;
             text-align: center;
-        }
+            border-radius:8px;
 
-        .sidebar-buttons a:hover {
-            background-color: #3c8c98;
+        }
+        .alert.error {
+            background-color: #ffcccc;
+            border: 1px solid #ffcccc;
+            color: #333;
+            padding: 10px;
+            margin: 0 auto;
+            width: 625px;
+            text-align: center;
+            border-radius:8px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Add Expenses</h1>
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <div class="error-message">
-                    {% for message in messages %}
-                        {{ message }}
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
 
         <form method="POST" action="/">
             <label for="price">Price:</label>
-            <input type="text" id="price" name="price" required>
+            <input type="text" id="price" name="price">
             <label for="description">Description:</label>
-            <input type="text" id="description" name="description" required>
+            <input type="text" id="description" name="description">
             <label for="date">Date (dd.mm.yyyy):</label>
-            <input type="text" id="date" name="date" required>
+            <input type="text" id="date" name="date">
             <label for="category">Category:</label>
             <select id="category" name="category">
                 {% for category in categories %}
@@ -190,33 +122,32 @@
             <h2>Choose Tag</h2>
             <form method="POST" action="/">
                 {% for tag in tags %}
-                    <input type="radio" id="{{ tag }}" name="tag" value="{{ tag }}" required>
-                    <label for="{{ tag }}">{{ tag }}</label><br>
+                    <input type="checkbox" id="{{ tag }}" name="tag" value="{{ tag }}">
+                    <label for="{{ tag }}">{{ tag }}</label>
                 {% endfor %}
                 <input type="hidden" name="price" value="{{ price }}">
                 <input type="hidden" name="description" value="{{ description }}">
                 <input type="hidden" name="date" value="{{ date }}">
                 <input type="hidden" name="category" value="{{ category_id }}">
                 <br>
+                <label for="custom_tags">Custom Tags:</label>
+                <input type="text" id="custom_tags" name="custom_tags" placeholder="Enter custom tags">
+
                 <input type="submit" name="submit_expenses" value="Submit">
             </form>
         {% endif %}
     </div>
-    <div class="button-container">
-        <a href="/generate">Show expenses</a>
-        <a href="/extract_expenses">Download expenses</a>
+    <div class="errors">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
     </div>
-    <div class="new-button-container">
-        <a href="/import_json">Import expenses</a>
-    </div>
-    <div class="sidebar">
-        <div class="sidebar-buttons">
-            <a href="/generate_chart">Category chart</a>
-            <a href="/date_filter">Date filter</a>
-            <a href="/price_sort">Price filter</a>
-            <a href="/category">Category expenses</a>
-        </div>
-    </div>
+
+    {% include 'sidebar.html' %}
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
