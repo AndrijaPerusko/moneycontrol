@@ -1,23 +1,23 @@
 [
     {
       "category": "Food order",
-      "description": "Diwalli",
-      "price": 2500,
-      "date": "08.03.2024",
+      "description": "Mister Wong",
+      "price":  "3000",
+      "date": "08.04.2024",
       "expenses_id":""
     },
       {
       "category": "Vacation",
-      "description": "Putovanje u Sloveniju",
-      "price": 15000,
-      "date": "27.04.2024",
+      "description": "Fruska Gora",
+      "price": 7000,
+      "date": "01.05.2024",
       "expenses_id":""
     },
       {
       "category": "Other",
-      "description": "Steam market",
-      "price": 2500,
-      "date": "22.02.2024",
+      "description": "Steam market Giftcard",
+      "price": 3500,
+      "date": "22.05.2024",
       "expenses_id":""
     }
   ]

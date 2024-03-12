@@ -53,6 +53,14 @@ def category_id_name(category_name):
     else:
         return None
 
+def check_category_name(category_id):
+    cur.execute("SELECT NAME FROM CATEGORY WHERE ID = %s", (category_id,))
+    result = cur.fetchone()
+    if result:
+        return result[0]
+    else:
+        return None
+
 def suggested_tags(description):
     stop_words = {'and', 'on', 'at', 'or', 'but', 'if', 'then', 'else', 'when', 'a'}
 

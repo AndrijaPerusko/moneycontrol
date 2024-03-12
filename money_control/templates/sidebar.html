@@ -29,6 +29,9 @@
     .sidebar-buttons a:hover {
         background-color: #3c8c98;
     }
+    .sidebar-buttons a.selected {
+        background-color: #1f5d66;
+        color: #459aa6;
 </style>
 
 <div class="sidebar">
@@ -43,3 +46,14 @@
         <a href="/extract_expenses">Download expenses</a>
     </div>
 </div>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var currentUrl = window.location.pathname;
+        var sidebarButtons = document.querySelectorAll(".sidebar-buttons a");
+        sidebarButtons.forEach(function(button) {
+            if (button.getAttribute("href") === currentUrl) {
+                button.classList.add("selected");
+            }
+        });
+    });
+</script>

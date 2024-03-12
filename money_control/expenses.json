@@ -2,801 +2,552 @@
   {
     "category": "Bills",
     "transaction #": 1,
-    "date": "03.03.2024",
-    "description": "nononno aa inan",
+    "date": "10.03.2024",
+    "description": "Infostan",
     "price": 9000.0,
     "tags": [
-      "aa",
-      "nononno"
+      "infostan",
+      "racuni"
     ]
   },
   {
     "category": "Groceries",
     "transaction #": 2,
-    "date": "31.01.2024",
-    "description": "Pslj  paka",
+    "date": "07.03.2024",
+    "description": "Idea megamarket",
     "price": 800.0,
     "tags": [
-      null
+      "idea"
     ]
   },
   {
-    "category": "Groceries",
+    "category": "Other",
     "transaction #": 3,
     "date": "31.01.2024",
-    "description": "uiouio hekunup",
-    "price": 800.0,
+    "description": "Graficka kartica AMD",
+    "price": 1000.0,
+    "tags": [
+      "amd",
+      "upgrade"
+    ]
+  },
+  {
+    "category": "Food order",
+    "transaction #": 4,
+    "date": "08.03.2024",
+    "description": "Diwalli",
+    "price": 2500.0,
     "tags": [
       null
     ]
   },
   {
-    "category": "Bills",
-    "transaction #": 4,
-    "date": "03.03.2024",
-    "description": "nononno aa inan",
-    "price": 9000.0,
-    "tags": [
-      "ssasasa",
-      "nononno"
-    ]
-  },
-  {
-    "category": "Groceries",
+    "category": "Vacation",
     "transaction #": 5,
-    "date": "31.01.2024",
-    "description": "Pslj  paka",
-    "price": 800.0,
+    "date": "27.04.2024",
+    "description": "Putovanje u Sloveniju",
+    "price": 15000.0,
     "tags": [
-      "Sava"
+      "slovenija",
+      "putovanje"
     ]
   },
   {
-    "category": "Groceries",
+    "category": "Other",
     "transaction #": 6,
-    "date": "31.01.2024",
-    "description": "uiouio hekunup",
-    "price": 800.0,
+    "date": "22.02.2024",
+    "description": "Steam market",
+    "price": 2500.0,
     "tags": [
-      "hekunup",
-      "uiouio"
+      "steam"
     ]
   },
   {
-    "category": "Bills",
+    "category": "Presents",
     "transaction #": 7,
-    "date": "03.03.2024",
-    "description": "nononno aa inan",
-    "price": 9000.0,
+    "date": "22.02.2024",
+    "description": "Sve na jednom mestu DOO",
+    "price": 2350.0,
     "tags": [
-      "asda"
+      "poklon",
+      "doo"
     ]
   },
   {
     "category": "Groceries",
     "transaction #": 8,
-    "date": "31.01.2024",
-    "description": "Pslj  paka",
+    "date": "10.03.2024",
+    "description": "Blok shop",
     "price": 800.0,
     "tags": [
-      null
+      "blok",
+      "shop"
     ]
   },
   {
-    "category": "Groceries",
+    "category": "Wardrobe",
     "transaction #": 9,
-    "date": "31.01.2024",
-    "description": "uiouio hekunup",
-    "price": 800.0,
+    "date": "24.03.2024",
+    "description": "Delta city, Jurija Gagarina",
+    "price": 7000.0,
     "tags": [
-      "kkkkkk"
+      "garderoba"
     ]
   },
   {
-    "category": "Bills",
+    "category": "Presents",
     "transaction #": 10,
-    "date": "03.03.2024",
-    "description": "nononno aa inan",
-    "price": 9000.0,
+    "date": "29.03.2024",
+    "description": "Knjizara svastara",
+    "price": 1400.0,
     "tags": [
       null
     ]
   },
   {
-    "category": "Groceries",
+    "category": "Cosmetic services",
     "transaction #": 11,
-    "date": "31.01.2024",
-    "description": "Pslj  paka",
+    "date": "15.03.2024",
+    "description": "Frizer Neca",
     "price": 800.0,
     "tags": [
-      null
+      "brijanje",
+      "frizer",
+      "sisanje"
     ]
   },
   {
-    "category": "Groceries",
+    "category": "Bars and restaurants",
     "transaction #": 12,
-    "date": "31.01.2024",
-    "description": "uiouio hekunup",
-    "price": 800.0,
+    "date": "10.03.2024",
+    "description": "Restoran Radnicki",
+    "price": 3200.0,
     "tags": [
-      null
+      "prijatelji",
+      "restoran"
     ]
   },
   {
-    "category": "Bills",
+    "category": "Bars and restaurants",
     "transaction #": 13,
-    "date": "03.03.2024",
-    "description": "nononno aa inan",
-    "price": 9000.0,
+    "date": "06.03.2024",
+    "description": "Golden Wok",
+    "price": 1200.0,
     "tags": [
-      "nekaneka",
-      "opaopa"
+      "kineska hrana"
     ]
   },
   {
-    "category": "Groceries",
+    "category": "Bars and restaurants",
     "transaction #": 14,
-    "date": "31.01.2024",
-    "description": "Pslj  paka",
-    "price": 800.0,
+    "date": "18.03.2024",
+    "description": "Hoi Koro China Food",
+    "price": 1900.0,
     "tags": [
-      "sve cu",
-      "da ti dam"
+      "food",
+      "kineska hrana"
     ]
   },
   {
-    "category": "Groceries",
+    "category": "Cosmetic services",
     "transaction #": 15,
-    "date": "31.01.2024",
-    "description": "uiouio hekunup",
+    "date": "31.03.2024",
+    "description": "Frizer Neca",
     "price": 800.0,
     "tags": [
-      null
+      "brijanje",
+      "frizer",
+      "sisanje"
     ]
   },
   {
     "category": "Bills",
     "transaction #": 16,
-    "date": "03.03.2024",
-    "description": "nononno aa inan",
-    "price": 9000.0,
+    "date": "09.03.2024",
+    "description": "VIP placanje racuna",
+    "price": 3000.0,
     "tags": [
-      "hehehahaha"
+      "vip",
+      "racun"
     ]
   },
   {
     "category": "Groceries",
     "transaction #": 17,
-    "date": "31.01.2024",
-    "description": "Pslj  paka",
-    "price": 800.0,
+    "date": "10.03.2024",
+    "description": "Pekara Dzo",
+    "price": 200.0,
     "tags": [
-      null
+      "pekara",
+      "hleb"
     ]
   },
   {
-    "category": "Groceries",
+    "category": "Bills",
     "transaction #": 18,
-    "date": "31.01.2024",
-    "description": "uiouio hekunup",
-    "price": 800.0,
+    "date": "09.03.2024",
+    "description": "SBB DOO internet",
+    "price": 2500.0,
     "tags": [
-      "pomoz"
+      "internet",
+      "sbb",
+      "doo"
     ]
   },
   {
-    "category": "Bills",
+    "category": "Housekeeping",
     "transaction #": 19,
-    "date": "03.03.2024",
-    "description": "nononno aa inan",
-    "price": 9000.0,
+    "date": "11.03.2024",
+    "description": "Ciscenje stana- Natasa",
+    "price": 3000.0,
     "tags": [
-      "dobro"
+      "odrzavanje",
+      "ciscenje"
     ]
   },
   {
-    "category": "Groceries",
+    "category": "Car and transport",
     "transaction #": 20,
-    "date": "31.01.2024",
-    "description": "Pslj  paka",
-    "price": 800.0,
+    "date": "10.02.2024",
+    "description": "Godisnja registracija automobila",
+    "price": 24000.0,
     "tags": [
-      null
+      "registracija",
+      "automobil"
     ]
   },
   {
-    "category": "Groceries",
+    "category": "Wardrobe",
     "transaction #": 21,
-    "date": "31.01.2024",
-    "description": "uiouio hekunup",
-    "price": 800.0,
+    "date": "12.03.2024",
+    "description": "TC Piramida",
+    "price": 3500.0,
     "tags": [
-      "jejeje"
+      "piramida",
+      "garderoba"
     ]
   },
   {
-    "category": "Bills",
+    "category": "Car and transport",
     "transaction #": 22,
-    "date": "03.03.2024",
-    "description": "nononno aa inan",
-    "price": 9000.0,
+    "date": "22.01.2024",
+    "description": "Taxi usluge",
+    "price": 1200.0,
     "tags": [
-      null
+      "taxi",
+      "prevoz"
     ]
   },
   {
-    "category": "Groceries",
+    "category": "Car and transport",
     "transaction #": 23,
-    "date": "31.01.2024",
-    "description": "Pslj  paka",
-    "price": 800.0,
+    "date": "05.03.2024",
+    "description": "CAR:GO Radmila prevoz",
+    "price": 450.0,
     "tags": [
-      "afe"
+      "prevoz",
+      "car:go"
     ]
   },
   {
-    "category": "Groceries",
+    "category": "Other",
     "transaction #": 24,
-    "date": "31.01.2024",
-    "description": "uiouio hekunup",
-    "price": 800.0,
+    "date": "01.04.2024",
+    "description": " Sobni bicikl za vezbanje",
+    "price": 21000.0,
     "tags": [
-      null
+      "vezbanje"
     ]
   },
   {
-    "category": "Bills",
+    "category": "Food order",
     "transaction #": 25,
-    "date": "03.03.2024",
-    "description": "nononno aa inan",
-    "price": 9000.0,
+    "date": "14.03.2024",
+    "description": "Pljeskovac Dusana Vukasovica",
+    "price": 2000.0,
     "tags": [
-      null
+      "pljeskovac",
+      "rucak"
     ]
   },
   {
     "category": "Groceries",
     "transaction #": 26,
-    "date": "31.01.2024",
-    "description": "Pslj  paka",
-    "price": 800.0,
+    "date": "09.03.2024",
+    "description": "Pijaca blok 44",
+    "price": 5500.0,
     "tags": [
-      "sseee"
+      "pijaca"
     ]
   },
   {
-    "category": "Groceries",
+    "category": "Pets",
     "transaction #": 27,
     "date": "31.01.2024",
-    "description": "uiouio hekunup",
-    "price": 800.0,
+    "description": "Pet Centar",
+    "price": 4000.0,
     "tags": [
-      null
+      "pas",
+      "hrana"
     ]
   },
   {
-    "category": "Bills",
+    "category": "Household",
     "transaction #": 28,
-    "date": "03.03.2024",
-    "description": "nononno aa inan",
-    "price": 9000.0,
+    "date": "10.01.2024",
+    "description": "Menjanje osiguraca za bojler",
+    "price": 1000.0,
     "tags": [
-      null
+      "osigurac",
+      "bojler"
     ]
   },
   {
     "category": "Groceries",
     "transaction #": 29,
-    "date": "31.01.2024",
-    "description": "Pslj  paka",
-    "price": 800.0,
+    "date": "07.03.2024",
+    "description": "Kafa iz kafeterije",
+    "price": 1800.0,
     "tags": [
-      null
+      "kafeterija",
+      "kafa"
     ]
   },
   {
-    "category": "Groceries",
+    "category": "Other",
     "transaction #": 30,
-    "date": "31.01.2024",
-    "description": "uiouio hekunup",
-    "price": 800.0,
+    "date": "15.03.2024",
+    "description": "Online kupovina kulera za laptop",
+    "price": 5000.0,
     "tags": [
-      null
+      "kuler",
+      "online",
+      "kupovina"
     ]
   },
   {
-    "category": "Bills",
+    "category": "Other",
     "transaction #": 31,
-    "date": "03.03.2024",
-    "description": "nononno aa inan",
-    "price": 9000.0,
+    "date": "01.04.2024",
+    "description": "Narucivanje rezervnih slusalica",
+    "price": 2200.0,
     "tags": [
-      "aa",
-      "nononno",
-      "njaaaaa"
+      "slusalice"
     ]
   },
   {
-    "category": "Bills",
+    "category": "Wardrobe",
     "transaction #": 32,
-    "date": "03.03.2024",
-    "description": "nononno aa inan",
+    "date": "18.03.2024",
+    "description": "TC Usce",
     "price": 9000.0,
     "tags": [
-      null
+      "patike",
+      "usce",
+      "tc"
     ]
   },
   {
-    "category": "Groceries",
+    "category": "Other",
     "transaction #": 33,
-    "date": "31.01.2024",
-    "description": "Pslj  paka",
-    "price": 800.0,
+    "date": "22.03.2024",
+    "description": "TC Piramida Kanibal",
+    "price": 1600.0,
     "tags": [
-      "mmmm"
+      "lan kabl",
+      "tc",
+      "piramida"
     ]
   },
   {
-    "category": "Groceries",
+    "category": "Vacation",
     "transaction #": 34,
-    "date": "31.01.2024",
-    "description": "uiouio hekunup",
-    "price": 800.0,
+    "date": "01.09.2023",
+    "description": "Letovanje na Adi Bojani",
+    "price": 60000.0,
     "tags": [
-      "uiouio"
+      "letovanje"
     ]
   },
   {
-    "category": "Bills",
+    "category": "Car and transport",
     "transaction #": 35,
-    "date": "03.03.2024",
-    "description": "nononno aa inan",
-    "price": 9000.0,
+    "date": "04.09.2023",
+    "description": "Popravka Zokijevog automobila",
+    "price": 14000.0,
     "tags": [
-      null
+      "automobil",
+      "popravka"
+    ]
+  },
+  {
+    "category": "Bars and restaurants",
+    "transaction #": 36,
+    "date": "08.04.2024",
+    "description": "Helga Pub",
+    "price": 1000.0,
+    "tags": [
+      "helga"
     ]
   },
   {
     "category": "Groceries",
     "transaction #": 37,
-    "date": "31.01.2024",
-    "description": "uiouio hekunup",
-    "price": 800.0,
+    "date": "08.04.2024",
+    "description": "Maxi",
+    "price": 650.0,
     "tags": [
-      null
+      "prodavnica",
+      "maxi"
     ]
   },
   {
-    "category": "Bills",
+    "category": "Other",
     "transaction #": 38,
-    "date": "03.03.2024",
-    "description": "nononno aa inan",
-    "price": 9000.0,
+    "date": "28.02.2024",
+    "description": "Opticat TC Piramida",
+    "price": 13000.0,
     "tags": [
-      "nononno"
+      "tc",
+      "piramida",
+      "opticar"
     ]
   },
   {
-    "category": "Groceries",
-    "transaction #": 40,
-    "date": "31.01.2024",
-    "description": "uiouio hekunup",
-    "price": 800.0,
+    "category": "Housekeeping",
+    "transaction #": 39,
+    "date": "11.04.2024",
+    "description": "Natasa spremanje",
+    "price": 2500.0,
     "tags": [
-      "dobra",
-      "uiouio"
+      "spremanje"
+    ]
+  },
+  {
+    "category": "Unplanned expenses",
+    "transaction #": 40,
+    "date": "26.02.2024",
+    "description": "Pregled kod opticara",
+    "price": 500.0,
+    "tags": [
+      "opticar"
     ]
   },
   {
     "category": "Bills",
     "transaction #": 41,
-    "date": "03.03.2024",
-    "description": "nononno aa inan",
-    "price": 9000.0,
+    "date": "09.03.2024",
+    "description": "Racun za Yettel",
+    "price": 1800.0,
     "tags": [
-      "nononno",
-      "mljac"
+      "racun",
+      "yettel"
     ]
   },
   {
-    "category": "Bills",
+    "category": "Other",
     "transaction #": 42,
-    "date": "03.03.2024",
-    "description": "nononno aa inan",
-    "price": 9000.0,
+    "date": "16.03.2024",
+    "description": "Iznajmljivanje bicikla",
+    "price": 950.0,
     "tags": [
-      "nononno"
-    ]
-  },
-  {
-    "category": "Groceries",
-    "transaction #": 44,
-    "date": "31.01.2024",
-    "description": "uiouio hekunup",
-    "price": 800.0,
-    "tags": [
-      "GRRRRRRRR"
+      "bicikl",
+      "iznajmljivanje"
     ]
   },
   {
     "category": "Bills",
-    "transaction #": 45,
-    "date": "03.03.2024",
-    "description": "nononno aa inan",
-    "price": 9000.0,
+    "transaction #": 43,
+    "date": "02.03.2024",
+    "description": "MTS Internet",
+    "price": 100.0,
     "tags": [
-      "aa"
+      "mts",
+      "racun"
+    ]
+  },
+  {
+    "category": "Bars and restaurants",
+    "transaction #": 44,
+    "date": "15.04.2024",
+    "description": "Restoran Bela Reka",
+    "price": 3000.0,
+    "tags": [
+      "reka",
+      "bela",
+      "restoran"
+    ]
+  },
+  {
+    "category": "Home repairs",
+    "transaction #": 45,
+    "date": "11.02.2023",
+    "description": "Vodoinstalater",
+    "price": 2000.0,
+    "tags": [
+      "vodoinstalater"
     ]
   },
   {
     "category": "Bills",
     "transaction #": 46,
-    "date": "03.03.2024",
-    "description": "nononno aa inan",
-    "price": 9000.0,
+    "date": "01.04.2024",
+    "description": "Racun za odrzavanje zgrade",
+    "price": 600.0,
     "tags": [
-      "nononno"
+      "zgrada",
+      "odrzavanje"
     ]
   },
   {
-    "category": "Bills",
+    "category": "Food order",
     "transaction #": 47,
-    "date": "03.03.2024",
-    "description": "heia ala infostan",
-    "price": 9000.0,
+    "date": "15.03.2024",
+    "description": "Picerija Grazzia",
+    "price": 1620.0,
     "tags": [
-      "kele"
+      "grazzia",
+      "picerija"
     ]
   },
   {
-    "category": "Groceries",
+    "category": "Presents",
     "transaction #": 48,
-    "date": "31.01.2024",
-    "description": "Pasulj und pavlaka",
-    "price": 800.0,
+    "date": "15.04.2024",
+    "description": "Cvecara Jurija Gagarina",
+    "price": 2450.0,
     "tags": [
-      "und"
+      "cvecara"
     ]
   },
   {
     "category": "Other",
     "transaction #": 49,
-    "date": "31.01.2024",
-    "description": "Slavskih mi kolaca bre covece kako se samo prave opet opet a nikako da se pojedu",
-    "price": 800.0,
+    "date": "16.02.2024",
+    "description": "Gigatron",
+    "price": 4000.0,
     "tags": [
-      "dobro"
+      "gigatron"
     ]
   },
   {
-    "category": "Bills",
+    "category": "Groceries",
     "transaction #": 50,
-    "date": "03.03.2024",
-    "description": "heia ala infostan",
-    "price": 9000.0,
+    "date": "02.04.2024",
+    "description": "Immo Centar - Maxi",
+    "price": 1150.0,
     "tags": [
-      "heia"
+      null
     ]
   },
   {
-    "category": "Groceries",
+    "category": "Household",
     "transaction #": 51,
-    "date": "31.01.2024",
-    "description": "Pasulj und pavlaka",
-    "price": 800.0,
+    "date": "15.02.2024",
+    "description": "EKO Sijalice za lampu",
+    "price": 850.0,
     "tags": [
-      "und"
-    ]
-  },
-  {
-    "category": "Other",
-    "transaction #": 52,
-    "date": "31.01.2024",
-    "description": "Slavskih mi kolaca bre covece kako se samo prave opet opet a nikako da se pojedu",
-    "price": 800.0,
-    "tags": [
-      "klasik"
-    ]
-  },
-  {
-    "category": "Groceries",
-    "transaction #": 54,
-    "date": "31.01.2024",
-    "description": "Pasulj und pavlaka",
-    "price": 800.0,
-    "tags": [
-      null
-    ]
-  },
-  {
-    "category": "Other",
-    "transaction #": 55,
-    "date": "31.01.2024",
-    "description": "Slavskih mi kolaca bre covece kako se samo prave opet opet a nikako da se pojedu",
-    "price": 800.0,
-    "tags": [
-      null
-    ]
-  },
-  {
-    "category": "Groceries",
-    "transaction #": 57,
-    "date": "31.01.2024",
-    "description": "Pasulj und pavlaka",
-    "price": 800.0,
-    "tags": [
-      "pavlaka"
-    ]
-  },
-  {
-    "category": "Other",
-    "transaction #": 58,
-    "date": "31.01.2024",
-    "description": "Slavskih mi kolaca bre covece kako se samo prave opet opet a nikako da se pojedu",
-    "price": 800.0,
-    "tags": [
-      "kako"
-    ]
-  },
-  {
-    "category": "Groceries",
-    "transaction #": 60,
-    "date": "31.01.2024",
-    "description": "Pasulj und pavlaka",
-    "price": 800.0,
-    "tags": [
-      "moca"
-    ]
-  },
-  {
-    "category": "Other",
-    "transaction #": 61,
-    "date": "31.01.2024",
-    "description": "Slavskih mi kolaca bre covece kako se samo prave opet opet a nikako da se pojedu",
-    "price": 800.0,
-    "tags": [
-      "mi"
-    ]
-  },
-  {
-    "category": "Groceries",
-    "transaction #": 63,
-    "date": "31.01.2024",
-    "description": "Pasulj und pavlaka",
-    "price": 800.0,
-    "tags": [
-      null
-    ]
-  },
-  {
-    "category": "Other",
-    "transaction #": 64,
-    "date": "31.01.2024",
-    "description": "Slavskih mi kolaca bre covece kako se samo prave opet opet a nikako da se pojedu",
-    "price": 800.0,
-    "tags": [
-      null
-    ]
-  },
-  {
-    "category": "Bills",
-    "transaction #": 65,
-    "date": "03.03.2024",
-    "description": "heia ala infostan",
-    "price": 9000.0,
-    "tags": [
-      "Trpko"
-    ]
-  },
-  {
-    "category": "Other",
-    "transaction #": 67,
-    "date": "31.01.2024",
-    "description": "Slavskih mi kolaca bre covece kako se samo prave opet opet a nikako da se pojedu",
-    "price": 800.0,
-    "tags": [
-      "baca"
-    ]
-  },
-  {
-    "category": "Bills",
-    "transaction #": 68,
-    "date": "03.03.2024",
-    "description": "heia ala infostan",
-    "price": 9000.0,
-    "tags": [
-      "se"
-    ]
-  },
-  {
-    "category": "Groceries",
-    "transaction #": 69,
-    "date": "31.01.2024",
-    "description": "Pasulj und pavlaka",
-    "price": 800.0,
-    "tags": [
-      "pavlaka"
-    ]
-  },
-  {
-    "category": "Other",
-    "transaction #": 70,
-    "date": "31.01.2024",
-    "description": "Slavskih mi kolaca bre covece kako se samo prave opet opet a nikako da se pojedu",
-    "price": 800.0,
-    "tags": [
-      "se"
-    ]
-  },
-  {
-    "category": "Bills",
-    "transaction #": 71,
-    "date": "03.03.2024",
-    "description": "heia ala infostan",
-    "price": 9000.0,
-    "tags": [
-      "salabajzer"
-    ]
-  },
-  {
-    "category": "Groceries",
-    "transaction #": 72,
-    "date": "31.01.2024",
-    "description": "Pasulj und pavlaka",
-    "price": 800.0,
-    "tags": [
-      "pavlaka"
-    ]
-  },
-  {
-    "category": "Other",
-    "transaction #": 73,
-    "date": "31.01.2024",
-    "description": "Slavskih mi kolaca bre covece kako se samo prave opet opet a nikako da se pojedu",
-    "price": 800.0,
-    "tags": [
-      "salabajzer"
-    ]
-  },
-  {
-    "category": "Bills",
-    "transaction #": 74,
-    "date": "03.03.2024",
-    "description": "heia ala infostan",
-    "price": 9000.0,
-    "tags": [
-      "valja"
-    ]
-  },
-  {
-    "category": "Groceries",
-    "transaction #": 75,
-    "date": "31.01.2024",
-    "description": "Pasulj und pavlaka",
-    "price": 800.0,
-    "tags": [
-      "cvarcicic"
-    ]
-  },
-  {
-    "category": "Other",
-    "transaction #": 76,
-    "date": "31.01.2024",
-    "description": "Slavskih mi kolaca bre covece kako se samo prave opet opet a nikako da se pojedu",
-    "price": 800.0,
-    "tags": [
-      "kolaca"
-    ]
-  },
-  {
-    "category": "Housekeeping",
-    "transaction #": 77,
-    "date": "28.03.2024",
-    "description": "blato za svinje",
-    "price": 8005.0,
-    "tags": [
-      "blato"
-    ]
-  },
-  {
-    "category": "Bills",
-    "transaction #": 78,
-    "date": "28.03.2024",
-    "description": "Menjacnica- Bolje sutra",
-    "price": 1450.0,
-    "tags": [
-      "Menjacnica",
-      "sutra"
-    ]
-  },
-  {
-    "category": "Bills",
-    "transaction #": 79,
-    "date": "03.03.2024",
-    "description": "heia ala infostan",
-    "price": 9000.0,
-    "tags": [
-      "KALE"
-    ]
-  },
-  {
-    "category": "Groceries",
-    "transaction #": 80,
-    "date": "31.01.2024",
-    "description": "Pasulj und pavlaka",
-    "price": 800.0,
-    "tags": [
-      null
-    ]
-  },
-  {
-    "category": "Other",
-    "transaction #": 81,
-    "date": "31.01.2024",
-    "description": "Slavskih mi kolaca bre covece kako se samo prave opet opet a nikako da se pojedu",
-    "price": 800.0,
-    "tags": [
-      null
-    ]
-  },
-  {
-    "category": "Bills",
-    "transaction #": 82,
-    "date": "03.03.2024",
-    "description": "heia ala infostan",
-    "price": 9000.0,
-    "tags": [
-      "KALE"
-    ]
-  },
-  {
-    "category": "Groceries",
-    "transaction #": 83,
-    "date": "31.01.2024",
-    "description": "Pasulj und pavlaka",
-    "price": 800.0,
-    "tags": [
-      null
-    ]
-  },
-  {
-    "category": "Other",
-    "transaction #": 84,
-    "date": "31.01.2024",
-    "description": "Slavskih mi kolaca bre covece kako se samo prave opet opet a nikako da se pojedu",
-    "price": 800.0,
-    "tags": [
-      null
-    ]
-  },
-  {
-    "category": "Bills",
-    "transaction #": 85,
-    "date": "03.03.2024",
-    "description": "heia ala infostan",
-    "price": 9000.0,
-    "tags": [
-      "MILE"
-    ]
-  },
-  {
-    "category": "Groceries",
-    "transaction #": 86,
-    "date": "31.01.2024",
-    "description": "Pasulj und pavlaka",
-    "price": 800.0,
-    "tags": [
-      "MILE"
-    ]
-  },
-  {
-    "category": "Other",
-    "transaction #": 87,
-    "date": "31.01.2024",
-    "description": "Slavskih mi kolaca bre covece kako se samo prave opet opet a nikako da se pojedu",
-    "price": 800.0,
-    "tags": [
-      "MILE"
+      "sijalice"
     ]
   }
 ]

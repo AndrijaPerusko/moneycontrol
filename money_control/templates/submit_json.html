@@ -102,6 +102,11 @@
             background-color: #b11d1d;
             cursor: pointer;
         }
+        .message {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
     </style>
 </head>
 <body>
@@ -112,15 +117,16 @@
         <h1>Submit JSON Data</h1>
         <form method="POST" action="/submit_json">
             <div class="card-container">
+                {% set index = 1 %}
                 {% for all_data in all_data %}
                     {% set data = all_data | tojson | safe %}
                     <input type="hidden" name="transaction_data" value='{{ data }}'>
                     <div class="card">
-                        <h2>Transaction # {{ all_data.expenses_id }}</h2>
+                        <h2>Transaction # {{ loop.index }}</h2>
                         <p><strong>Price:</strong> {{ all_data.price }}</p>
                         <p><strong>Description:</strong> {{ all_data.description }}</p>
                         <p><strong>Date:</strong> {{ all_data.date }}</p>
-                        <p><strong>Category ID:</strong> {{ all_data.category_id }}</p>
+                        <p><strong>Category ID:</strong> {{ check_category_name(all_data.category_id) }}</p>
                         <p><strong>Expenses ID:</strong> {{ all_data.expenses_id }}</p>
                         <h3>Choose Tag</h3>
                         <ul class="tags-list">
@@ -131,9 +137,11 @@
                                 </li>
                             {% endfor %}
                         </ul>
+                        <p class="message">Separate your custom tags with comma attribute</p>
                         <label for="custom_tag">Custom Tag:</label>
                         <input type="text" id="custom_tag" name="custom_tag_{{ all_data.expenses_id }}" placeholder="Enter custom tag">
                     </div>
+                    {% set index = index + 1 %}
                 {% endfor %}
             </div>
             <input type="submit" name="submit_expenses" value="Submit">
