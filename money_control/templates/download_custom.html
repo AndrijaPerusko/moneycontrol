@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Download generated json</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #ccd8e5;
+        }
+        .back-button {
+            position: absolute;
+            top: 20px;
+            margin-left: 230px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+        }
+        .back-button:hover {
+            background-color: #45a049;
+            cursor: pointer;
+        }
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top:20px;
+        }
+
+        .card {
+            width: calc(33.3% - 20px);
+            margin-bottom: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .alert.error {
+            background-color: #ffcccc;
+            border: 1px solid #ffcccc;
+            color: #333;
+            padding: 10px;
+            margin: 0 auto;
+            width: 590px;
+            text-align: center;
+            border-radius:8px;
+        }
+    </style>
+</head>
+<body>
+    {% include 'sidebar.html' %}
+    <button class="back-button" onclick="window.location.href='/';">Back</button>
+    <div class="container">
+        <form method="POST" action="/download_generated_json">
+            <div class="card-container">
+                    <div class="card">
+                    <label for="num_obj">Enter number of objects:</label><br>
+                    <input type="number" id="num_obj" name="num_obj" ><br><br>
+                    <input type="submit" value="Download JSON">
+                    </div>
+            </div>
+        </form>
+    </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</body>
+</html>

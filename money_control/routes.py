@@ -1,7 +1,8 @@
 from flask import request, render_template, flash, redirect, send_file
 from money_control import app, db_conn, cur
 from money_control.utils import (get_categories, load_json, check_expenses_id,
-                                 category_id_name, suggested_tags, is_valid_custom_tag, check_category_name)
+                                 category_id_name, suggested_tags, is_valid_custom_tag,
+                                 check_category_name, generate_new_json)
 from datetime import datetime
 import base64
 import os
@@ -547,7 +548,7 @@ def generate_tag_chart():
         tags = [row[0] for row in tag_data]
         expenses_counts = [row[1] for row in tag_data]
 
-        plt.figure(figsize=(14, 6))
+        plt.figure(figsize=(14, 6), facecolor='#ccd8e5')
         plt.bar(tags, expenses_counts, color='skyblue')
         plt.xlabel('Tag')
         plt.ylabel('Number of Expenses')
@@ -569,3 +570,20 @@ def generate_tag_chart():
     return render_template('generate_tag_chart.html', categories=categories, chart_img=chart_img,
                            selected_category_name=selected_category_name)
 
+@app.route('/download_custom')
+def download_custom():
+    return render_template('download_custom.html')
+@app.route('/download_generated_json', methods=['POST'])
+def download_generated_json():
+    num_obj = request.form.get('num_obj')
+
+    if not num_obj or int(num_obj) <=0:
+        flash("You can't generate json file without object", 'error')
+        return redirect('/download_custom')
+
+    data = generate_new_json(num_obj)
+    file_path = os.path.join(os.path.dirname(__file__), 'generate.json')
+    with open(file_path, 'w') as file:
+        json.dump(data, file, indent=4)
+
+    return send_file(file_path, as_attachment=True)

@@ -88,3 +88,17 @@ def validate_custom_tags(custom_tags):
 def is_valid_custom_tag(tag):
     pattern = r'^[a-zA-Z0-9,\s]+$'
     return bool(re.match(pattern, tag))
+
+def generate_new_json(user_input):
+    data = []
+    for i in range(int(user_input)):
+        obj = {
+            "category_id": "",
+            "description": "",
+            "price": "",
+            "date": "",
+            "expenses_id": ""
+        }
+        data.append(obj)
+        print(user_input)
+    return data
