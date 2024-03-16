@@ -44,6 +44,15 @@
             background-color: #45a049;
             cursor: pointer;
         }
+        .chip {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: #0039a6;
+            color: white;
+            border-radius: 10px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
     </style>
 </head>
 <body>
@@ -71,7 +80,14 @@
                         <td>{{ result.description }}</td>
                         <td>{{ result.date }}</td>
                         <td>
-                            [{{ result.tag | join(', ') }}]
+                            {% for tag in result.tag %}
+                                {% if tag is not none %}
+                                    <form action="/generate_category_tag_chart" method="POST" style="display: inline;">
+                                        <input type="hidden" name="tag" value="{{ tag }}">
+                                        <button type="submit" class="chip">{{ tag }}</button>
+                                    </form>
+                                {% endif %}
+                            {% endfor %}
                         </td>
                     </tr>
                     {% endfor %}

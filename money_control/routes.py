@@ -135,7 +135,8 @@ def generate():
                     JOIN EXPENSES E ON C.ID = E.CATEGORY_ID
                     LEFT JOIN Expense_Tag ET ON E.Expenses_id = ET.Expenses_id
                     LEFT JOIN Tag T ON ET.Tag_id = T.ID
-                    GROUP BY E.Expenses_id, C.Name, E.Price, E.Description, E.Transaction_date''')
+                    GROUP BY E.Expenses_id, C.Name, E.Price, E.Description, E.Transaction_date
+                    ORDER BY E.Expenses_id DESC''')
     query_res = cur.fetchall()
 
     results = [{
@@ -143,7 +144,7 @@ def generate():
         'price': float(row[1]),
         'description': row[2],
         'date': row[3].strftime('%d.%m.%Y'),
-        'tag': row[4] if row[4] else []
+        'tag': row[4] if row[4] else None
     } for row in query_res]
 
     return render_template('generate.html', results=results)
@@ -569,6 +570,39 @@ def generate_tag_chart():
 
     return render_template('generate_tag_chart.html', categories=categories, chart_img=chart_img,
                            selected_category_name=selected_category_name)
+
+@app.route('/generate_category_tag_chart', methods=['GET','POST'])
+def generate_category_tag_chart():
+    selected_tag = request.form.get('tag')
+    cur.execute("""SELECT C.NAME, COUNT(ET.EXPENSES_ID)
+                    FROM CATEGORY C
+                    LEFT JOIN EXPENSES E ON C.ID = E.CATEGORY_ID
+                    LEFT JOIN EXPENSE_TAG ET ON E.EXPENSES_ID = ET.EXPENSES_ID
+                    LEFT JOIN TAG T ON ET.TAG_ID = T.ID
+                    WHERE T.NAME = %s
+                    GROUP BY C.NAME;""", (selected_tag,))
+    data = cur.fetchall()
+    if not data:
+        flash(f'Selected tag: {selected_tag} is not mentioned in any category', 'error')
+
+    categories = [row[0] for row in data]
+    tag_count = [row[1] for row in data]
+
+    plt.figure(figsize=(14, 6), facecolor='#ccd8e5')
+    plt.bar(categories, tag_count, color='skyblue')
+    plt.xlabel('Category')
+    plt.ylabel(f'Number of appearances for tag: {selected_tag}')
+    plt.xticks(rotation=45)
+    plt.yticks(range(1, max(tag_count) + 2))
+    plt.tight_layout()
+
+    graph_path = os.path.join(app.root_path, 'static', 'tag_chart.jpg')
+    plt.savefig(graph_path)
+
+    with open(graph_path, "rb") as img_file:
+        chart_img = base64.b64encode(img_file.read()).decode('utf-8')
+
+    return render_template('generate_category_tag_chart.html', chart_img=chart_img, selected_tag=selected_tag)
 
 @app.route('/download_custom')
 def download_custom():

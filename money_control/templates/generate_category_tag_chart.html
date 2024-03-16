@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tag Chart</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #ccd8e5;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 20px;
+            margin-left: 230px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+        }
+        .back-button:hover {
+            background-color: #45a049;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <button class="back-button" onclick="window.location.href='/generate';">Back</button>
+    <h1>Tag Chart</h1>
+    <div class="container">
+        {% if chart_img %}
+        <img src="data:image/jpeg;base64,{{ chart_img }}" alt="Tag Chart">
+        {% else %}
+        <p>No data available for the selected tag.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
