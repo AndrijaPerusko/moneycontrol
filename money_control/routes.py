@@ -1,3 +1,4 @@
+import psycopg2
 from flask import request, render_template, flash, redirect, send_file
 from money_control import app, db_conn, cur
 from money_control.utils import (get_categories, load_json, check_expenses_id,
@@ -57,47 +58,20 @@ def add_expenses():
                 return redirect('/')
 
             if date_time is not None:
-                is_not_valid_custom_tag = False
-                for custom_tag_str in custom_tag:
-                    custom_tag_names = custom_tag_str.split(',')
-                    for custom_tag_name in custom_tag_names:
-                        custom_tag_name = custom_tag_name.strip().lower()
-                        if custom_tag_name and not is_valid_custom_tag(custom_tag_name):
-                            flash(f'Invalid custom tag: {custom_tag_names}', 'error')
-                            is_not_valid_custom_tag = True
-                            break
-                if not is_not_valid_custom_tag:
-                    cur.execute('INSERT INTO EXPENSES (EXPENSES_ID, CATEGORY_ID, PRICE, DESCRIPTION, TRANSACTION_DATE)'
-                                ' VALUES (%s, %s, %s, %s, %s) RETURNING EXPENSES_ID',
-                                (expenses_id, category_id, price, description, date_time))
-                    new_expenses_id = cur.fetchone()[0]
-                    print(f'ovo je exp_id: {new_expenses_id}')
-                    if selected_tag:
-                        for selected_t in selected_tag:
-                            print(f'tag je:{selected_t}')
-                            # Check if the tag already exists in the Tag table
-                            cur.execute('SELECT ID FROM Tag WHERE NAME = %s', (selected_t,))
-                            tag_row = cur.fetchone()
-                            if not tag_row:
-                                # If the tag does not exist, insert it into the Tag table
-                                cur.execute('INSERT INTO Tag (NAME) VALUES (%s) RETURNING ID', (selected_t,))
-                                tag_id = cur.fetchone()[0]
-                            else:
-                                # If the tag already exists, fetch its ID
-                                tag_id = tag_row[0]
-
-                            # Insert relation between expense and tag into Expense_Tag table
-                            cur.execute('INSERT INTO Expense_Tag (EXPENSES_ID, TAG_ID) VALUES (%s, %s)',
-                                        (new_expenses_id, tag_id))
-                    if custom_tag:
-                        added_tags = set()  # Set za praćenje dodanih prilagođenih oznaka
-                        for custom_tag_str in custom_tag:
-                            custom_tag_names = custom_tag_str.split(',')
-                            for custom_tag_name in custom_tag_names:
-                                custom_tag_name = custom_tag_name.strip().lower()
+                cur.execute('INSERT INTO EXPENSES (EXPENSES_ID, CATEGORY_ID, PRICE, DESCRIPTION, TRANSACTION_DATE)'
+                            ' VALUES (%s, %s, %s, %s, %s) RETURNING EXPENSES_ID',
+                            (expenses_id, category_id, price, description, date_time))
+                new_expenses_id = cur.fetchone()[0]
+                if custom_tag:
+                    added_tags = set()
+                    for custom_tag_str in custom_tag:
+                        custom_tag_names = custom_tag_str.split(',')
+                        for custom_tag_name in custom_tag_names:
+                            custom_tag_name = custom_tag_name.strip().lower()
+                            if custom_tag_name:
                                 if is_valid_custom_tag(custom_tag_name):
-                                    # Provjeri je li prilagođena oznaka već dodana
                                     if custom_tag_name not in added_tags:
+                                        added_tags.add(custom_tag_name)
                                         cur.execute('SELECT ID FROM Tag WHERE NAME = %s', (custom_tag_name,))
                                         tag_row = cur.fetchone()
                                         if not tag_row:
@@ -106,15 +80,27 @@ def add_expenses():
                                             tag_id = cur.fetchone()[0]
                                         else:
                                             tag_id = tag_row[0]
-                                        # Dodaj prilagođenu oznaku u bazu
                                         cur.execute('INSERT INTO EXPENSE_TAG (EXPENSES_ID, TAG_ID) VALUES (%s, %s)',
                                                     (new_expenses_id, tag_id))
-                                        added_tags.add(custom_tag_name)
-
+                                else:
+                                    flash(f'Invalid custom tag: {custom_tag_name}.',
+                                          'error')
+                if selected_tag:
+                    for selected_t in selected_tag:
+                        # Check if the tag already exists in the Tag table
+                        cur.execute('SELECT ID FROM Tag WHERE NAME = %s', (selected_t,))
+                        tag_row = cur.fetchone()
+                        if not tag_row:
+                            # If the tag does not exist, insert it into the Tag table
+                            cur.execute('INSERT INTO Tag (NAME) VALUES (%s) RETURNING ID', (selected_t,))
+                            tag_id = cur.fetchone()[0]
+                        else:
+                            # If the tag already exists, fetch its ID
+                            tag_id = tag_row[0]
+                        # Insert relation between expense and tag into Expense_Tag table
+                        cur.execute('INSERT INTO Expense_Tag (EXPENSES_ID, TAG_ID) VALUES (%s, %s)',
+                                    (new_expenses_id, tag_id))
                 db_conn.commit()
-                if is_not_valid_custom_tag == True:
-                    flash('Transaction unsuccessfull!', 'error')
-                    return redirect('/')
 
                 flash('Transaction successfully added to database!', 'success')
             return redirect('/')
@@ -125,7 +111,26 @@ def add_expenses():
 
 @app.route('/generate', methods=['GET', 'POST'])
 def generate():
+    if request.method == 'POST':
+        if 'delete_expense' in request.form:
+            expenses_id = request.form.get('expenses_id')
+
+            try:
+                with db_conn:
+                    # Obriši povezanost između troška i tagova iz tabele Expense_Tag
+                    cur.execute('DELETE FROM Expense_Tag WHERE Expenses_id = %s', (expenses_id,))
+
+                    # Obriši trošak iz tabele Expenses
+                    cur.execute('DELETE FROM Expenses WHERE Expenses_id = %s', (expenses_id,))
+
+            except psycopg2.Error as e:
+                db_conn.rollback()
+                print('Error deleting expense:', e)
+            else:
+                db_conn.commit()
+                flash('Expense successfully deleted', 'success')
     cur.execute('''SELECT 
+                        E.EXPENSES_ID,
                         C.NAME,
                         E.PRICE,
                         E.DESCRIPTION,
@@ -140,15 +145,15 @@ def generate():
     query_res = cur.fetchall()
 
     results = [{
-        'category': row[0],
-        'price': float(row[1]),
-        'description': row[2],
-        'date': row[3].strftime('%d.%m.%Y'),
-        'tag': row[4] if row[4] else None
+        'expenses_id': row[0],
+        'category': row[1],
+        'price': float(row[2]),
+        'description': row[3],
+        'date': row[4].strftime('%d.%m.%Y'),
+        'tag': row[5] if row[5] else None
     } for row in query_res]
 
     return render_template('generate.html', results=results)
-
 
 @app.route('/category', methods=['GET', 'POST'])
 def category():
@@ -320,18 +325,20 @@ def extract_expenses():
 
 @app.context_processor
 def utility_processor():
-    # Ova funkcija će biti dostupna u svim šablonima kao 'check_category_name'
+    # Ova funkcija će biti dostupna u svim sablonima (template) kao 'check_category_name'
     return dict(check_category_name=check_category_name)
 
 @app.route('/import_json', methods = ['GET', 'POST'])
 def import_json():
     if request.method == 'POST':
-
         if 'file' not in request.files:
             flash('You have to insert JSON file!', 'error')
             return redirect('/import_json')
 
         file = request.files['file']
+        if not file or file.filename.strip() == '':
+            flash('You have to insert Json file!', 'error')
+            return redirect('/import_json')
 
         if file and file.filename.endswith('.json'):
             try:
@@ -350,7 +357,7 @@ def import_json():
                         return redirect('/import_json')
                     description = item['description']
                     category_name = item['category']
-                    price = float(item['price'])
+                    price = item['price']
                     try:
                         price = float(price)
                     except ValueError:
@@ -369,6 +376,9 @@ def import_json():
 
                                     expenses_id = max_expenses_id
                                     max_expenses_id +=1
+                                else:
+                                    flash(f'expenses_id has to be empty field. Error in transaction: {index}', 'error')
+                                    return redirect('/import_json')
 
                                 tags = suggested_tags(description)
 
@@ -393,14 +403,11 @@ def import_json():
                 flash(f"Error importing data for transaction {index}", 'error')
                 return redirect('/import_json')
             return render_template('submit_json.html', all_data=all_data, transaction_index=index)
-        return redirect('/')
     return render_template('import_json.html')
-
 
 @app.route('/submit_json', methods=['POST'])
 def submit_json():
     if request.method == 'POST':
-        inserted_transactions = False
         for index, all_data in enumerate(request.form.getlist('transaction_data'), start=1):
             data = json.loads(all_data)
             price = data['price']
@@ -417,58 +424,34 @@ def submit_json():
             try:
                 date_time = datetime.strptime(date, "%d.%m.%Y")
             except ValueError:
-                flash(f'Invalid input for transaction:{index}. Please put the correct form (dd.mm.yyyy)', 'error')
+                flash(f'Invalid input for transaction:{index}. Please put the correct form (dd.mm.yyyy)',
+                      'error')
 
             try:
                 price = float(price)
                 if price <= 0:
                     raise ValueError('Invalid input.')
             except ValueError:
-                flash(f'Error for transaction:{index}. Input has to be number and greater than zero!', 'error')
+                flash(f'Error for transaction:{index}. Input has to be number and greater than zero!',
+                      'error')
                 return redirect('/import_json')
 
 
             if date_time is not None:
-                is_not_valid_custom_tag = False
-                for custom_tag_str in custom_tag:
-                    custom_tag_names = custom_tag_str.split(',')
-                    for custom_tag_name in custom_tag_names:
-                        custom_tag_name = custom_tag_name.strip().lower()
-                        if custom_tag_name and not is_valid_custom_tag(custom_tag_name):
-                            flash(f'Invalid custom tag: {custom_tag_names} for transaction {index}.', 'error')
-                            is_not_valid_custom_tag = True
-                            break
-                if not is_not_valid_custom_tag:
-                    cur.execute('INSERT INTO EXPENSES (EXPENSES_ID, CATEGORY_ID, PRICE, DESCRIPTION, TRANSACTION_DATE)'
-                                ' VALUES (%s, %s, %s, %s, %s) RETURNING EXPENSES_ID',
-                                (expenses_id, category_id, price, description, date_time))
-                    new_expenses_id = cur.fetchone()[0]
-                    print(f'ovo je exp_id: {new_expenses_id}')
-                    if selected_tag:
-                        for selected_t in selected_tag:
-                            print(f'tag je:{selected_t}')
-                            # Check if the tag already exists in the Tag table
-                            cur.execute('SELECT ID FROM Tag WHERE NAME = %s', (selected_t,))
-                            tag_row = cur.fetchone()
-                            if not tag_row:
-                                # If the tag does not exist, insert it into the Tag table
-                                cur.execute('INSERT INTO Tag (NAME) VALUES (%s) RETURNING ID', (selected_t,))
-                                tag_id = cur.fetchone()[0]
-                            else:
-                                # If the tag already exists, fetch its ID
-                                tag_id = tag_row[0]
-
-                            # Insert relation between expense and tag into Expense_Tag table
-                            cur.execute('INSERT INTO Expense_Tag (EXPENSES_ID, TAG_ID) VALUES (%s, %s)', (new_expenses_id, tag_id))
-                    if custom_tag:
-                        added_tags = set()  # Set za praćenje dodanih prilagođenih oznaka
-                        for custom_tag_str in custom_tag:
-                            custom_tag_names = custom_tag_str.split(',')
-                            for custom_tag_name in custom_tag_names:
-                                custom_tag_name = custom_tag_name.strip().lower()
+                cur.execute('INSERT INTO EXPENSES (EXPENSES_ID, CATEGORY_ID, PRICE, DESCRIPTION, TRANSACTION_DATE)'
+                            ' VALUES (%s, %s, %s, %s, %s) RETURNING EXPENSES_ID',
+                            (expenses_id, category_id, price, description, date_time))
+                new_expenses_id = cur.fetchone()[0]
+                if custom_tag:
+                    added_tags = set()
+                    for custom_tag_str in custom_tag:
+                        custom_tag_names = custom_tag_str.split(',')
+                        for custom_tag_name in custom_tag_names:
+                            custom_tag_name = custom_tag_name.strip().lower()
+                            if custom_tag_name:
                                 if is_valid_custom_tag(custom_tag_name):
-                                    # Provjeri je li prilagođena oznaka već dodana
                                     if custom_tag_name not in added_tags:
+                                        added_tags.add(custom_tag_name)
                                         cur.execute('SELECT ID FROM Tag WHERE NAME = %s', (custom_tag_name,))
                                         tag_row = cur.fetchone()
                                         if not tag_row:
@@ -477,17 +460,28 @@ def submit_json():
                                             tag_id = cur.fetchone()[0]
                                         else:
                                             tag_id = tag_row[0]
-                                        # Dodaj prilagođenu oznaku u bazu
                                         cur.execute('INSERT INTO EXPENSE_TAG (EXPENSES_ID, TAG_ID) VALUES (%s, %s)',
                                                     (new_expenses_id, tag_id))
-                                        added_tags.add(custom_tag_name)
-                inserted_transactions = True
+                                else:
+                                    flash(f'Invalid custom tag: {custom_tag_name} for transaction {index}.',
+                                          'error')
+                if selected_tag:
+                    for selected_t in selected_tag:
+                        # Check if the tag already exists in the Tag table
+                        cur.execute('SELECT ID FROM Tag WHERE NAME = %s', (selected_t,))
+                        tag_row = cur.fetchone()
+                        if not tag_row:
+                            # If the tag does not exist, insert it into the Tag table
+                            cur.execute('INSERT INTO Tag (NAME) VALUES (%s) RETURNING ID', (selected_t,))
+                            tag_id = cur.fetchone()[0]
+                        else:
+                            # If the tag already exists, fetch its ID
+                            tag_id = tag_row[0]
+                        # Insert relation between expense and tag into Expense_Tag table
+                        cur.execute('INSERT INTO Expense_Tag (EXPENSES_ID, TAG_ID) VALUES (%s, %s)',
+                                    (new_expenses_id, tag_id))
                 db_conn.commit()
-        if inserted_transactions:
-            if is_not_valid_custom_tag:
-                flash('Not all transactions were added due to invalid custom tags!', 'error')
-            else:
-                flash('Transaction successfully added to database!', 'success')
+        flash('Transaction successfully added to database!', 'success')
         return redirect('/import_json')
 
 @app.route('/generate_chart')

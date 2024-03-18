@@ -53,6 +53,18 @@
             margin-right: 5px;
             margin-bottom: 5px;
         }
+        .alert.success {
+            background-color: #5cb85c;
+            border: 1px solid #5cb85c;
+            color: #333;
+            padding: 10px;
+            margin: 0 auto;
+            width: 620px;
+            text-align: center;
+            border-radius:8px;
+
+        }
+
     </style>
 </head>
 <body>
@@ -61,6 +73,13 @@
      <div class="container">
         <div>
             <h1>Your Transactions</h1>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
             {% if results %}
             <table>
                 <thead>
@@ -70,6 +89,7 @@
                         <th>Description</th>
                         <th>Transaction Date</th>
                         <th>Tags</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -88,6 +108,13 @@
                                     </form>
                                 {% endif %}
                             {% endfor %}
+                        </td>
+                        <td>
+                            <form action="/generate" method="POST" style="display: inline;">
+                                <input type="hidden" name="delete_expense" value="true">
+                                <input type="hidden" name="expenses_id" value="{{ result.expenses_id }}">
+                                <button type="submit" style="background-color: #E60000">DEL</button>
+                            </form>
                         </td>
                     </tr>
                     {% endfor %}
