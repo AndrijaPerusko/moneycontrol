@@ -155,6 +155,87 @@ def generate():
 
     return render_template('generate.html', results=results)
 
+
+@app.route('/update_transaction/<int:expenses_id>', methods=['GET', 'POST'])
+def update_transaction(expenses_id):
+    if request.method == 'POST':
+        category_id = request.form.get('category')
+        price = request.form.get('price')
+        description = request.form.get('description')
+        date = request.form.get('date')
+        tags = request.form.getlist('tag')
+
+        date_time = None
+
+        try:
+            date_time = datetime.strptime(date, "%d.%m.%Y")
+        except ValueError:
+            flash('Invalid input. Please put the correct form (dd.mm.yyyy)', 'error')
+
+        try:
+            price = float(price)
+            if price <= 0:
+                raise ValueError('Invalid input.', 'error')
+        except ValueError:
+            flash('Error. Input has to be number and greater than zero!', 'error')
+
+        if not description:
+            flash(f'You have to provide some description!', 'error')
+
+        if date_time is not None and price>0 and description:
+            try:
+                with db_conn:
+                    # Ažuriraj trošak u tabeli Expenses
+                    cur.execute('UPDATE Expenses SET CATEGORY_ID = %s, PRICE = %s, DESCRIPTION = %s, TRANSACTION_DATE = %s WHERE Expenses_id = %s',
+                                (category_id, price, description, date_time, expenses_id))
+
+                    # Obriši postojeće veze sa tagovima
+                    cur.execute('DELETE FROM Expense_Tag WHERE Expenses_id = %s', (expenses_id,))
+                    if tags:
+                        # Obriši postojeće veze sa tagovima
+                        cur.execute('DELETE FROM Expense_Tag WHERE Expenses_id = %s', (expenses_id,))
+
+                        # Dodaj nove veze sa tagovima
+                        for tag in tags:
+                            cur.execute('INSERT INTO Expense_Tag (Expenses_id, Tag_id) VALUES (%s, %s)', (expenses_id, tag))
+            except psycopg2.Error as e:
+                db_conn.rollback()
+                print('Error updating expense:', e)
+                flash('Error updating expense', 'error')
+            else:
+                db_conn.commit()
+                print('Expense successfully updated')
+                return redirect('/generate')
+
+
+    # Učitaj podatke o trošku i kategorijama za prikaz u formi za ažuriranje
+    cur.execute('''SELECT 
+                        E.EXPENSES_ID,
+                        C.NAME,
+                        E.PRICE,
+                        E.DESCRIPTION,
+                        E.TRANSACTION_DATE,
+                        array_agg(T.Name) as tags
+                    FROM CATEGORY C
+                    JOIN EXPENSES E ON C.ID = E.CATEGORY_ID
+                    LEFT JOIN Expense_Tag ET ON E.Expenses_id = ET.Expenses_id
+                    LEFT JOIN Tag T ON ET.Tag_id = T.ID
+                    WHERE E.EXPENSES_ID = %s
+                    GROUP BY E.EXPENSES_ID, C.NAME, E.PRICE, E.DESCRIPTION, E.TRANSACTION_DATE''', (expenses_id,))
+    expense_data = []
+    for row in cur.fetchall():
+        tags = [tag for tag in row[5] if tag is not None] if row[5] else []
+        expense_data.append({
+            'expenses_id': row[0],
+            'category': row[1],
+            'price': row[2],
+            'description': row[3],
+            'date': row[4].strftime('%d.%m.%Y'),
+            'tag': tags
+        })
+    categories = get_categories()
+    return render_template('update_transaction.html', expense_data=expense_data, categories=categories)
+
 @app.route('/category', methods=['GET', 'POST'])
 def category():
     categories = get_categories()

@@ -115,6 +115,9 @@
                                 <input type="hidden" name="expenses_id" value="{{ result.expenses_id }}">
                                 <button type="submit" style="background-color: #E60000">DEL</button>
                             </form>
+                            <form action="/update_transaction/{{ result.expenses_id }}" method="GET" style="display: inline;">
+                                <button type="submit" style="background-color: #4caf50">UPDATE</button>
+                            </form>
                         </td>
                     </tr>
                     {% endfor %}
