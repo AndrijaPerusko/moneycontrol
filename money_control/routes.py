@@ -117,10 +117,10 @@ def generate():
 
             try:
                 with db_conn:
-                    # Obriši povezanost između troška i tagova iz tabele Expense_Tag
+                    # Delete connection between expense and tags from expense_tag
                     cur.execute('DELETE FROM Expense_Tag WHERE Expenses_id = %s', (expenses_id,))
 
-                    # Obriši trošak iz tabele Expenses
+                    # DEL this expense from expenses table
                     cur.execute('DELETE FROM Expenses WHERE Expenses_id = %s', (expenses_id,))
 
             except psycopg2.Error as e:
@@ -164,7 +164,7 @@ def update_transaction(expenses_id):
         description = request.form.get('description')
         date = request.form.get('date')
         tags = request.form.getlist('tag')
-
+        custom_tag = request.form.get('custom_tag')
         date_time = None
 
         try:
@@ -175,40 +175,60 @@ def update_transaction(expenses_id):
         try:
             price = float(price)
             if price <= 0:
-                raise ValueError('Invalid input.', 'error')
+                raise ValueError('Invalid input.')
         except ValueError:
             flash('Error. Input has to be number and greater than zero!', 'error')
 
         if not description:
-            flash(f'You have to provide some description!', 'error')
+            flash('You have to provide some description!', 'error')
 
-        if date_time is not None and price>0 and description:
+        if date_time is not None and description:
             try:
                 with db_conn:
-                    # Ažuriraj trošak u tabeli Expenses
-                    cur.execute('UPDATE Expenses SET CATEGORY_ID = %s, PRICE = %s, DESCRIPTION = %s, TRANSACTION_DATE = %s WHERE Expenses_id = %s',
-                                (category_id, price, description, date_time, expenses_id))
+                    # Updating expense in tale Expenses
+                    cur.execute(
+                        'UPDATE Expenses SET CATEGORY_ID = %s, PRICE = %s, DESCRIPTION = %s, TRANSACTION_DATE = %s WHERE Expenses_id = %s',
+                        (category_id, price, description, date_time, expenses_id))
 
-                    # Obriši postojeće veze sa tagovima
+                    # Delete existing links with unchecked tags
                     cur.execute('DELETE FROM Expense_Tag WHERE Expenses_id = %s', (expenses_id,))
-                    if tags:
-                        # Obriši postojeće veze sa tagovima
-                        cur.execute('DELETE FROM Expense_Tag WHERE Expenses_id = %s', (expenses_id,))
 
-                        # Dodaj nove veze sa tagovima
+                    # Adding new links with tags
+                    if tags:
                         for tag in tags:
-                            cur.execute('INSERT INTO Expense_Tag (Expenses_id, Tag_id) VALUES (%s, %s)', (expenses_id, tag))
+                            cur.execute('SELECT ID FROM Tag WHERE Name = %s', (tag,))
+                            tag_id = cur.fetchone()[0]
+                            cur.execute('INSERT INTO Expense_Tag (Expenses_id, Tag_id) VALUES (%s, %s)',
+                                        (expenses_id, tag_id))
+
+                    if custom_tag:
+                        added_tags = set()
+                        custom_tag_names = custom_tag.split(',')
+                        for custom_tag_name in custom_tag_names:
+                            custom_tag_name = custom_tag_name.strip().lower()
+                            if custom_tag_name and is_valid_custom_tag(custom_tag_name):
+                                if custom_tag_name not in added_tags:
+                                    added_tags.add(custom_tag_name)
+                                    cur.execute('SELECT ID FROM Tag WHERE NAME = %s', (custom_tag_name,))
+                                    tag_row = cur.fetchone()
+                                    if not tag_row:
+                                        cur.execute('INSERT INTO TAG (NAME) VALUES(%s) RETURNING ID',
+                                                    (custom_tag_name,))
+                                        tag_id = cur.fetchone()[0]
+                                    else:
+                                        tag_id = tag_row[0]
+                                    cur.execute('INSERT INTO EXPENSE_TAG (EXPENSES_ID, TAG_ID) VALUES (%s, %s)',
+                                                (expenses_id, tag_id))
             except psycopg2.Error as e:
                 db_conn.rollback()
                 print('Error updating expense:', e)
                 flash('Error updating expense', 'error')
             else:
                 db_conn.commit()
-                print('Expense successfully updated')
+                flash('Expense successfully updated','success')
                 return redirect('/generate')
 
 
-    # Učitaj podatke o trošku i kategorijama za prikaz u formi za ažuriranje
     cur.execute('''SELECT 
                         E.EXPENSES_ID,
                         C.NAME,
@@ -406,7 +426,7 @@ def extract_expenses():
 
 @app.context_processor
 def utility_processor():
-    # Ova funkcija će biti dostupna u svim sablonima (template) kao 'check_category_name'
+    # This app.context_processor will be available in every jinja as check_category_name
     return dict(check_category_name=check_category_name)
 
 @app.route('/import_json', methods = ['GET', 'POST'])
@@ -431,7 +451,7 @@ def import_json():
 
             try:
                 max_expenses_id = None
-                for index, item in enumerate(json_data, start=1): #check if it doesn't crash submit_json route
+                for index, item in enumerate(json_data, start=1):
                     required_keys = ['category', 'description', 'price', 'date', 'expenses_id']
                     if not all(key in item for key in required_keys):
                         flash(f'One or more required keys are missing in transaction {index}', 'error')

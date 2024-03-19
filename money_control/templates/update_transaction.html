@@ -15,18 +15,20 @@
         }
 
         .container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            max-width: 600px;
+            margin: 0 auto;
+            margin-top:20px;
+            padding: 20px;
+            background-color: #f2f2f2;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
         form {
-            width: 50%;
+            width: 93%;
             background-color: #f2f2f2;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
         .form-group {
@@ -40,7 +42,7 @@
         input[type="text"],
         input[type="number"],
         textarea {
-            width: 100%;
+            width: calc(100% - 16px);;
             padding: 8px;
             border-radius: 5px;
             border: 1px solid #ccc;
@@ -62,7 +64,31 @@
         input[type="submit"]:hover {
             background-color: #45a049;
         }
+        .back-button {
+            position: absolute;
+            top: 20px;
+            margin-left: 230px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+        }
+        .back-button:hover {
+            background-color: #45a049;
+            cursor: pointer;
+        }
         .alert.error {
+            background-color: #ffcccc;
+            border: 1px solid #ffcccc;
+            color: #333;
+            padding: 10px;
+            margin: 0 auto;
+            width: 620px;
+            text-align: center;
+            border-radius:8px;
+        }
+        .alert.success {
             background-color: #5cb85c;
             border: 1px solid #5cb85c;
             color: #333;
@@ -72,9 +98,12 @@
             text-align: center;
             border-radius:8px;
         }
+
     </style>
 </head>
 <body>
+    {% include 'sidebar.html' %}
+    <button class="back-button" onclick="window.location.href='/generate';">Back</button>
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
@@ -82,42 +111,50 @@
             {% endfor %}
         {% endif %}
     {% endwith %}
-    <div class="container">
-        <form action="/update_transaction/{{ expense_data[0].expenses_id }}" method="POST">
-            <h1>Update Expense</h1>
-            <div class="form-group">
-                <label for="category">Category:</label>
-                <select id="category" name="category">
-                    {% for category in categories %}
-                        <option value="{{ category[0] }}" {% if category[1] == expense_data[0].category %} selected {% endif %}>{{ category[1] }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="price">Price:</label>
-                <input type="number" id="price" name="price" value="{{ '%.2f' % expense_data[0].price }}">
-            </div>
-            <div class="form-group">
-                <label for="description">Description:</label>
-                <input type="text" id="description" name="description" value="{{ expense_data[0].description }}">
-            </div>
-            <div class="form-group">
-                <label for="date">Transaction Date:</label>
-                <input type="text" id="date" name="date" value="{{ expense_data[0].date }}" placeholder="Day.Month.Year">
-            </div>
-            <div class="form-group">
-                <label for="tag">Tags:</label><br>
-                {% if expense_data[0]['tag'] %}
-                    {% for tag in expense_data[0]['tag'] %}
-                        <input type="checkbox" id="tag_{{ tag }}" name="tag" value="{{ tag }}" {% if tag in expense_data[0]['tag'] %} checked {% endif %}>
-                        <label for="tag_{{ tag }}">{{ tag }}</label><br>
-                    {% endfor %}
-                {% endif %}
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Update Expense">
-            </div>
-        </form>
-    </div>
+    {% if expense_data %}
+        <div class="container">
+            <form action="/update_transaction/{{ expense_data[0].expenses_id }}" method="POST">
+                <h1>Update Expense</h1>
+                <div class="form-group">
+                    <label for="category">Category:</label>
+                    <select id="category" name="category">
+                        {% for category in categories %}
+                            <option value="{{ category[0] }}" {% if category[1] == expense_data[0].category %} selected {% endif %}>{{ category[1] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="price">Price:</label>
+                    <input type="number" id="price" name="price" value="{{ '%.2f' % expense_data[0].price }}">
+                </div>
+                <div class="form-group">
+                    <label for="description">Description:</label>
+                    <input type="text" id="description" name="description" value="{{ expense_data[0].description }}">
+                </div>
+                <div class="form-group">
+                    <label for="date">Transaction Date:</label>
+                    <input type="text" id="date" name="date" value="{{ expense_data[0].date }}" placeholder="Day.Month.Year">
+                </div>
+                <div class="form-group">
+                    <label for="tag">Tags:</label><br>
+                    {% if expense_data[0]['tag'] %}
+                        {% for item in expense_data[0]['tag'] %}
+                            <input type="checkbox" id="tag_{{ item }}" name="tag" value="{{ item }}" {% if item in expense_data[0]['tag'] %} checked {% endif %}>
+                            <label for="tag_{{ item }}">{{ item }}</label><br>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="custom_tag">Custom Tag:</label>
+                    <input type="text" id="custom_tag" name="custom_tag" placeholder="Enter new tag">
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Update Expense">
+                </div>
+            </form>
+        </div>
+    {% else %}
+        <p>No expenses found.</p>
+    {% endif %}
 </body>
 </html>
