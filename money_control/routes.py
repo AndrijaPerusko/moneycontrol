@@ -4,12 +4,13 @@ from money_control import app, db_conn, cur
 from money_control.utils import (get_categories, load_json, check_expenses_id,
                                  category_id_name, suggested_tags, is_valid_custom_tag,
                                  check_category_name, generate_new_json)
+from money_control.queries import (date_expenses, price_query, category_expenses_query, generate_query,
+                                   generate_category_tag_chart_query, generate_category_chart_query)
 from datetime import datetime
 import base64
 import os
 import json
 import matplotlib.pyplot as plt
-
 
 
 @app.route('/', methods=['GET','POST'])
@@ -129,20 +130,7 @@ def generate():
             else:
                 db_conn.commit()
                 flash('Expense successfully deleted', 'success')
-    cur.execute('''SELECT 
-                        E.EXPENSES_ID,
-                        C.NAME,
-                        E.PRICE,
-                        E.DESCRIPTION,
-                        E.TRANSACTION_DATE,
-                        array_agg(T.Name) as tags
-                    FROM CATEGORY C
-                    JOIN EXPENSES E ON C.ID = E.CATEGORY_ID
-                    LEFT JOIN Expense_Tag ET ON E.Expenses_id = ET.Expenses_id
-                    LEFT JOIN Tag T ON ET.Tag_id = T.ID
-                    GROUP BY E.Expenses_id, C.Name, E.Price, E.Description, E.Transaction_date
-                    ORDER BY E.Expenses_id DESC''')
-    query_res = cur.fetchall()
+    query_res = generate_query(cur)
 
     results = [{
         'expenses_id': row[0],
@@ -264,20 +252,8 @@ def category():
         if not category_id:
             flash('Please select a category!', 'error')
             return redirect('/category')
-        cur.execute('''
-            SELECT
-                E.PRICE,
-                E.DESCRIPTION,
-                E.TRANSACTION_DATE,
-                ARRAY_AGG(T.NAME) AS tags
-            FROM EXPENSES E
-            LEFT JOIN Expense_Tag ET ON E.Expenses_id = ET.Expenses_id
-            LEFT JOIN Tag T ON ET.Tag_id = T.ID
-            WHERE E.CATEGORY_ID = %s
-            GROUP BY E.Expenses_id
-        ''', (category_id,))
-        query_res = cur.fetchall()
 
+        query_res = category_expenses_query(cur, category_id)
         results = [{
             'price': float(i[0]),
             'description': i[1],
@@ -289,8 +265,6 @@ def category():
 
         return render_template('category.html', categories=categories, final_result=results)
     return render_template('category.html', categories=categories)
-
-
 
 
 @app.route('/price_sort', methods=['GET','POST'])
@@ -307,32 +281,7 @@ def price_sort():
                 flash('Max price cant be lower then start price!','error')
                 return redirect('/price_sort')
 
-        if max_price:
-            cur.execute(f'''SELECT C.NAME,
-                                E.PRICE,
-                                E.DESCRIPTION,
-                                E.TRANSACTION_DATE,
-                                array_agg(T.Name) as tags
-                            FROM CATEGORY C
-                            JOIN EXPENSES E ON C.ID = E.CATEGORY_ID
-                            LEFT JOIN Expense_Tag ET ON E.Expenses_id = ET.Expenses_id
-                            LEFT JOIN Tag T ON ET.Tag_id = T.ID
-                            WHERE E.PRICE BETWEEN %s AND %s
-                            GROUP BY C.NAME, E.PRICE, E.DESCRIPTION, E.TRANSACTION_DATE, E.Expenses_id''', (start_price, max_price))
-        else:
-            cur.execute(f'''SELECT C.NAME,
-                                E.PRICE,
-                                E.DESCRIPTION,
-                                E.TRANSACTION_DATE,
-                                array_agg(T.Name) as tags
-                            FROM CATEGORY C
-                            JOIN EXPENSES E ON C.ID = E.CATEGORY_ID
-                            LEFT JOIN Expense_Tag ET ON E.Expenses_id = ET.Expenses_id
-                            LEFT JOIN Tag T ON ET.Tag_id = T.ID
-                            WHERE E.PRICE = %s
-                            GROUP BY C.NAME, E.PRICE, E.DESCRIPTION, E.TRANSACTION_DATE, E.Expenses_id''', (start_price,))
-
-        sql_query = cur.fetchall()
+        sql_query = price_query(cur, start_price, max_price)
         results = [{
             'category': i[0],
             'price': float(i[1]),
@@ -343,10 +292,7 @@ def price_sort():
         if not results:
             flash('No results to display!','neutral')
 
-
         return render_template('price_filter.html', results=results)
-
-
     return render_template('price_filter.html')
 
 
@@ -356,13 +302,13 @@ def date_fiter():
         start_date = request.form['start_date']
         end_date = request.form['end_date']
 
-
         if not start_date:
             flash("Error. You didn't select a start date!",'error')
             return redirect('/date_filter')
 
         try:
             sd_datetime = datetime.strptime(start_date, '%d.%m.%Y')
+            ed_datetime = None
             if end_date:
                 ed_datetime = datetime.strptime(end_date, '%d.%m.%Y')
         except ValueError:
@@ -373,29 +319,11 @@ def date_fiter():
             flash("Start date can't be greater that end date!",'error')
             return redirect('/date_filter')
 
-        if end_date:
-            cur.execute('''SELECT E.EXPENSES_ID, C.NAME, E.PRICE, E.DESCRIPTION, E.TRANSACTION_DATE, array_agg(T.NAME) as tags
-                                FROM EXPENSES E
-                                JOIN CATEGORY C ON C.ID = E.CATEGORY_ID
-                                LEFT JOIN Expense_Tag ET ON E.EXPENSES_ID = ET.Expenses_id
-                                LEFT JOIN Tag T ON ET.Tag_id = T.ID
-                                WHERE E.TRANSACTION_DATE BETWEEN %s AND %s
-                                GROUP BY E.EXPENSES_ID, C.NAME, E.PRICE, E.DESCRIPTION, E.TRANSACTION_DATE
-                                ORDER BY E.TRANSACTION_DATE DESC''', (sd_datetime, ed_datetime))
-        else:
-            cur.execute('''SELECT E.EXPENSES_ID, C.NAME, E.PRICE, E.DESCRIPTION, E.TRANSACTION_DATE, array_agg(T.NAME) as tags
-                                FROM EXPENSES E
-                                JOIN CATEGORY C ON C.ID = E.CATEGORY_ID
-                                LEFT JOIN Expense_Tag ET ON E.EXPENSES_ID = ET.Expenses_id
-                                LEFT JOIN Tag T ON ET.Tag_id = T.ID
-                                WHERE E.TRANSACTION_DATE = %s
-                                GROUP BY E.EXPENSES_ID, C.NAME, E.PRICE, E.DESCRIPTION, E.TRANSACTION_DATE
-                                ORDER BY E.TRANSACTION_DATE DESC''', (sd_datetime,))
-
-        query_res = cur.fetchall()
+        query_res = date_expenses(cur, sd_datetime, ed_datetime)
         if not query_res:
             flash('No data for this date range or exact date!', 'neutral')
             return redirect('/date_filter')
+
         results = [{
             'expense_id': i[0],
             'category': i[1],
@@ -406,7 +334,6 @@ def date_fiter():
 
         return render_template('date_filter.html', results=results)
     return render_template('date_filter.html')
-
 
 @app.route('/extract_expenses', methods=['GET'])
 def extract_expenses():
@@ -459,6 +386,13 @@ def import_json():
                     description = item['description']
                     category_name = item['category']
                     price = item['price']
+                    date = item['date']
+                    try:
+                        datetime.strptime(date, '%d.%m.%Y')
+                    except ValueError:
+                        flash(f'Invalid date format in transaction {index}. Date must be in format day.month.year',
+                              'error')
+                        return redirect('/import_json')
                     try:
                         price = float(price)
                     except ValueError:
@@ -468,7 +402,6 @@ def import_json():
                         category_id = category_id_name(category_name)
                         if category_id is not None:
                             if description:
-                                date = item['date']
                                 expenses_id = item.get('expenses_id')
 
                                 if not expenses_id:
@@ -592,13 +525,7 @@ def generate_chart():
 @app.route('/generate_category_chart', methods=['GET', 'POST'])
 def generate_category_chart():
     if request.method == 'POST':
-        query = ("""SELECT C.NAME,
-                            SUM(E.PRICE)
-                    FROM CATEGORY C
-                    JOIN EXPENSES E ON C.ID = E.CATEGORY_ID
-                    GROUP BY C.NAME;""")
-        cur.execute(query)
-        query_result = cur.fetchall()
+        query_result = generate_category_chart_query(cur)
 
         categories = [i[0] for i in query_result]
         prices = [float(i[1]) for i in query_result]
@@ -669,14 +596,7 @@ def generate_tag_chart():
 @app.route('/generate_category_tag_chart', methods=['GET','POST'])
 def generate_category_tag_chart():
     selected_tag = request.form.get('tag')
-    cur.execute("""SELECT C.NAME, COUNT(ET.EXPENSES_ID)
-                    FROM CATEGORY C
-                    LEFT JOIN EXPENSES E ON C.ID = E.CATEGORY_ID
-                    LEFT JOIN EXPENSE_TAG ET ON E.EXPENSES_ID = ET.EXPENSES_ID
-                    LEFT JOIN TAG T ON ET.TAG_ID = T.ID
-                    WHERE T.NAME = %s
-                    GROUP BY C.NAME;""", (selected_tag,))
-    data = cur.fetchall()
+    data = generate_category_tag_chart_query(cur, selected_tag)
     if not data:
         flash(f'Selected tag: {selected_tag} is not mentioned in any category', 'error')
 
@@ -702,6 +622,7 @@ def generate_category_tag_chart():
 @app.route('/download_custom')
 def download_custom():
     return render_template('download_custom.html')
+
 @app.route('/download_generated_json', methods=['POST'])
 def download_generated_json():
     num_obj = request.form.get('num_obj')
