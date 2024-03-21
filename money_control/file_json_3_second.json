@@ -3,21 +3,21 @@
       "category": "Food order",
       "description": "Mister Wong",
       "price":  "3000",
-      "date": "08.04.2024",
+      "date": "20.03.2024",
       "expenses_id":""
     },
       {
       "category": "Vacation",
       "description": "Fruska Gora",
       "price": 7000,
-      "date": "01.05.2024",
+      "date": "20.03.2024",
       "expenses_id":""
     },
       {
       "category": "Other",
       "description": "Steam market Giftcard",
       "price": 3500,
-      "date": "22.05.2024",
+      "date": "20.03.2024",
       "expenses_id":""
     }
   ]

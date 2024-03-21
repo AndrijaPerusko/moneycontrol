@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Category ID</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #ccd8e5;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+        hr{
+            border-top: 1px;
+            margin: 10px 0;
+        }
+        .back-button {
+            position: absolute;
+            top: 20px;
+            margin-left: 230px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+        }
+        .back-button:hover {
+            background-color: #45a049;
+            cursor: pointer;
+        }
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            max-width: 400px;
+            margin: 0 100px;
+        }
+        .sum-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            max-width: 840px;
+            margin: 20px auto;
+        }
+        .card p {
+            font-weight: bold;
+        }
+        .card .error{
+            color: red;
+        }
+        .category-link {
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 20px;
+            background-color: #0039a6;
+            color: white;
+            display: inline-block;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        .category-link:hover {
+            background-color: #4b88ff ;
+            cursor: pointer;
+        }
+        .category-link-expenses {
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 20px;
+            background-color: #FFD700;
+            color: #000000;
+            display: inline-block;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        .category-link-expenses:hover {
+            background-color: #FFC107;
+            cursor: pointer;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px auto;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f0f0f0;
+        }
+        tr:nth-child(odd) {
+            background-color: #e6e6e6;
+        }
+        .center {
+            text-align: center;
+        }
+        .chart-container {
+            text-align: center;
+        }
+        .chart-container img {
+            display: block;
+            margin: 0 auto;
+            max-width: 100%;
+        }
+    </style>
+</head>
+<body>
+    {% include 'sidebar.html' %}
+    <button class="back-button" onclick="window.location.href='/main_category';">Back</button>
+    <h1>Category: {{ category_name }}</h1>
+    <div class="card-container">
+        <div class="card" style="flex: 1; margin-right: 1px;">
+            <h2>TAGS</h2>
+            <br>
+            <p>This category has: {{ tag_count }} tags.</p>
+            <hr>
+            <p>Most popular tags for this category:</p>
+            <div>
+                {% if top_tags %}
+                    {% for tag in top_tags %}
+                        <span class="category-link">{{ tag[0] }}</span>
+                    {% endfor %}
+                {% else %}
+                    <p class="error">There are no tags for this category. </p>
+                {% endif %}
+
+            </div>
+            <hr>
+            <p>Tags used in last 7 days:</p>
+            <div>
+                {% if recent_tags %}
+                    {% for tag in recent_tags %}
+                        <span class="category-link">{{ tag[0] }}</span>
+                    {% endfor %}
+                {% else %}
+                    <p class="error">There are no tags for this category. </p>
+                {% endif %}
+
+            </div>
+        </div>
+        <div class="card" style="flex: 1; margin-left: 1px;">
+            <h2>EXPENSES</h2>
+            <br>
+            <p>This category has: {{ expense_count }} expenses.</p>
+            <hr>
+            <p>Most popular expenses for this category:</p>
+            <div>
+                {% if top_expenses %}
+                    {% for expense in top_expenses %}
+                        <span class="category-link-expenses">{{ expense[0] }}</span>
+                    {% endfor %}
+                {% else %}
+                    <p class="error">There are no expenses for this category. </p>
+                {% endif %}
+
+            </div>
+            <hr>
+            <p>Top expenses used in last 7 days:</p>
+            <div>
+                {% if latest_expenses %}
+                    {% for expense in latest_expenses %}
+                        <span class="category-link-expenses">{{ expense[0] }}</span>
+                    {% endfor %}
+                {% else %}
+                    <p class="error">There are no expenses for this category. </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="sum-card">
+        <h2>SUM</h2>
+        <br>
+        <p class="center">Total price for category {{ category_name }}: <strong>{{ total_expense }}</strong></p>
+        <hr>
+        <p class="center">Average price for category {{ category_name }}: <strong>{{ average_price }}</strong></p>
+        <hr>
+            <strong><p>Most Expensive Transactions</p></strong>
+        <div>
+            {% if most_expensive_results %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>Date</th>
+                            <th>Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for expense in most_expensive_results %}
+                            <tr>
+                                <td><span class="category-link-expenses">{{ expense[0] }}</span></td>
+                                <td>{{ expense[1].strftime('%d.%m.%Y') }}</td>
+                                <td>{{ expense[2] }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="error">There are no expenses for this category. </p>
+            {% endif %}
+        </div>
+        <hr>
+        <strong><p>Cheapest Transactions</p></strong>
+        <div>
+            {% if cheapest_expenses %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>Date</th>
+                            <th>Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for expense in cheapest_expenses %}
+                            <tr>
+                                <td><span class="category-link-expenses">{{ expense[0] }}</span></td>
+                                <td>{{ expense[1].strftime('%d.%m.%Y') }}</td>
+                                <td>{{ expense[2] }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="error">There are no expenses for this category. </p>
+            {% endif %}
+        </div>
+    </div>
+    <div class="chart-container">
+        {% if graph_path %}
+            <h2>Expenses for category: {{ category_name }}</h2>
+            <img src="{{ url_for('static', filename='category_chart.png') }}" alt="Chart">
+        {% endif %}
+    </div>
+    <div class="chart-container">
+        {% if path_graph %}
+            <h2>Tag price for category: {{ category_name }}</h2>
+            <img src="{{ url_for('static', filename='tag_price.png') }}" alt="Chart">
+        {% endif %}
+    </div>
+</body>
+</html>

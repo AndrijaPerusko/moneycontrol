@@ -44,7 +44,7 @@
 </head>
 <body>
     <button class="back-button" onclick="window.location.href='/generate';">Back</button>
-    <h1>Tag Chart</h1>
+    <h1>Chart for tag: {{ selected_tag }}</h1>
     <div class="container">
         {% if chart_img %}
         <img src="data:image/jpeg;base64,{{ chart_img }}" alt="Tag Chart">

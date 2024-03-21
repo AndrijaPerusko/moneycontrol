@@ -130,9 +130,9 @@
         <button class="back-button" onclick="window.location.href='/';">Back</button>
         <form method="POST">
             <label for="start_price">Start Price:</label>
-            <input type="text" id="start_price" name="start_price">
+            <input type="text" id="start_price" name="start_price" value="{{ request.form.get('start_price', '') }}">
             <label for="max_price">Max Price:</label>
-            <input type="text" id="max_price" name="max_price">
+            <input type="text" id="max_price" name="max_price" value="{{ request.form.get('max_price', '') }}">
             <button type="submit">Submit</button>
         </form>
 
