@@ -56,12 +56,13 @@
         }
         .category-link:hover {
             background-color: #ff9c4f;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
     {% include 'sidebar.html' %}
-    <button class="back-button" onclick="window.location.href='/';">Back</button>
+    <button class="back-button" onclick="window.history.back();">Back</button>
     <h2>Main Category Summary</h2>
     <table>
         <thead>

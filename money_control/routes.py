@@ -5,7 +5,9 @@ from money_control.utils import (get_categories, load_json, check_expenses_id,
                                  category_id_name, suggested_tags, is_valid_custom_tag,
                                  check_category_name, generate_new_json)
 from money_control.queries import (date_expenses, price_query, category_expenses_query, generate_query,
-                                   generate_category_tag_chart_query, generate_category_chart_query)
+                                   generate_category_tag_chart_query, generate_category_chart_query,
+                                   calculate_pagination, get_tag_by_name, count_tag_usage, get_total_count_expenses,
+                                   exact_price_query, date_expenses_exact)
 from money_control.charts import generate_expense_chart,  generate_tag_expense_chart
 from datetime import datetime
 import base64
@@ -111,19 +113,28 @@ def add_expenses():
         return render_template('index.html', categories=get_categories())
 
 
-@app.route('/generate', methods=['GET', 'POST'])
-def generate():
+@app.route('/main_expenses', methods=['GET', 'POST'])
+def main_expenses():
     if request.method == 'POST':
         if 'delete_expense' in request.form:
             expenses_id = request.form.get('expenses_id')
 
             try:
                 with db_conn:
+                    # Fetch tags associated with the expense
+                    cur.execute('SELECT Tag_id FROM Expense_Tag WHERE Expenses_id = %s', (expenses_id,))
+                    tags = [row[0] for row in cur.fetchall()]
+
                     # Delete connection between expense and tags from expense_tag
                     cur.execute('DELETE FROM Expense_Tag WHERE Expenses_id = %s', (expenses_id,))
 
                     # DEL this expense from expenses table
                     cur.execute('DELETE FROM Expenses WHERE Expenses_id = %s', (expenses_id,))
+
+                    # Check and delete unused tags
+                    for tag_id in tags:
+                        if count_tag_usage(cur, tag_id) == 0:
+                            cur.execute('DELETE FROM Tag WHERE ID = %s', (tag_id,))
 
             except psycopg2.Error as e:
                 db_conn.rollback()
@@ -131,20 +142,157 @@ def generate():
             else:
                 db_conn.commit()
                 flash('Expense successfully deleted', 'success')
-    query_res = generate_query(cur)
+
+    page = request.args.get('page', 1, type=int)
+    per_page = 15
+    query_res = generate_query(cur, page, per_page)
 
     results = [{
         'expenses_id': row[0],
-        'category': row[1],
+        'description': row[1],
         'price': float(row[2]),
-        'description': row[3],
-        'date': row[4].strftime('%d.%m.%Y'),
-        'tag': row[5] if row[5] else None
+        'category': row[3],
+        'category_id': row[4],
+        'date': row[5].strftime('%d.%m.%Y'),
+        'tags': row[6] if row[6] else [],
+        'tag_ids': row[7] if row[7] else []
     } for row in query_res]
+    total_count = get_total_count_expenses(cur)
+    total_pages = (total_count // per_page) + (1 if total_count % per_page > 0 else 0)
 
-    return render_template('generate.html', results=results)
+    return render_template('main_expenses.html', results=results, page=page,
+                           total_pages=total_pages,per_page=per_page)
 
+@app.route('/main_expenses_description/<description>', methods=['GET'])
+def main_expenses_description(description):
+    cur.execute("""
+    SELECT COUNT(et.Tag_id)
+        FROM Expenses e
+        JOIN Expense_Tag et ON e.Expenses_id = et.Expenses_id
+        WHERE e.DESCRIPTION = %s;
+        """, (description,))
 
+    tag_count = cur.fetchone()[0]
+
+    cur.execute("""
+        SELECT COUNT(et.Tag_id) as tag_count, t.Name, t.ID as tag_id
+        FROM Expenses e
+        JOIN Expense_Tag et ON e.Expenses_id = et.Expenses_id
+        JOIN Tag t ON et.Tag_id = t.ID
+        WHERE e.DESCRIPTION = %s
+        GROUP BY t.Name, t.ID
+        ORDER BY tag_count DESC
+        LIMIT 10;
+        """, (description,))
+
+    top_tags = cur.fetchall()
+
+    cur.execute("""
+        SELECT et.Tag_id, t.Name
+        FROM Expenses e
+        JOIN Expense_Tag et ON e.Expenses_id = et.Expenses_id
+        JOIN Tag t ON et.Tag_id = t.ID
+        WHERE e.DESCRIPTION = %s
+        AND e.TRANSACTION_DATE >= CURRENT_DATE - INTERVAL '7 days'
+        AND e.TRANSACTION_DATE <= CURRENT_DATE
+        ORDER BY e.TRANSACTION_DATE DESC
+        LIMIT 10;
+    """, (description,))
+    past_7_days_tag = cur.fetchall()
+
+    cur.execute("""
+        SELECT COUNT(DISTINCT c.ID)
+        FROM Expenses e
+        JOIN Category c ON e.CATEGORY_ID = c.ID
+        WHERE e.DESCRIPTION = %s;
+    """, (description,))
+
+    category_count = cur.fetchone()[0]
+
+    cur.execute("""
+        SELECT c.ID, c.Name, COUNT(*) as count
+        FROM Expenses e
+        JOIN Category c ON e.CATEGORY_ID = c.ID
+        WHERE e.DESCRIPTION = %s
+        GROUP BY c.ID, c.Name
+        ORDER BY count DESC
+        LIMIT 4;
+    """, (description,))
+
+    popular_categories = cur.fetchall()
+
+    cur.execute("""
+        SELECT c.ID, c.Name
+        FROM Expenses e
+        JOIN Category c ON e.CATEGORY_ID = c.ID
+        WHERE e.DESCRIPTION = %s
+        AND e.TRANSACTION_DATE >= CURRENT_DATE - INTERVAL '7 days'
+        AND e.TRANSACTION_DATE <= CURRENT_DATE
+        GROUP BY c.ID, c.Name;
+    """, (description,))
+
+    recent_categories = cur.fetchall()
+
+    cur.execute("""
+        SELECT COALESCE(SUM(e.PRICE), 0) as total_price
+        FROM Expenses e
+        WHERE e.DESCRIPTION = %s;
+    """, (description,))
+
+    total_price = cur.fetchone()[0]
+
+    cur.execute("""
+        SELECT ROUND(AVG(e.PRICE), 2) as avg_price
+        FROM Expenses e
+        WHERE e.DESCRIPTION = %s;
+    """, (description,))
+
+    avg_price = cur.fetchone()[0]
+
+    cur.execute("""
+        SELECT COUNT(e.Expenses_id) as total_expenses
+        FROM Expenses e
+        WHERE e.DESCRIPTION = %s;
+    """, (description,))
+
+    same_desc = cur.fetchone()[0]
+
+    cur.execute("""
+        SELECT c.ID, c.Name as Category, e.PRICE, e.TRANSACTION_DATE,
+               string_agg(t.Name, ', ') as Tags,
+               string_agg(CAST(t.ID AS TEXT), ', ') as Tag_IDs
+        FROM Expenses e
+        JOIN Category c ON e.CATEGORY_ID = c.ID
+        JOIN Expense_Tag et ON e.Expenses_id = et.Expenses_id
+        JOIN Tag t ON et.Tag_id = t.ID
+        WHERE e.DESCRIPTION = %s
+        GROUP BY c.ID, c.Name, e.PRICE, e.TRANSACTION_DATE
+        ORDER BY e.PRICE DESC
+        LIMIT 3;
+    """, (description,))
+
+    top_price_expenses = cur.fetchall()
+
+    cur.execute("""
+        SELECT c.ID, c.Name as Category, e.PRICE, e.TRANSACTION_DATE,
+               string_agg(t.Name, ', ') as Tags,
+               string_agg(CAST(t.ID AS TEXT), ', ') as Tag_IDs
+        FROM Expenses e
+        JOIN Category c ON e.CATEGORY_ID = c.ID
+        JOIN Expense_Tag et ON e.Expenses_id = et.Expenses_id
+        JOIN Tag t ON et.Tag_id = t.ID
+        WHERE e.DESCRIPTION = %s
+        GROUP BY c.ID, c.Name, e.PRICE, e.TRANSACTION_DATE
+        ORDER BY e.PRICE ASC
+        LIMIT 3;
+    """, (description,))
+
+    cheapest_price = cur.fetchall()
+    return render_template('main_expenses_description.html', description=description, tag_count=tag_count,
+                           top_tags=top_tags, past_7_days_tag=past_7_days_tag, category_count=category_count,
+                           popular_categories=popular_categories, recent_categories=recent_categories,
+                           total_price=total_price, avg_price=avg_price, same_desc=same_desc,
+                           top_price_expenses=top_price_expenses, cheapest_price=cheapest_price)
 @app.route('/update_transaction/<int:expenses_id>', methods=['GET', 'POST'])
 def update_transaction(expenses_id):
     if request.method == 'POST':
@@ -215,7 +363,7 @@ def update_transaction(expenses_id):
             else:
                 db_conn.commit()
                 flash('Expense successfully updated','success')
-                return redirect('/generate')
+                return redirect('/main_expenses')
 
 
     cur.execute('''SELECT 
@@ -276,7 +424,7 @@ def main_category_id(category_id):
     tag_count = tag_count_result[0] if tag_count_result else 0
 
     cur.execute("""
-        SELECT t.name, COUNT(et.tag_id) AS tag_usage
+        SELECT t.name, t.id, COUNT(et.tag_id) AS tag_usage
         FROM tag t
         JOIN expense_tag et ON t.id = et.tag_id
         JOIN expenses e ON et.expenses_id = e.expenses_id
@@ -288,12 +436,13 @@ def main_category_id(category_id):
     top_tags = cur.fetchall()
 
     cur.execute("""
-        SELECT t.name
+        SELECT t.id, t.name
         FROM tag t
         JOIN expense_tag et ON t.id = et.tag_id
         JOIN expenses e ON et.expenses_id = e.expenses_id
         WHERE e.category_id = %s 
-        AND e.transaction_date >= CURRENT_DATE - INTERVAL '7 days'
+            AND e.TRANSACTION_DATE >= CURRENT_DATE - INTERVAL '7 days'
+            AND e.TRANSACTION_DATE <= CURRENT_DATE
         GROUP BY t.id
         ORDER BY MAX(e.transaction_date) ASC
         LIMIT 10
@@ -320,10 +469,11 @@ def main_category_id(category_id):
 
     cur.execute("""
         SELECT DISTINCT description 
-        FROM expenses 
+        FROM expenses e
         WHERE category_id = %s 
-        AND transaction_date >= CURRENT_DATE - INTERVAL '7 days' 
-        LIMIT 4;
+        AND e.TRANSACTION_DATE >= CURRENT_DATE - INTERVAL '7 days'
+        AND e.TRANSACTION_DATE <= CURRENT_DATE
+        LIMIT 5;
     """, (category_id,))
     latest_expenses = cur.fetchall()
 
@@ -344,22 +494,41 @@ def main_category_id(category_id):
     average_price = average_price_result[0]
 
     cur.execute("""
-        SELECT description, transaction_date, price
-        FROM expenses
-        WHERE category_id = %s
-        ORDER BY price DESC
+        SELECT e.expenses_id, e.description, e.transaction_date, e.price, 
+               string_agg(t.name, ', ') as tags, 
+               string_agg(CAST(t.id AS TEXT), ', ') as tag_ids
+        FROM expenses e
+        LEFT JOIN (
+            SELECT et.expenses_id, t.name, t.id
+            FROM expense_tag et
+            JOIN tag t ON et.tag_id = t.id
+        ) t ON e.expenses_id = t.expenses_id
+        WHERE e.category_id = %s
+        GROUP BY e.expenses_id, e.description, e.transaction_date, e.price
+        ORDER BY e.price DESC
         LIMIT 3;
     """, (category_id,))
+
     most_expensive_results = cur.fetchall()
 
     cur.execute("""
-        SELECT description, transaction_date, price
-        FROM expenses
-        WHERE category_id = %s
-        ORDER BY price ASC
+        SELECT e.expenses_id, e.description, e.transaction_date, e.price, 
+               string_agg(t.name, ', ') as tags, 
+               string_agg(CAST(t.id AS TEXT), ', ') as tag_ids
+        FROM expenses e
+        LEFT JOIN (
+            SELECT et.expenses_id, t.name, t.id
+            FROM expense_tag et
+            JOIN tag t ON et.tag_id = t.id
+        ) t ON e.expenses_id = t.expenses_id
+        WHERE e.category_id = %s
+        GROUP BY e.expenses_id, e.description, e.transaction_date, e.price
+        ORDER BY e.price ASC
         LIMIT 3;
     """, (category_id,))
+
     cheapest_expenses = cur.fetchall()
+
     graph_path = generate_expense_chart(category_id)
     path_graph = generate_tag_expense_chart(category_id)
 
@@ -368,50 +537,258 @@ def main_category_id(category_id):
                            top_expenses=top_expenses, latest_expenses=latest_expenses, total_expense=total_expense,
                            average_price=average_price, most_expensive_results=most_expensive_results,
                            cheapest_expenses=cheapest_expenses, graph_path=graph_path, path_graph=path_graph)
-@app.route('/category', methods=['GET', 'POST'])
-def category():
+
+@app.route('/main_tag', methods=['GET', 'POST'])
+def main_tag():
+    page = request.args.get('page', 1, type=int)
+    per_page = 15
+    offset = (page - 1) * per_page
+
+    total_pages = calculate_pagination(cur, per_page)
+
+    search_query = request.args.get('search_query', None)
+
+    if search_query:
+        cur.execute("""
+               SELECT t.ID AS Tag_ID,
+                      t.Name AS Tag_Name,
+                      COUNT(DISTINCT c.ID) AS NumberOfCategories,
+                      COUNT(DISTINCT e.Expenses_id) AS NumberOfExpenses,
+                      COALESCE(SUM(e.price), 0) AS total_price
+                   FROM 
+                      Tag t
+                   LEFT JOIN 
+                      Expense_Tag et ON t.ID = et.Tag_id
+                   LEFT JOIN 
+                      Expenses e ON et.Expenses_id = e.Expenses_id
+                   LEFT JOIN 
+                      Category c ON e.CATEGORY_ID = c.ID
+                   WHERE 
+                      t.Name ILIKE %s
+                   GROUP BY 
+                      t.ID, t.Name
+                   ORDER BY 
+                      t.Name ASC
+                   LIMIT %s OFFSET %s;
+               """, (f"%{search_query}%", per_page, offset))
+    else:
+        cur.execute("""
+               SELECT t.ID AS Tag_ID,
+                       t.Name AS Tag_Name,
+                       COUNT(DISTINCT c.ID) AS NumberOfCategories,
+                       COUNT(DISTINCT e.Expenses_id) AS NumberOfExpenses,
+                       COALESCE(SUM(e.price), 0) AS total_price
+                   FROM 
+                       Tag t
+                   LEFT JOIN 
+                       Expense_Tag et ON t.ID = et.Tag_id
+                   LEFT JOIN 
+                       Expenses e ON et.Expenses_id = e.Expenses_id
+                   LEFT JOIN 
+                       Category c ON e.CATEGORY_ID = c.ID
+                   GROUP BY 
+                       t.ID, t.Name
+                   ORDER BY 
+                       t.Name ASC
+                   LIMIT %s OFFSET %s;
+               """, (per_page, offset))
+    results = cur.fetchall()
+    return render_template('main_tag.html', results=results, page=page, total_pages=total_pages)
+
+@app.route('/main_tag_id/<int:tag_id>', methods=['GET'])
+def main_tag_id(tag_id):
+    tag_name = get_tag_by_name(cur, tag_id)
+
+    cur.execute("""
+        SELECT COALESCE(COUNT(DISTINCT c.ID), 0)
+        FROM Category c
+        JOIN Expenses e ON c.ID = e.CATEGORY_ID
+        JOIN Expense_Tag et ON e.Expenses_id = et.Expenses_id
+        WHERE et.Tag_id = %s;
+    """, (tag_id,))
+
+    category_count = cur.fetchone()[0]
+
+    cur.execute("""
+        SELECT c.ID, c.Name, COALESCE(COUNT(DISTINCT e.Expenses_id), 0) as tag_count
+        FROM Category c
+        LEFT JOIN Expenses e ON c.ID = e.CATEGORY_ID
+        LEFT JOIN Expense_Tag et ON e.Expenses_id = et.Expenses_id
+        WHERE et.Tag_id = %s
+        GROUP BY c.ID, c.Name
+        ORDER BY tag_count DESC
+        LIMIT 3;
+    """, (tag_id,))
+
+    top_categories = cur.fetchall()
+
+    cur.execute("""
+        SELECT c.ID, c.Name
+        FROM Category c
+        JOIN Expenses e ON c.ID = e.CATEGORY_ID
+        JOIN Expense_Tag et ON e.Expenses_id = et.Expenses_id
+        WHERE et.Tag_id = %s
+          AND e.TRANSACTION_DATE >= CURRENT_DATE - INTERVAL '7 days'
+          AND e.TRANSACTION_DATE <= CURRENT_DATE
+        GROUP BY c.ID, c.Name
+        ORDER BY MAX(e.TRANSACTION_DATE) DESC
+        LIMIT 5;
+    """, (tag_id,))
+
+    last_seven_days = cur.fetchall()
+
+    cur.execute("""
+        SELECT COALESCE(COUNT(DISTINCT e.Expenses_id), 0)
+        FROM Expenses e
+        JOIN Expense_Tag et ON e.Expenses_id = et.Expenses_id
+        WHERE et.Tag_id = %s;
+    """, (tag_id,))
+
+    expenses_count = cur.fetchone()[0]
+
+    cur.execute("""
+        SELECT e.DESCRIPTION, COUNT(*) as frequency
+        FROM Expenses e
+        JOIN Expense_Tag et ON e.Expenses_id = et.Expenses_id
+        WHERE et.Tag_id = %s
+        GROUP BY e.DESCRIPTION
+        ORDER BY frequency DESC
+        LIMIT 3;
+    """, (tag_id,))
+
+    top_expenses = cur.fetchall()
+
+    cur.execute("""
+        SELECT DISTINCT subquery.DESCRIPTION
+        FROM (
+            SELECT e.DESCRIPTION
+            FROM Expenses e
+            JOIN Expense_Tag et ON e.Expenses_id = et.Expenses_id
+            WHERE et.Tag_id = %s
+            AND e.TRANSACTION_DATE >= CURRENT_DATE - INTERVAL '7 days'
+            AND e.TRANSACTION_DATE <= CURRENT_DATE
+            ORDER BY e.TRANSACTION_DATE ASC
+            LIMIT 5
+        ) AS subquery
+        ORDER BY subquery.DESCRIPTION ASC;
+    """, (tag_id,))
+    seven_days_expenses = cur.fetchall()
+
+
+    cur.execute("""
+        SELECT COALESCE(SUM(e.PRICE), 0) as TotalAmount
+        FROM Expenses e
+        JOIN Expense_Tag et ON e.Expenses_id = et.Expenses_id
+        WHERE et.Tag_id = %s;
+    """, (tag_id,))
+
+    total_cost = cur.fetchone()[0]
+
+    cur.execute("""
+        SELECT COALESCE(ROUND(AVG(e.PRICE), 2), 0) as AveragePrice
+        FROM Expenses e
+        JOIN Expense_Tag et ON e.Expenses_id = et.Expenses_id
+        WHERE et.Tag_id = %s;
+    """, (tag_id,))
+
+    average_price = cur.fetchone()[0]
+
+    cur.execute("""
+        SELECT e.DESCRIPTION,c.ID, c.Name as Category, e.TRANSACTION_DATE, e.PRICE
+        FROM Expenses e
+        JOIN Category c ON e.CATEGORY_ID = c.ID
+        JOIN Expense_Tag et ON e.Expenses_id = et.Expenses_id
+        WHERE et.Tag_id = %s
+        ORDER BY e.PRICE DESC
+        LIMIT 3;
+    """, (tag_id,))
+
+    top_expensive_expenses = cur.fetchall()
+
+    cur.execute("""
+        SELECT e.DESCRIPTION,c.ID, c.Name as Category, e.TRANSACTION_DATE, e.PRICE
+        FROM Expenses e
+        JOIN Category c ON e.CATEGORY_ID = c.ID
+        JOIN Expense_Tag et ON e.Expenses_id = et.Expenses_id
+        WHERE et.Tag_id = %s
+        ORDER BY e.PRICE ASC
+        LIMIT 3;
+    """, (tag_id,))
+
+    top_cheap_expenses = cur.fetchall()
+
+    return render_template('main_tag_id.html', tag_name=tag_name, category_count=category_count,
+                           top_categories=top_categories, last_seven_days=last_seven_days, expenses_count=expenses_count,
+                           top_expenses=top_expenses, seven_days_expenses=seven_days_expenses, total_cost=total_cost,
+                           average_price=average_price, top_expensive_expenses=top_expensive_expenses,
+                           top_cheap_expenses=top_cheap_expenses)
+
+@app.route('/category_expenses', methods=['GET', 'POST'])
+def category_expenses():
     categories = get_categories()
+
     if request.method == 'POST':
         category_id = request.form['category_id']
         if not category_id:
             flash('Please select a category!', 'error')
-            return redirect('/category')
+            return redirect('/category_expenses')
 
         query_res = category_expenses_query(cur, category_id)
         results = [{
-            'price': float(i[0]),
-            'description': i[1],
+            'description': i[0],
+            'price': float(i[1]),
             'transaction_date': i[2].strftime('%d.%m.%Y'),
-            'tag': i[3] if i[3] else []} for i in query_res
-        ]
+            'tag': i[3],
+            'tag_ids': i[4] if i[4] else []
+        } for i in query_res]
+
         if not results:
             flash('No expenses found for selected category.', 'error')
 
-        return render_template('category.html', categories=categories, final_result=results)
-    return render_template('category.html', categories=categories)
+        return render_template('category_expenses.html', categories=categories, final_result=results)
+
+    return render_template('category_expenses.html', categories=categories)
 
 
-@app.route('/price_sort', methods=['GET','POST'])
-def price_sort():
+@app.route('/price_filter', methods=['GET','POST'])
+def price_filter():
     if request.method == 'POST':
         start_price = request.form['start_price']
         max_price = request.form['max_price']
+        exact_price = request.form['exact_price']
 
-        if not start_price:
-            flash("You have to provide Start Price!", 'error')
-            return redirect('/price_sort')
-        if start_price and max_price:
+        if not start_price and not max_price and not exact_price:
+            flash("You have to provide some price!", 'error')
+            return redirect('/price_filter')
+        if start_price and max_price and not exact_price:
             if float(start_price) > float(max_price):
                 flash('Max price cant be lower then start price!','error')
-                return redirect('/price_sort')
+                return redirect('/price_filter')
+        if start_price and exact_price:
+            flash('You have to choose either start price or exact price ', 'error')
+            return redirect('/price_filter')
+        if max_price and exact_price:
+            flash('You have to choose either max price or exact price ', 'error')
+            return redirect('/price_filter')
 
-        sql_query = price_query(cur, start_price, max_price)
+        if exact_price:
+            sql_query = exact_price_query(cur, exact_price)
+        elif start_price and max_price:
+            sql_query = price_query(cur, start_price, max_price)
+        elif max_price:
+            sql_query = price_query(cur, max_price=max_price)
+        else:
+            sql_query = price_query(cur, start_price=start_price)
+
         results = [{
-            'category': i[0],
-            'price': float(i[1]),
-            'description': i[2],
-            'date': i[3].strftime('%d.%m.%Y'),
-            'tags': i[4]} for i in sql_query]
+            'category_id': i[0],
+            'name': i[1],
+            'price': float(i[2]),
+            'description': i[3],
+            'date': i[4].strftime('%d.%m.%Y'),
+            'tag': i[5],
+            'tag_ids': i[6] if i[6] else []
+        } for i in sql_query]
 
         if not results:
             flash('No results to display!','neutral')
@@ -425,36 +802,62 @@ def date_fiter():
     if request.method == 'POST':
         start_date = request.form['start_date']
         end_date = request.form['end_date']
+        exact_date = request.form['exact_date']
 
-        if not start_date:
-            flash("Error. You didn't select a start date!",'error')
-            return redirect('/date_filter')
+        sd_datetime = None
+        ed_datetime = None
+        ex_datatime = None
 
-        try:
-            sd_datetime = datetime.strptime(start_date, '%d.%m.%Y')
-            ed_datetime = None
-            if end_date:
+        if start_date:
+            try:
+                sd_datetime = datetime.strptime(start_date, '%d.%m.%Y')
+            except ValueError:
+                flash('Invalid start date format!', 'error')
+                return redirect('/date_filter')
+
+        if end_date:
+            try:
                 ed_datetime = datetime.strptime(end_date, '%d.%m.%Y')
-        except ValueError:
-            flash('Invalid input or you didnt select start or end date!','error')
+            except ValueError:
+                flash('Invalid end date format!', 'error')
+                return redirect('/date_filter')
+
+        if exact_date:
+            try:
+                ex_datatime = datetime.strptime(exact_date, '%d.%m.%Y')
+            except ValueError:
+                flash('Invalid end date format!', 'error')
+                return redirect('/date_filter')
+
+        if (start_date and end_date and end_date < start_date) or \
+           (exact_date and (start_date or end_date)):
+            flash("Invalid date selection!", 'error')
             return redirect('/date_filter')
 
-        if end_date and sd_datetime > ed_datetime:
-            flash("Start date can't be greater that end date!",'error')
-            return redirect('/date_filter')
+        query_res = None
 
-        query_res = date_expenses(cur, sd_datetime, ed_datetime)
+
+        if exact_date:
+            query_res = date_expenses_exact(cur, ex_datatime)
+        elif start_date and end_date:
+            query_res = date_expenses(cur, sd_datetime, ed_datetime)
+        elif start_date:
+            query_res = date_expenses(cur, sd_datetime)
+        elif end_date:
+            query_res = date_expenses(cur, ed_datetime)
         if not query_res:
             flash('No data for this date range or exact date!', 'neutral')
             return redirect('/date_filter')
 
         results = [{
-            'expense_id': i[0],
-            'category': i[1],
-            'price': float(i[2]),
+            'category_id': i[0],
+            'name': i[1],
+            'date': i[2].strftime('%d.%m.%Y'),
             'description': i[3],
-            'date': i[4].strftime('%d.%m.%Y'),
-            'tags': i[5] if i[5] else []} for i in query_res]
+            'price': float(i[4]),
+            'tag': i[5],
+            'tag_ids': i[6] if i[6] else []
+        } for i in query_res]
 
         return render_template('date_filter.html', results=results)
     return render_template('date_filter.html')

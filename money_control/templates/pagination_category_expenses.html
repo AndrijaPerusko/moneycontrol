@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagination Styles</title>
+</head>
+<body>
+    <div class="pagination">
+        {% if results %}
+            {% if page > 1 %}
+                <a href="{{ url_for('category_expenses', page=page-1) }}"><</a>
+            {% endif %}
+
+            {% for p in range(1, total_pages + 1) %}
+                {% if p == page %}
+                    <a href="{{ url_for('category_expenses', page=p) }}" class="active">{{ p }}</a>
+                {% elif p == 1 and page > 3 %}
+                    <a href="{{ url_for('category_expenses', page=p) }}">{{ p }}</a>
+                    {% if p != page - 1 %}
+                        <span>...</span>
+                    {% endif %}
+                {% elif p == total_pages and page < total_pages - 2 %}
+                    {% if p != page + 1 %}
+                        <span>...</span>
+                    {% endif %}
+                    <a href="{{ url_for('category_expenses', page=p) }}">{{ p }}</a>
+                {% elif p == 1 and page <= 3 %}
+                    <a href="{{ url_for('category_expenses', page=p) }}">{{ p }}</a>
+                {% elif p == total_pages and page >= total_pages - 2 %}
+                    <a href="{{ url_for('category_expenses', page=p) }}">{{ p }}</a>
+                {% else %}
+                    {% if p == page - 1 or p == page + 1 %}
+                        <a href="{{ url_for('category_expenses', page=p) }}">{{ p }}</a>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+
+            {% if page < total_pages %}
+                <a href="{{ url_for('category_expenses', page=page+1) }}">></a>
+            {% endif %}
+        {% endif %}
+    </div>
+</body>
+</html>

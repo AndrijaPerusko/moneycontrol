@@ -55,36 +55,29 @@
             background-color: #45a049;
         }
 
-
         table {
-            position: absolute;
-            width: calc(100% - 420px);
             border-collapse: collapse;
-            margin-left: 300px;
-
+            width: 60%;
+            margin: 20px auto;
         }
-
         th, td {
+            border: 1px solid #ddd;
             padding: 8px;
-            border-bottom: 1px solid #ddd;
             text-align: center;
+            width: 25%;
         }
-
         th {
             background-color: #f2f2f2;
         }
-
-<!--        a {-->
-<!--            display: block;-->
-<!--            margin-top: 20px;-->
-<!--            text-align: center;-->
-<!--            color: #088F8F;-->
-<!--            text-decoration: none;-->
-<!--        }-->
-
-<!--        a:hover {-->
-<!--            color: #076d6d;-->
-<!--        }-->
+        tr:nth-child(even) {
+            background-color: #f0f0f0;
+        }
+        tr:nth-child(odd) {
+            background-color: #e6e6e6;
+        }
+        .center {
+            text-align: center;
+        }
 
         .alert.error {
             background-color: #ffcccc;
@@ -111,13 +104,64 @@
             background-color: #45a049;
             cursor: pointer;
         }
+        .category-link-expenses {
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 20px;
+            background-color: #FFD700;
+            color: #000000;
+            display: inline-block;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        .category-link-expenses:hover {
+            background-color: #FFC107;
+            cursor: pointer;
+        }
+        .category-link {
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 20px;
+            background-color: #0039a6;
+            color: white;
+            display: inline-block;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        .category-link:hover {
+            background-color: #4b88ff ;
+            cursor: pointer;
+        }
+        .pagination {
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+            margin-left: auto;
+            margin-right: auto;
+            clear: both;
+        }
+        .pagination a {
+            color: white;
+            display: inline-block;
+            padding: 8px 16px;
+            text-decoration: none;
+            transition: background-color .3s;
+            border-radius: 50%;
+            background-color: #357e4e;
+
+        }
+        .pagination a.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .pagination a:hover:not(.active) {background-color: #ddd;}
     </style>
 </head>
 <body>
     {% include 'sidebar.html' %}
-    <button class="back-button" onclick="window.location.href='/';">Back</button>
+    <button class="back-button" onclick="window.history.back();">Back</button>
     <h1>Category Expenses</h1>
-    <form action="/category" method="post">
+    <form action="/category_expenses" method="post">
         <label for="category">Choose a category:</label>
         <select id="category" name="category_id">
             <option value="">Select category</option>
@@ -140,15 +184,19 @@
             <tbody>
                 {% for result in final_result %}
                     <tr>
+                        <td><a href="{{ url_for('main_expenses_description', description=result.description) }}" class="category-link-expenses">{{ result.description }}</a></td>
                         <td>{{ result.price }}</td>
-                        <td>{{ result.description }}</td>
                         <td>{{ result.transaction_date }}</td>
                         <td>
-                            {% if result.tag %}
-                                [{{ result.tag | join(', ') }}]
-                            {% else %}
-                                No tags
-                            {% endif %}
+                        {% if result.tag_ids %}
+                            {% for i in range(0, result.tag|length) %}
+                                {% if result.tag_ids[i] %}
+                                    <a href="{{ url_for('main_tag_id', tag_id=result.tag_ids[i]) }}" class="category-link">{{ result.tag[i] }}</a>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <p>No tags</p>
+                        {% endif %}
                         </td>
                     </tr>
                 {% endfor %}

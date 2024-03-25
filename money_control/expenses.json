@@ -1,1 +1,440 @@
-[{"category_id": "", "description": "", "price": "", "date": "", "expenses_id": ""}]
+[
+  {
+    "category": "Food order",
+    "transaction #": 1,
+    "date": "08.04.2024",
+    "description": "Mister Wong",
+    "price": 3000.0,
+    "tags": [
+      "mister",
+      "wongich"
+    ]
+  },
+  {
+    "category": "Vacation",
+    "transaction #": 2,
+    "date": "01.05.2024",
+    "description": "Fruska Gora",
+    "price": 7000.0,
+    "tags": [
+      "fruska",
+      "gora"
+    ]
+  },
+  {
+    "category": "Other",
+    "transaction #": 3,
+    "date": "22.05.2024",
+    "description": "Steam market Giftcard",
+    "price": 3500.0,
+    "tags": [
+      "poklon",
+      "steam"
+    ]
+  },
+  {
+    "category": "Food order",
+    "transaction #": 4,
+    "date": "08.04.2024",
+    "description": "Mister Wong",
+    "price": 3000.0,
+    "tags": [
+      "vaucer"
+    ]
+  },
+  {
+    "category": "Other",
+    "transaction #": 6,
+    "date": "22.05.2024",
+    "description": "Steam market Giftcard",
+    "price": 3500.0,
+    "tags": [
+      "vaucer"
+    ]
+  },
+  {
+    "category": "Food order",
+    "transaction #": 7,
+    "date": "08.04.2024",
+    "description": "Mister Wong",
+    "price": 3000.0,
+    "tags": [
+      "katjuska"
+    ]
+  },
+  {
+    "category": "Vacation",
+    "transaction #": 8,
+    "date": "01.05.2024",
+    "description": "Fruska Gora",
+    "price": 7000.0,
+    "tags": [
+      "zelimir"
+    ]
+  },
+  {
+    "category": "Food order",
+    "transaction #": 10,
+    "date": "08.04.2024",
+    "description": "Mister Wong",
+    "price": 3000.0,
+    "tags": [
+      null
+    ]
+  },
+  {
+    "category": "Vacation",
+    "transaction #": 11,
+    "date": "01.05.2024",
+    "description": "Fruska Gora",
+    "price": 7000.0,
+    "tags": [
+      "fruska",
+      "gora"
+    ]
+  },
+  {
+    "category": "Other",
+    "transaction #": 12,
+    "date": "22.05.2024",
+    "description": "Steam market Giftcard",
+    "price": 3500.0,
+    "tags": [
+      null
+    ]
+  },
+  {
+    "category": "Vacation",
+    "transaction #": 14,
+    "date": "01.05.2024",
+    "description": "Fruska Gora",
+    "price": 7000.0,
+    "tags": [
+      "sejmo"
+    ]
+  },
+  {
+    "category": "Medical",
+    "transaction #": 17,
+    "date": "27.03.2024",
+    "description": "Bela reka HUHUHUHU",
+    "price": 3000.0,
+    "tags": [
+      "hrizantema"
+    ]
+  },
+  {
+    "category": "Food order",
+    "transaction #": 18,
+    "date": "10.03.2024",
+    "description": "Vongich",
+    "price": 3000.0,
+    "tags": [
+      null
+    ]
+  },
+  {
+    "category": "Vacation",
+    "transaction #": 19,
+    "date": "01.05.2024",
+    "description": "Fruska Gora",
+    "price": 7000.0,
+    "tags": [
+      null
+    ]
+  },
+  {
+    "category": "Other",
+    "transaction #": 20,
+    "date": "22.05.2024",
+    "description": "Steam market Giftcard Odoka",
+    "price": 3500.0,
+    "tags": [
+      null
+    ]
+  },
+  {
+    "category": "Food order",
+    "transaction #": 23,
+    "date": "08.04.2024",
+    "description": "Mister Wong",
+    "price": 3010.0,
+    "tags": [
+      "utrovanje",
+      "haj",
+      "hej"
+    ]
+  },
+  {
+    "category": "Vacation",
+    "transaction #": 24,
+    "date": "01.05.2024",
+    "description": "Fruska Gora",
+    "price": 7000.0,
+    "tags": [
+      "drnder",
+      "adad",
+      "njopam"
+    ]
+  },
+  {
+    "category": "Medical",
+    "transaction #": 25,
+    "date": "22.05.2024",
+    "description": "Steam market Giftcard",
+    "price": 3500.0,
+    "tags": [
+      null
+    ]
+  },
+  {
+    "category": "Food order",
+    "transaction #": 26,
+    "date": "04.08.2024",
+    "description": "Mister Wong",
+    "price": 2500.0,
+    "tags": [
+      null
+    ]
+  },
+  {
+    "category": "Bars and restaurants",
+    "transaction #": 27,
+    "date": "15.03.2024",
+    "description": "Fruska Gora HAWAII",
+    "price": 10010.0,
+    "tags": [
+      null
+    ]
+  },
+  {
+    "category": "Bars and restaurants",
+    "transaction #": 28,
+    "date": "04.08.2024",
+    "description": "Mister Wong",
+    "price": 13010.0,
+    "tags": [
+      "mlinci",
+      "supa"
+    ]
+  },
+  {
+    "category": "Other",
+    "transaction #": 31,
+    "date": "22.05.2024",
+    "description": "Steam market Giftcard",
+    "price": 3500.0,
+    "tags": [
+      "hehehehe"
+    ]
+  },
+  {
+    "category": "Food order",
+    "transaction #": 32,
+    "date": "08.04.2024",
+    "description": "Mister Wong",
+    "price": 3000.0,
+    "tags": [
+      "sadaa",
+      "samoa",
+      "rere"
+    ]
+  },
+  {
+    "category": "Bars and restaurants",
+    "transaction #": 33,
+    "date": "20.03.2024",
+    "description": "Suva Pcela",
+    "price": 13000.0,
+    "tags": [
+      "Suva",
+      "Pcela"
+    ]
+  },
+  {
+    "category": "Bars and restaurants",
+    "transaction #": 36,
+    "date": "20.03.2024",
+    "description": "Steam market Giftcard",
+    "price": 3500.0,
+    "tags": [
+      null
+    ]
+  },
+  {
+    "category": "Food order",
+    "transaction #": 37,
+    "date": "21.03.2024",
+    "description": "Hrana narucivanje",
+    "price": 656.0,
+    "tags": [
+      "narucivanje",
+      "hej"
+    ]
+  },
+  {
+    "category": "Food order",
+    "transaction #": 38,
+    "date": "23.03.2024",
+    "description": "Popravka Vrata",
+    "price": 888.0,
+    "tags": [
+      "vrata"
+    ]
+  },
+  {
+    "category": "Other",
+    "transaction #": 39,
+    "date": "21.03.2024",
+    "description": "Za Sofo",
+    "price": 720.0,
+    "tags": [
+      "poklon",
+      "love",
+      "vrata"
+    ]
+  },
+  {
+    "category": "Wardrobe",
+    "transaction #": 40,
+    "date": "19.03.2024",
+    "description": "Zivot",
+    "price": 25000.0,
+    "tags": [
+      "poklon"
+    ]
+  },
+  {
+    "category": "Food order",
+    "transaction #": 41,
+    "date": "20.03.2024",
+    "description": "Mister Wong",
+    "price": 3000.0,
+    "tags": [
+      "poklon"
+    ]
+  },
+  {
+    "category": "Vacation",
+    "transaction #": 42,
+    "date": "20.03.2024",
+    "description": "Fruska GorZa",
+    "price": 7000.0,
+    "tags": [
+      "poklon"
+    ]
+  },
+  {
+    "category": "Other",
+    "transaction #": 43,
+    "date": "20.03.2024",
+    "description": "Steam market Giftcard Kartice",
+    "price": 3500.0,
+    "tags": [
+      "poklon"
+    ]
+  },
+  {
+    "category": "Food order",
+    "transaction #": 44,
+    "date": "20.03.2024",
+    "description": "Mister Wong",
+    "price": 3000.0,
+    "tags": [
+      "supa",
+      "mlinci"
+    ]
+  },
+  {
+    "category": "Other",
+    "transaction #": 46,
+    "date": "20.03.2024",
+    "description": "Steam market Giftcard",
+    "price": 3500.0,
+    "tags": [
+      "chola"
+    ]
+  },
+  {
+    "category": "Vacation",
+    "transaction #": 47,
+    "date": "20.03.2024",
+    "description": "Fruska Gora",
+    "price": 28585.0,
+    "tags": [
+      "manja",
+      "chola"
+    ]
+  },
+  {
+    "category": "Vacation",
+    "transaction #": 48,
+    "date": "20.03.2024",
+    "description": "Fruska Gora",
+    "price": 28585.0,
+    "tags": [
+      "chola",
+      "veca"
+    ]
+  },
+  {
+    "category": "Other",
+    "transaction #": 49,
+    "date": "20.03.2024",
+    "description": "Steam market Giftcard",
+    "price": 28585.0,
+    "tags": [
+      "lupa",
+      "chola"
+    ]
+  },
+  {
+    "category": "Food order",
+    "transaction #": 50,
+    "date": "02.03.2024",
+    "description": "Nova Godina",
+    "price": 9250.0,
+    "tags": [
+      "krilca",
+      "batacici",
+      "najbitnije"
+    ]
+  },
+  {
+    "category": "Food order",
+    "transaction #": 51,
+    "date": "20.03.2024",
+    "description": "Nova Godina",
+    "price": 7000.0,
+    "tags": [
+      "poklon",
+      "najbitnije",
+      "smestaj za novu"
+    ]
+  },
+  {
+    "category": "Other",
+    "transaction #": 52,
+    "date": "20.03.2024",
+    "description": "Nova",
+    "price": 3500.0,
+    "tags": [
+      "chola",
+      "najbitnije",
+      "novogodisnji poklon"
+    ]
+  },
+  {
+    "category": "Groceries",
+    "transaction #": 53,
+    "date": "22.03.2024",
+    "description": "Nova Godina",
+    "price": 4445.0,
+    "tags": [
+      "jelka",
+      "ukras",
+      "poklon",
+      "najbitnije"
+    ]
+  }
+]

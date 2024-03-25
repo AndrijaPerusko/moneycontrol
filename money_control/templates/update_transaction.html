@@ -103,7 +103,7 @@
 </head>
 <body>
     {% include 'sidebar.html' %}
-    <button class="back-button" onclick="window.location.href='/generate';">Back</button>
+    <button class="back-button" onclick="window.location.href='/main_expenses';">Back</button>
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}

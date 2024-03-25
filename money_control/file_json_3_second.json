@@ -1,23 +1,23 @@
 [
     {
       "category": "Food order",
-      "description": "Mister Wong",
-      "price":  "3000",
-      "date": "20.03.2024",
+      "description": "Nova Godina",
+      "price":  "1250",
+      "date": "01.02.2025",
       "expenses_id":""
     },
       {
       "category": "Vacation",
-      "description": "Fruska Gora",
+      "description": "Nova Godina",
       "price": 7000,
-      "date": "20.03.2024",
+      "date": "02.02.2025",
       "expenses_id":""
     },
       {
       "category": "Other",
-      "description": "Steam market Giftcard",
+      "description": "Nova Godina",
       "price": 3500,
-      "date": "20.03.2024",
+      "date": "03.02.2025",
       "expenses_id":""
     }
   ]

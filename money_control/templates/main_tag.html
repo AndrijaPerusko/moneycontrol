@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Tag Summary</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #ccd8e5;
+        }
+        table {
+            border-collapse: collapse;
+            width: 50%;
+            margin: 20px auto;
+            margin-bottom: 50px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+            width: 25%;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f0f0f0;
+        }
+        tr:nth-child(odd) {
+            background-color: #e6e6e6;
+        }
+        .back-button {
+            position: absolute;
+            top: 20px;
+            margin-left: 230px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+        }
+        .back-button:hover {
+            background-color: #45a049;
+            cursor: pointer;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+        .pagination {
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+            margin-left: auto;
+            margin-right: auto;
+            clear: both;
+        }
+        .pagination a {
+            color: white;
+            display: inline-block;
+            padding: 8px 16px;
+            text-decoration: none;
+            transition: background-color .3s;
+            border-radius: 50%;
+            background-color: #357e4e;
+
+        }
+        .pagination a.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .pagination a:hover:not(.active) {background-color: #ddd;}
+        .category-link {
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 20px;
+            background-color: #0039a6;
+            color: white;
+            display: inline-block;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        .category-link:hover {
+            background-color: #4b88ff ;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    {% include 'sidebar.html' %}
+    <button class="back-button" onclick="window.history.back();">Back</button>
+    <h2>Main Tag Information</h2>
+    <form action="{{ url_for('main_tag') }}" method="GET" class="search-form">
+        <input type="text" name="search_query" placeholder="Search tags..." value="{{ search_query }}">
+        <input type="submit" value="Search">
+    </form>
+    {% include 'pagination.html' %}
+    <table>
+        <thead>
+            <tr>
+                <th>Tag Name</th>
+                <th>Number of Categories</th>
+                <th>Number of Expenses</th>
+                <th>Total Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for tag in results %}
+                <tr>
+                    <td><a href="{{ url_for('main_tag_id', tag_id=tag[0]) }}" class="category-link">{{ tag[1] }}</a></td>
+                    <td>{{ tag[2] }}</td>
+                    <td>{{ tag[3] }}</td>
+                    <td>{{ tag[4] }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% include 'pagination.html' %}
+</body>
+</html>

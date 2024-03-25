@@ -11,11 +11,9 @@
             margin: 20px;
             background-color: #ccd8e5;
         }
-
         h1 {
             text-align: center;
         }
-
         form {
             max-width: 400px;
             margin: 0 auto;
@@ -25,13 +23,11 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-
         label {
             display: block;
             margin-bottom: 5px;
             color: #555;
         }
-
         input[type="text"] {
             width: calc(100% - 40px);
             padding: 8px;
@@ -42,7 +38,6 @@
             background-position: calc(100% - 40px) center;
             background-repeat: no-repeat;
         }
-
         input[type="submit"] {
             width: 100%;
             padding: 10px;
@@ -58,20 +53,28 @@
         }
 
         table {
-            margin-top: 20px;
-            margin-right: auto;
-            margin-left: auto;
             border-collapse: collapse;
-            width: 60%;
+            width: 70%;
+            margin: 20px auto;
+            margin-left: 350px;
         }
-
         th, td {
+            border: 1px solid #ddd;
             padding: 8px;
-            text-align: left;
+            text-align: center;
+            width: 15%;
         }
-
         th {
             background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f0f0f0;
+        }
+        tr:nth-child(odd) {
+            background-color: #e6e6e6;
+        }
+        .center {
+            text-align: center;
         }
         .back-button {
             position: absolute;
@@ -96,7 +99,6 @@
             width: 425px;
             text-align: center;
             border-radius:8px;
-
         }
         .alert.error {
             background-color: #ffcccc;
@@ -108,26 +110,69 @@
             text-align: center;
             border-radius:8px;
         }
-        h2 {
-            text-align: center;
-            margin-top: 20px;
+        .category-link-expenses {
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 20px;
+            background-color: #FFD700;
+            color: #000000;
+            display: inline-block;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        .category-link-expenses:hover {
+            background-color: #FFC107;
+            cursor: pointer;
+        }
+        .category-tag {
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 20px;
+            background-color: #0039a6;
+            color: white;
+            display: inline-block;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        .category-tag:hover {
+            background-color: #4b88ff ;
+            cursor: pointer;
+        }
+        .category-link {
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 20px;
+            background-color: #ff7f0e;
+            color: white;
+            max-width: 100%;
+        }
+        .category-link:hover {
+            background-color: #ff9c4f;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
     {% include 'sidebar.html' %}
-    <button class="back-button" onclick="window.location.href='/';">Back</button>
+    <button class="back-button" onclick="window.history.back();">Back</button>
     <h1>Date Filter</h1>
     <form action="/date_filter" method="POST">
         <label for="start_date">Start Date:</label>
-        <input type="text" id="start_date" name="start_date" placeholder="Select start date" data-input>
+        <input type="text" id="start_date" name="start_date" placeholder="Select start date" data-input value="{{ request.form.start_date if request.form.start_date }}">
         <br>
         <label for="end_date">End Date:</label>
-        <input type="text" id="end_date" name="end_date" placeholder="Select end date" data-input>
+        <input type="text" id="end_date" name="end_date" placeholder="Select end date" data-input value="{{ request.form.end_date if request.form.end_date }}">
+        <br>
+        <label for="exact_date">Exact Date:</label>
+        <input type="text" id="exact_date" name="exact_date" placeholder="Select exact date" data-input value="{{ request.form.exact_date if request.form.exact_date }}">
         <br>
         <input type="submit" value="Filter">
     </form>
 
+    <form id="sortForm">
+        <input type="radio" name="sort_order" value="asc" id="ascRadio"> Ascending
+        <input type="radio" name="sort_order" value="desc" id="descRadio"> Descending
+    </form>
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
@@ -136,45 +181,112 @@
         {% endif %}
     {% endwith %}
 
-    {% if results %}
-        <h2>Filtered Results</h2>
-        <table border="1">
-            <thead>
+{% if results %}
+    <table id="priceTable">
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th>Date</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Tags</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for result in results %}
                 <tr>
-                    <th>Category</th>
-                    <th>Price</th>
-                    <th>Description</th>
-                    <th>Date</th>
-                    <th>Tags</th>
+                    <td><a href="{{ url_for('main_expenses_description', description=result.description) }}" class="category-link-expenses">{{ result.description }}</a></td>
+                    <td>{{ result.date }}</td>
+                    <td><a href="{{ url_for('main_category_id', category_id=result.category_id) }}" class="category-link">{{ result.name }}</a></td>
+                    <td>{{ result.price }}</td>
+                    <td>
+                    {% if result.tag_ids %}
+                        {% for i in range(0, result.tag|length) %}
+                            {% if result.tag_ids[i] %}
+                                <a href="{{ url_for('main_tag_id', tag_id=result.tag_ids[i]) }}" class="category-tag">{{ result.tag[i] }}</a>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <p>No tags</p>
+                    {% endif %}
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-                {% for result in results %}
-                    <tr>
-                        <td>{{ result.category }}</td>
-                        <td>{{ result.price }}</td>
-                        <td>{{ result.description }}</td>
-                        <td>{{ result.date }}</td>
-                        <td>
-                            [{{ result.tags | join(', ') }}]
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener('DOMContentLoaded', function() {
             flatpickr("#start_date", {
                 dateFormat: "d.m.Y",
                 allowInput: false,
+                onChange: function(selectedDates, dateStr, instance) {
+                    document.getElementById("start_date").value = dateStr;
+                }
             });
+
             flatpickr("#end_date", {
                 dateFormat: "d.m.Y",
                 allowInput: false,
+                onChange: function(selectedDates, dateStr, instance) {
+                    document.getElementById("end_date").value = dateStr;
+                }
+            });
+
+            flatpickr("#exact_date", {
+                dateFormat: "d.m.Y",
+                allowInput: false,
+                onChange: function(selectedDates, dateStr, instance) {
+                    document.getElementById("exact_date").value = dateStr;
+                }
+            });
+
+            var radios = document.querySelectorAll('input[name="sort_order"]');
+
+            radios.forEach(function(radio) {
+                radio.addEventListener('change', function() {
+                    sortTable();
+                });
             });
         });
+
+        function sortTable() {
+            var table, rows, switching, i, x, y, shouldSwitch;
+            table = document.getElementById("priceTable");
+            switching = true;
+
+            while (switching) {
+                switching = false;
+                rows = table.rows;
+
+                for (i = 1; i < (rows.length - 1); i++) {
+                    shouldSwitch = false;
+
+                    x = rows[i].getElementsByTagName("TD")[1].innerHTML;
+                    y = rows[i + 1].getElementsByTagName("TD")[1].innerHTML;
+
+                    var sortOrder = document.querySelector('input[name="sort_order"]:checked').value;
+
+                    if (sortOrder === "asc") {
+                        if (new Date(x) > new Date(y)) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else {
+                        if (new Date(x) < new Date(y)) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (shouldSwitch) {
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                }
+            }
+        }
     </script>
 </body>
 </html>

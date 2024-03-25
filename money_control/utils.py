@@ -102,3 +102,4 @@ def generate_new_json(user_input):
         data.append(obj)
         print(user_input)
     return data
+

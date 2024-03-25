@@ -102,6 +102,7 @@
             border: 1px solid #ddd;
             padding: 8px;
             text-align: center;
+            width: 25%;
         }
         th {
             background-color: #f2f2f2;
@@ -127,7 +128,7 @@
 </head>
 <body>
     {% include 'sidebar.html' %}
-    <button class="back-button" onclick="window.location.href='/main_category';">Back</button>
+    <button class="back-button" onclick="window.history.back();">Back</button>
     <h1>Category: {{ category_name }}</h1>
     <div class="card-container">
         <div class="card" style="flex: 1; margin-right: 1px;">
@@ -139,24 +140,22 @@
             <div>
                 {% if top_tags %}
                     {% for tag in top_tags %}
-                        <span class="category-link">{{ tag[0] }}</span>
+                        <a href="{{ url_for('main_tag_id', tag_id=tag[1]) }}" class="category-link">{{ tag[0] }}</a>
                     {% endfor %}
                 {% else %}
                     <p class="error">There are no tags for this category. </p>
                 {% endif %}
-
             </div>
             <hr>
             <p>Tags used in last 7 days:</p>
             <div>
                 {% if recent_tags %}
                     {% for tag in recent_tags %}
-                        <span class="category-link">{{ tag[0] }}</span>
+                        <a href="{{ url_for('main_tag_id', tag_id=tag[0]) }}" class="category-link">{{ tag[1] }}</a>
                     {% endfor %}
                 {% else %}
                     <p class="error">There are no tags for this category. </p>
                 {% endif %}
-
             </div>
         </div>
         <div class="card" style="flex: 1; margin-left: 1px;">
@@ -168,7 +167,7 @@
             <div>
                 {% if top_expenses %}
                     {% for expense in top_expenses %}
-                        <span class="category-link-expenses">{{ expense[0] }}</span>
+                        <a href="{{ url_for('main_expenses_description', description=expense[0]) }}" class="category-link-expenses">{{ expense[0] }}</a>
                     {% endfor %}
                 {% else %}
                     <p class="error">There are no expenses for this category. </p>
@@ -180,7 +179,7 @@
             <div>
                 {% if latest_expenses %}
                     {% for expense in latest_expenses %}
-                        <span class="category-link-expenses">{{ expense[0] }}</span>
+                        <a href="{{ url_for('main_expenses_description', description=expense[0]) }}" class="category-link-expenses">{{ expense[0] }}</a>
                     {% endfor %}
                 {% else %}
                     <p class="error">There are no expenses for this category. </p>
@@ -195,7 +194,7 @@
         <hr>
         <p class="center">Average price for category {{ category_name }}: <strong>{{ average_price }}</strong></p>
         <hr>
-            <strong><p>Most Expensive Transactions</p></strong>
+            <strong><p>Most Expensive Transactions:</p></strong>
         <div>
             {% if most_expensive_results %}
                 <table>
@@ -204,14 +203,27 @@
                             <th>Description</th>
                             <th>Date</th>
                             <th>Price</th>
+                            <th>Tags</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for expense in most_expensive_results %}
                             <tr>
-                                <td><span class="category-link-expenses">{{ expense[0] }}</span></td>
-                                <td>{{ expense[1].strftime('%d.%m.%Y') }}</td>
-                                <td>{{ expense[2] }}</td>
+                                <td><a href="{{ url_for('main_expenses_description', description=expense[1]) }}" class="category-link-expenses">{{ expense[1] }}</a></td>
+                                <td>{{ expense[2].strftime('%d.%m.%Y') }}</td>
+                                <td>{{ expense[3] }}</td>
+                                <td>
+                                    {% if expense[4] %}
+                                        {% set tag_names = expense[4].split(', ') %}
+                                        {% set tag_ids = expense[5].split(', ') %}
+                                        <a href="{{ url_for('main_tag_id', tag_id=tag_ids[0]) }}" class="category-link">{{ tag_names[0] }}</a>
+                                        {% for i in range(1, tag_names|length) %}
+                                            <a href="{{ url_for('main_tag_id', tag_id=tag_ids[i]) }}" class="category-link">{{ tag_names[i] }}</a>
+                                        {% endfor %}
+                                    {% else %}
+                                        <p>No tags</p>
+                                    {% endif %}
+                                </td>
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -221,7 +233,7 @@
             {% endif %}
         </div>
         <hr>
-        <strong><p>Cheapest Transactions</p></strong>
+        <strong><p>Cheapest Transactions:</p></strong>
         <div>
             {% if cheapest_expenses %}
                 <table>
@@ -230,14 +242,27 @@
                             <th>Description</th>
                             <th>Date</th>
                             <th>Price</th>
+                            <th>Tags</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for expense in cheapest_expenses %}
                             <tr>
-                                <td><span class="category-link-expenses">{{ expense[0] }}</span></td>
-                                <td>{{ expense[1].strftime('%d.%m.%Y') }}</td>
-                                <td>{{ expense[2] }}</td>
+                                <td><a href="{{ url_for('main_expenses_description', description=expense[1]) }}" class="category-link-expenses">{{ expense[1] }}</a></td>
+                                <td>{{ expense[2].strftime('%d.%m.%Y') }}</td>
+                                <td>{{ expense[3] }}</td>
+                                <td>
+                                    {% if expense[4] %}
+                                        {% set tag_names = expense[4].split(', ') %}
+                                        {% set tag_ids = expense[5].split(', ') %}
+                                        <a href="{{ url_for('main_tag_id', tag_id=tag_ids[0]) }}" class="category-link">{{ tag_names[0] }}</a>
+                                        {% for i in range(1, tag_names|length) %}
+                                            <a href="{{ url_for('main_tag_id', tag_id=tag_ids[i]) }}" class="category-link">{{ tag_names[i] }}</a>
+                                        {% endfor %}
+                                    {% else %}
+                                        <p>No tags</p>
+                                    {% endif %}
+                                </td>
                             </tr>
                         {% endfor %}
                     </tbody>
