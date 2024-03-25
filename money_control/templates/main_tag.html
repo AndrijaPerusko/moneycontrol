@@ -92,10 +92,6 @@
     {% include 'sidebar.html' %}
     <button class="back-button" onclick="window.history.back();">Back</button>
     <h2>Main Tag Information</h2>
-    <form action="{{ url_for('main_tag') }}" method="GET" class="search-form">
-        <input type="text" name="search_query" placeholder="Search tags..." value="{{ search_query }}">
-        <input type="submit" value="Search">
-    </form>
     {% include 'pagination.html' %}
     <table>
         <thead>

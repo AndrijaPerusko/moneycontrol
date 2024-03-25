@@ -160,8 +160,8 @@
     "description": "Mister Wong",
     "price": 3010.0,
     "tags": [
-      "utrovanje",
       "haj",
+      "utrovanje",
       "hej"
     ]
   },
@@ -172,9 +172,9 @@
     "description": "Fruska Gora",
     "price": 7000.0,
     "tags": [
-      "drnder",
       "adad",
-      "njopam"
+      "njopam",
+      "drnder"
     ]
   },
   {
@@ -214,8 +214,8 @@
     "description": "Mister Wong",
     "price": 13010.0,
     "tags": [
-      "mlinci",
-      "supa"
+      "supa",
+      "mlinci"
     ]
   },
   {
@@ -235,9 +235,9 @@
     "description": "Mister Wong",
     "price": 3000.0,
     "tags": [
+      "rere",
       "sadaa",
-      "samoa",
-      "rere"
+      "samoa"
     ]
   },
   {
@@ -247,8 +247,8 @@
     "description": "Suva Pcela",
     "price": 13000.0,
     "tags": [
-      "Suva",
-      "Pcela"
+      "Pcela",
+      "Suva"
     ]
   },
   {
@@ -268,8 +268,8 @@
     "description": "Hrana narucivanje",
     "price": 656.0,
     "tags": [
-      "narucivanje",
-      "hej"
+      "hej",
+      "narucivanje"
     ]
   },
   {
@@ -289,9 +289,9 @@
     "description": "Za Sofo",
     "price": 720.0,
     "tags": [
-      "poklon",
       "love",
-      "vrata"
+      "vrata",
+      "poklon"
     ]
   },
   {
@@ -362,8 +362,8 @@
     "description": "Fruska Gora",
     "price": 28585.0,
     "tags": [
-      "manja",
-      "chola"
+      "chola",
+      "manja"
     ]
   },
   {
@@ -384,8 +384,8 @@
     "description": "Steam market Giftcard",
     "price": 28585.0,
     "tags": [
-      "lupa",
-      "chola"
+      "chola",
+      "lupa"
     ]
   },
   {
@@ -395,8 +395,8 @@
     "description": "Nova Godina",
     "price": 9250.0,
     "tags": [
-      "krilca",
       "batacici",
+      "krilca",
       "najbitnije"
     ]
   },
@@ -407,34 +407,80 @@
     "description": "Nova Godina",
     "price": 7000.0,
     "tags": [
-      "poklon",
       "najbitnije",
+      "poklon",
       "smestaj za novu"
     ]
   },
   {
-    "category": "Other",
+    "category": "Groceries",
     "transaction #": 52,
     "date": "20.03.2024",
-    "description": "Nova",
+    "description": "Stara",
     "price": 3500.0,
     "tags": [
-      "chola",
+      "novogodisnji poklon",
       "najbitnije",
-      "novogodisnji poklon"
+      "chola"
     ]
   },
   {
     "category": "Groceries",
     "transaction #": 53,
     "date": "22.03.2024",
-    "description": "Nova Godina",
-    "price": 4445.0,
+    "description": "Stara",
+    "price": 6500.0,
     "tags": [
       "jelka",
       "ukras",
-      "poklon",
-      "najbitnije"
+      "poklon"
+    ]
+  },
+  {
+    "category": "Bills",
+    "transaction #": 54,
+    "date": "25.01.2024",
+    "description": "Stara",
+    "price": 14000.0,
+    "tags": [
+      "tag jedan",
+      "kolicinica",
+      "kolicina",
+      "hrizantema"
+    ]
+  },
+  {
+    "category": "Groceries",
+    "transaction #": 55,
+    "date": "23.03.2024",
+    "description": "Bela reka HUHUHUHU",
+    "price": 1250.0,
+    "tags": [
+      "smijesak",
+      "kolicina",
+      "kolicinica",
+      "lololo"
+    ]
+  },
+  {
+    "category": "Groceries",
+    "transaction #": 56,
+    "date": "19.03.2024",
+    "description": "Nova Godina",
+    "price": 7000.0,
+    "tags": [
+      "kolicina",
+      "kolicinica"
+    ]
+  },
+  {
+    "category": "Home repairs",
+    "transaction #": 57,
+    "date": "09.03.2024",
+    "description": "Bela reka HUHUHUHU",
+    "price": 5000.0,
+    "tags": [
+      "kolicinica"
     ]
   }
 ]

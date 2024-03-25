@@ -562,52 +562,26 @@ def main_tag():
 
     total_pages = calculate_pagination(cur, per_page)
 
-    search_query = request.args.get('search_query', None)
-
-    if search_query:
-        cur.execute("""
-               SELECT t.ID AS Tag_ID,
-                      t.Name AS Tag_Name,
-                      COUNT(DISTINCT c.ID) AS NumberOfCategories,
-                      COUNT(DISTINCT e.Expenses_id) AS NumberOfExpenses,
-                      COALESCE(SUM(e.price), 0) AS total_price
-                   FROM 
-                      Tag t
-                   LEFT JOIN 
-                      Expense_Tag et ON t.ID = et.Tag_id
-                   LEFT JOIN 
-                      Expenses e ON et.Expenses_id = e.Expenses_id
-                   LEFT JOIN 
-                      Category c ON e.CATEGORY_ID = c.ID
-                   WHERE 
-                      t.Name ILIKE %s
-                   GROUP BY 
-                      t.ID, t.Name
-                   ORDER BY 
-                      t.Name ASC
-                   LIMIT %s OFFSET %s;
-               """, (f"%{search_query}%", per_page, offset))
-    else:
-        cur.execute("""
-               SELECT t.ID AS Tag_ID,
-                       t.Name AS Tag_Name,
-                       COUNT(DISTINCT c.ID) AS NumberOfCategories,
-                       COUNT(DISTINCT e.Expenses_id) AS NumberOfExpenses,
-                       COALESCE(SUM(e.price), 0) AS total_price
-                   FROM 
-                       Tag t
-                   LEFT JOIN 
-                       Expense_Tag et ON t.ID = et.Tag_id
-                   LEFT JOIN 
-                       Expenses e ON et.Expenses_id = e.Expenses_id
-                   LEFT JOIN 
-                       Category c ON e.CATEGORY_ID = c.ID
-                   GROUP BY 
-                       t.ID, t.Name
-                   ORDER BY 
-                       t.Name ASC
-                   LIMIT %s OFFSET %s;
-               """, (per_page, offset))
+    cur.execute("""
+           SELECT t.ID AS Tag_ID,
+                   t.Name AS Tag_Name,
+                   COUNT(DISTINCT c.ID) AS NumberOfCategories,
+                   COUNT(DISTINCT e.Expenses_id) AS NumberOfExpenses,
+                   COALESCE(SUM(e.price), 0) AS total_price
+               FROM 
+                   Tag t
+               LEFT JOIN 
+                   Expense_Tag et ON t.ID = et.Tag_id
+               LEFT JOIN 
+                   Expenses e ON et.Expenses_id = e.Expenses_id
+               LEFT JOIN 
+                   Category c ON e.CATEGORY_ID = c.ID
+               GROUP BY 
+                   t.ID, t.Name
+               ORDER BY 
+                   t.Name ASC
+               LIMIT %s OFFSET %s;
+           """, (per_page, offset))
     results = cur.fetchall()
     return render_template('main_tag.html', results=results, page=page, total_pages=total_pages)
 

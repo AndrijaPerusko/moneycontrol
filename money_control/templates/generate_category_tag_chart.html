@@ -22,7 +22,7 @@
         }
 
         img {
-            max-width: 100%;
+            max-width: 80%;
             height: auto;
         }
 
@@ -43,13 +43,14 @@
     </style>
 </head>
 <body>
-    <button class="back-button" onclick="window.location.href='/generate';">Back</button>
+    {% include 'sidebar.html' %}
+    <button class="back-button" onclick="window.history.back();">Back</button>
     <h1>Chart for tag: {{ selected_tag }}</h1>
     <div class="container">
         {% if chart_img %}
-        <img src="data:image/jpeg;base64,{{ chart_img }}" alt="Tag Chart">
+            <img src="data:image/jpeg;base64,{{ chart_img }}" alt="Tag Chart">
         {% else %}
-        <p>No data available for the selected tag.</p>
+            <p>No data available for the selected tag.</p>
         {% endif %}
     </div>
 </body>

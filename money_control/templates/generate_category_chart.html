@@ -59,13 +59,14 @@
     </style>
 </head>
 <body>
-    <button class="back-button" onclick="window.location.href='/generate_chart';">Back</button>
+    {% include 'sidebar.html' %}
+    <button class="back-button" onclick="window.history.back();">Back</button>
     <h1>Generate Chart</h1>
     <form method="post">
         <input type="submit" value="Generate Chart" class="generate-button">
     </form>
 
-    <div id="chart-container">
+    <div id="chart-container" style="margin-left:200px">
         {% if graph %}
             <img src="{{ url_for('static', filename='chart.jpg') }}" alt="Chart">
         {% endif %}

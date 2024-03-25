@@ -172,13 +172,14 @@
 <body>
     {% include 'sidebar.html' %}
     <button class="back-button" onclick="window.history.back();">Back</button>
+    <h1>Price Filter</h1>
     <form method="POST">
         <label for="start_price">Start Price:</label>
-        <input type="text" id="start_price" name="start_price" value="{{ request.form.get('start_price', '') }}">
+        <input type="text" id="start_price" placeholder="Select start price" name="start_price" value="{{ request.form.get('start_price', '') }}">
         <label for="max_price">Max Price:</label>
-        <input type="text" id="max_price" name="max_price" value="{{ request.form.get('max_price', '') }}">
+        <input type="text" id="max_price" placeholder="Select max price" name="max_price" value="{{ request.form.get('max_price', '') }}">
         <label for="exact_price">Exact Price:</label>
-        <input type="text" id="exact_price" name="exact_price" value="{{ request.form.get('exact_price', '') }}">
+        <input type="text" id="exact_price" placeholder="Select exact price" name="exact_price" value="{{ request.form.get('exact_price', '') }}">
         <button type="submit">Submit</button>
     </form>
 

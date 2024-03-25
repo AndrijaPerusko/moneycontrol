@@ -106,8 +106,7 @@
 </head>
 <body>
     {% include 'sidebar.html' %}
-    <button class="back-button" onclick="window.location.href='/';">Back</button>
-
+    <button class="back-button" onclick="window.history.back();">Back</button>
     <div class="container">
         <h1>Import File</h1>
         <form method="POST" action="/import_json" enctype="multipart/form-data">

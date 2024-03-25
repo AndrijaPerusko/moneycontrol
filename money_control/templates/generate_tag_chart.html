@@ -65,7 +65,8 @@
     </style>
 </head>
 <body>
-    <button class="back-button" onclick="window.location.href='/generate_chart';">Back</button>
+    {% include 'sidebar.html' %}
+    <button class="back-button" onclick="window.history.back();">Back</button>
     <div class="center">
         <h1>Generate Tag Chart</h1>
         <form method="POST" action="/generate_tag_chart">
