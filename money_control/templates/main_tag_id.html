@@ -123,6 +123,14 @@
         tr:nth-child(odd) {
             background-color: #e6e6e6;
         }
+        .chart-container {
+            text-align: center;
+        }
+        .chart-container img {
+            display: block;
+            margin: 0 auto;
+            max-width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -267,6 +275,30 @@
                 <p class="error">There are no expenses for this tag. </p>
             {% endif %}
         </div>
+    </div>
+    <div class="chart-container">
+        {% if tag_category_chart %}
+            <h2>Expenses for tag: {{ tag_name }}</h2>
+            <img src="{{ url_for('static', filename='generate_price_tag_category_chart.png') }}" alt="Chart">
+        {% endif %}
+    </div>
+    <div class="chart-container">
+        {% if tag_expense_chart %}
+            <h2>Expenses for tag: {{ tag_name }}</h2>
+            <img src="{{ url_for('static', filename='generate_price_chart_for_tag_expenses.png') }}" alt="Chart">
+        {% endif %}
+    </div>
+    <div class="chart-container" style="margin-left: 200px">
+        {% if tag_category_day_chart %}
+            <h2>Expenses for tag in last 7 days: {{ tag_name }}</h2>
+            <img src="{{ url_for('static', filename='generate_price_chart_for_tag_by_date.png') }}" alt="Chart">
+        {% endif %}
+    </div>
+        <div class="chart-container" style="margin-left: 200px">
+        {% if tag_category_30_days %}
+            <h2>Expenses for tag in last 30 days: {{ tag_name }}</h2>
+            <img src="{{ url_for('static', filename='generate_price_chart_for_tag_last_30_days.png') }}" alt="Chart">
+        {% endif %}
     </div>
 </body>
 </html>

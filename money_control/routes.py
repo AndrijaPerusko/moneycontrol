@@ -8,7 +8,13 @@ from money_control.queries import (date_expenses, price_query, category_expenses
                                    generate_category_tag_chart_query, generate_category_chart_query,
                                    calculate_pagination, get_tag_by_name, count_tag_usage, get_total_count_expenses,
                                    exact_price_query, date_expenses_exact)
-from money_control.charts import generate_expense_chart,  generate_tag_expense_chart
+from money_control.charts import (generate_expense_chart,  generate_tag_expense_chart,
+                                  generate_price_description_chart_for_category,
+                                  generate_price_tag_chart_for_category, generate_price_tag_category_chart,
+                                  generate_price_chart_for_tag_expenses, generate_price_chart_for_tag_by_date,
+                                  generate_price_chart_for_tag_last_30_days, generate_description_chart_by_category,
+                                  generate_description_chart_by_tag, generate_last_seven_days_description,
+                                  generate_last_thirty_days_description)
 from datetime import datetime
 import base64
 import os
@@ -288,11 +294,18 @@ def main_expenses_description(description):
     """, (description,))
 
     cheapest_price = cur.fetchall()
+
+    category_chart = generate_description_chart_by_category(description)
+    tag_chart = generate_description_chart_by_tag(description)
+    seven_days = generate_last_seven_days_description(description)
+    thirty_days = generate_last_thirty_days_description(description)
     return render_template('main_expenses_description.html', description=description, tag_count=tag_count,
                            top_tags=top_tags, past_7_days_tag=past_7_days_tag, category_count=category_count,
                            popular_categories=popular_categories, recent_categories=recent_categories,
                            total_price=total_price, avg_price=avg_price, same_desc=same_desc,
-                           top_price_expenses=top_price_expenses, cheapest_price=cheapest_price)
+                           top_price_expenses=top_price_expenses, cheapest_price=cheapest_price,
+                           category_chart=category_chart, tag_chart=tag_chart, seven_days=seven_days,
+                           thirty_days=thirty_days)
 @app.route('/update_transaction/<int:expenses_id>', methods=['GET', 'POST'])
 def update_transaction(expenses_id):
     if request.method == 'POST':
@@ -531,12 +544,15 @@ def main_category_id(category_id):
 
     graph_path = generate_expense_chart(category_id)
     path_graph = generate_tag_expense_chart(category_id)
+    price_description_chart = generate_price_description_chart_for_category(category_id)
+    price_tag_chart = generate_price_tag_chart_for_category(category_id)
 
     return render_template('main_category_id.html',category_name=category_name, tag_count=tag_count,
                            top_tags=top_tags, recent_tags=recent_tags, expense_count=expense_count,
                            top_expenses=top_expenses, latest_expenses=latest_expenses, total_expense=total_expense,
                            average_price=average_price, most_expensive_results=most_expensive_results,
-                           cheapest_expenses=cheapest_expenses, graph_path=graph_path, path_graph=path_graph)
+                           cheapest_expenses=cheapest_expenses, graph_path=graph_path, path_graph=path_graph,
+                           price_description_chart=price_description_chart, price_tag_chart=price_tag_chart)
 
 @app.route('/main_tag', methods=['GET', 'POST'])
 def main_tag():
@@ -717,11 +733,18 @@ def main_tag_id(tag_id):
 
     top_cheap_expenses = cur.fetchall()
 
+    tag_category_chart = generate_price_tag_category_chart(tag_id)
+    tag_expense_chart = generate_price_chart_for_tag_expenses(tag_id)
+    tag_category_day_chart = generate_price_chart_for_tag_by_date(tag_id)
+    tag_category_30_days = generate_price_chart_for_tag_last_30_days(tag_id)
+
     return render_template('main_tag_id.html', tag_name=tag_name, category_count=category_count,
                            top_categories=top_categories, last_seven_days=last_seven_days, expenses_count=expenses_count,
                            top_expenses=top_expenses, seven_days_expenses=seven_days_expenses, total_cost=total_cost,
                            average_price=average_price, top_expensive_expenses=top_expensive_expenses,
-                           top_cheap_expenses=top_cheap_expenses)
+                           top_cheap_expenses=top_cheap_expenses, tag_category_chart=tag_category_chart,
+                           tag_expense_chart=tag_expense_chart, tag_category_day_chart=tag_category_day_chart,
+                           tag_category_30_days=tag_category_30_days)
 
 @app.route('/category_expenses', methods=['GET', 'POST'])
 def category_expenses():

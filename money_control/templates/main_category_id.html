@@ -284,5 +284,17 @@
             <img src="{{ url_for('static', filename='tag_price.png') }}" alt="Chart">
         {% endif %}
     </div>
+    <div class="chart-container" style="margin-left: 200px">
+        {% if price_description_chart %}
+            <h2>Last 7 days expenses for category: {{ category_name }}</h2>
+            <img src="{{ url_for('static', filename='generate_price_description_chart_for_category.png') }}" alt="Chart">
+        {% endif %}
+    </div>
+    <div class="chart-container" style="margin-left: 200px">
+        {% if price_tag_chart %}
+            <h2>Last 7 days tag expenses for category: {{ category_name }}</h2>
+            <img src="{{ url_for('static', filename='generate_price_tag_chart_for_category.png') }}" alt="Chart">
+        {% endif %}
+    </div>
 </body>
 </html>

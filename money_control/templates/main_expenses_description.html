@@ -127,6 +127,14 @@
         tr:nth-child(odd) {
             background-color: #e6e6e6;
         }
+        .chart-container {
+            text-align: center;
+        }
+        .chart-container img {
+            display: block;
+            margin: 0 auto;
+            max-width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -287,6 +295,30 @@
                 <p class="error">There are no expenses for this tag. </p>
             {% endif %}
         </div>
+    </div>
+    <div class="chart-container">
+        {% if category_chart %}
+            <h2>Categories for expense: {{ description }}</h2>
+            <img src="{{ url_for('static', filename='generate_description_chart_by_category.png') }}" alt="Chart">
+        {% endif %}
+    </div>
+    <div class="chart-container">
+        {% if tag_chart %}
+            <h2>Tags for expense: {{ description }}</h2>
+            <img src="{{ url_for('static', filename='generate_description_chart_by_tag.png') }}" alt="Chart">
+        {% endif %}
+    </div>
+    <div class="chart-container" style="margin-left: 200px">
+        {% if seven_days %}
+            <h2>Last 7 days expenses for: {{ description }}</h2>
+            <img src="{{ url_for('static', filename='generate_last_seven_days_description.png') }}" alt="Chart">
+        {% endif %}
+    </div>
+    <div class="chart-container" style="margin-left: 200px">
+        {% if thirty_days %}
+            <h2>Last 7 days expenses for: {{ description }}</h2>
+            <img src="{{ url_for('static', filename='generate_last_thirty_days_description.png') }}" alt="Chart">
+        {% endif %}
     </div>
 </body>
 </html>
