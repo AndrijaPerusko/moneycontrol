@@ -162,21 +162,23 @@
         }
         .pageButton {
             margin: 0 5px;
-            padding: 5px 10px;
+            padding: 10px 20px;
             border: none;
-            border-radius: 4px;
-            background-color: #007BFF;
+            border-radius: 20px;
+            background-color: #357e4e;
             color: white;
             cursor: pointer;
             transition: background-color 0.3s ease;
+            font-size: 16px;
         }
-
-        .pageButton:hover {
-            background-color: #0056b3;
-        }
-
         .pageButton.current {
-            background-color: #0056b3;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .pageButton.current:hover {
+            background-color: #4CAF50;
+            cursor: default;
         }
     </style>
 </head>
@@ -248,107 +250,137 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            flatpickr("#start_date", {
-                dateFormat: "d.m.Y",
-                allowInput: false,
-                onChange: function(selectedDates, dateStr, instance) {
-                    document.getElementById("start_date").value = dateStr;
-                }
-            });
-
-            flatpickr("#end_date", {
-                dateFormat: "d.m.Y",
-                allowInput: false,
-                onChange: function(selectedDates, dateStr, instance) {
-                    document.getElementById("end_date").value = dateStr;
-                }
-            });
-
-            flatpickr("#exact_date", {
-                dateFormat: "d.m.Y",
-                allowInput: false,
-                onChange: function(selectedDates, dateStr, instance) {
-                    document.getElementById("exact_date").value = dateStr;
-                }
-            });
-
-            var currentPage = 1;
-            var rowsPerPage = 10;
-            var sortOrder = "asc";  // Default sort order
-
-            updateTable(currentPage);
-
-            function updateTable(page) {
-                var table = document.getElementById("priceTable");
-                var rows = Array.from(table.rows).slice(1); // Convert rows to array and remove header
-
-                // Sort rows based on selected sort order and Price column
-            rows.sort(function(rowA, rowB) {
-                var dateA = new Date(rowA.cells[3].innerText);
-                console.log("Date A:", dateA);
-                var dateB = new Date(rowB.cells[3].innerText);
-                console.log("Date B:", dateB);
-
-
-                if (sortOrder === "asc") {
-                    console.log("Sorting in ascending order");
-                    return dateA - dateB;
-                } else {
-                    console.log("Sorting in descending order");
-                    return dateB - dateA;
-                }
-            });
-
-                // Display rows based on current page and rows per page
-                for (var i = 0; i < rows.length; i++) {
-                    if (i >= (page - 1) * rowsPerPage && i < page * rowsPerPage) {
-                        rows[i].style.display = "";
-                    } else {
-                        rows[i].style.display = "none";
-                    }
-                }
-
-                // Update pagination buttons
-            var maxPages = Math.ceil(rows.length / rowsPerPage);
-            var pagination = document.getElementById("pagination");
-            pagination.innerHTML = '';
-
-                // Add First, Previous, Current, Next, and Last buttons
-                if (currentPage > 1) {
-                    pagination.innerHTML += '<button class="pageButton" data-page="1">First</button>';
-                    pagination.innerHTML += '<button class="pageButton" data-page="' + (currentPage - 1) + '">Previous</button>';
-                }
-
-                pagination.innerHTML += '<button class="pageButton current" disabled>' + currentPage + '</button>';
-
-                if (currentPage < maxPages) {
-                    pagination.innerHTML += '<button class="pageButton" data-page="' + (currentPage + 1) + '">Next</button>';
-                    pagination.innerHTML += '<button class="pageButton" data-page="' + maxPages + '">Last</button>';
-                }
-
-                // Add event listeners for page buttons
-                document.querySelectorAll('.pageButton').forEach(function(button) {
-                    button.addEventListener('click', function() {
-                        currentPage = parseInt(this.getAttribute('data-page'));
-                        updateTable(currentPage);
-                    });
-                });
-            }
-
-            // Event listener for radio buttons
-document.querySelectorAll('input[name="sort_order"]').forEach(function(radio) {
-    radio.addEventListener('change', function() {
-        if (this.checked) {
-            console.log("Radio button changed:", this.value); // Dodajte ovu liniju
-            console.log("Sort order before change:", sortOrder);
-            sortOrder = this.value;
-            console.log("Sort order after change:", sortOrder);
-            updateTable(currentPage);
+document.addEventListener('DOMContentLoaded', function() {
+    flatpickr("#start_date", {
+        dateFormat: "d.m.Y",
+        allowInput: false,
+        onChange: function(selectedDates, dateStr, instance) {
+            document.getElementById("start_date").value = dateStr;
         }
-                });
+    });
+
+    flatpickr("#end_date", {
+        dateFormat: "d.m.Y",
+        allowInput: false,
+        onChange: function(selectedDates, dateStr, instance) {
+            document.getElementById("end_date").value = dateStr;
+        }
+    });
+
+    flatpickr("#exact_date", {
+        dateFormat: "d.m.Y",
+        allowInput: false,
+        onChange: function(selectedDates, dateStr, instance) {
+            document.getElementById("exact_date").value = dateStr;
+        }
+    });
+
+    var currentPage = 1;
+    var rowsPerPage = 10;
+    var sortOrder = 1; // Default sort order (ascending)
+
+    window.onload = function () {
+        updateTable(currentPage);
+    }
+
+    function updateTable(page) {
+        var table = document.getElementById("priceTable");
+        var tbody = table.getElementsByTagName("tbody")[0];
+        var rows = tbody.rows;
+        var rlen = rows.length;
+        var arr = [];
+        var i, j, cells, clen;
+
+        // fill the array with values from the table
+        for (i = 0; i < rlen; i++) {
+            cells = rows[i].cells;
+            clen = cells.length;
+            arr[i] = [];
+            for (j = 0; j < clen; j++) {
+                arr[i][j] = cells[j].innerHTML;
+            }
+        }
+
+        arr.sort(function (a, b) {
+            var dateA = new Date(a[1].split('.').reverse().join('-'));
+            var dateB = new Date(b[1].split('.').reverse().join('-'));
+
+            if (sortOrder === 1) {
+                return dateA - dateB;
+            } else {
+                return dateB - dateA;
+            }
+        });
+
+        // replace existing rows with new rows created from the sorted array
+        for (i = 0; i < rlen; i++) {
+            rows[i].innerHTML = "<td>" + arr[i].join("</td><td>") + "</td>";
+        }
+
+        // Display rows based on current page and rows per page
+        var start = (page - 1) * rowsPerPage;
+        var end = start + rowsPerPage;
+
+        for (i = 0; i < rlen; i++) {
+            if (i >= start && i < end) {
+                rows[i].style.display = "";
+            } else {
+                rows[i].style.display = "none";
+            }
+        }
+
+        // Update pagination buttons
+        var maxPages = Math.ceil(rlen / rowsPerPage);
+        var pagination = document.getElementById("pagination");
+        pagination.innerHTML = '';
+
+        if (currentPage > 1) {
+            pagination.innerHTML += '<button class="pageButton" data-page="1"><<</button>';
+            pagination.innerHTML += '<button class="pageButton" data-page="' + (currentPage - 1) + '"><</button>';
+        }
+
+        // Show only current page and its two neighbors
+        var startPage = Math.max(1, currentPage - 1);
+        var endPage = Math.min(maxPages, currentPage + 1);
+        for (var i = startPage; i <= endPage; i++) {
+            pagination.innerHTML += '<button class="pageButton ' + (currentPage === i ? 'current' : '') + '" data-page="' + i + '">' + i + '</button>';
+        }
+
+        if (currentPage < maxPages) {
+            pagination.innerHTML += '<button class="pageButton" data-page="' + (currentPage + 1) + '">></button>';
+            pagination.innerHTML += '<button class="pageButton" data-page="' + maxPages + '">>></button>';
+        }
+
+        // Add event listeners for page buttons
+        document.querySelectorAll('.pageButton').forEach(function(button) {
+            button.addEventListener('click', function() {
+                currentPage = parseInt(this.getAttribute('data-page'));
+                updateTable(currentPage);
             });
         });
+
+        // Uklanjanje .current klase sa svih dugmadi paginacije i resetovanje boje
+        document.querySelectorAll('.pageButton').forEach(function(button) {
+            button.classList.remove('current');
+            button.style.color = ''; // Resetujte boju teksta na podrazumevanu vrednost
+        });
+
+        // Dodavanje .current klase i promena boje samo trenutnom dugmetu
+        var newCurrentButton = document.querySelector('.pageButton[data-page="' + page + '"]');
+        if (newCurrentButton) {
+            newCurrentButton.classList.add('current');
+            newCurrentButton.style.color = 'blue'; // Promenite boju teksta na tamnoplavu
+        }
+    }
+
+    // Event listener for radio buttons
+    document.querySelectorAll('input[name="sort_order"]').forEach(function (radio) {
+        radio.addEventListener('change', function () {
+            sortOrder = (this.value === 'asc') ? 1 : -1;
+            updateTable(currentPage);
+        });
+    });
+});
     </script>
 </body>
 </html>

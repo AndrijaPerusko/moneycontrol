@@ -409,16 +409,17 @@ def update_transaction(expenses_id):
 @app.route('/main_category', methods=['GET', 'POST'])
 def main_category():
     cur.execute("""
-        SELECT c.id AS category_id,
-               c.name AS category,               
-               COALESCE(COUNT(e.expenses_id), 0) AS expense_count,
-               COALESCE(COUNT(et.tag_id), 0) AS tag_count,
-               COALESCE(SUM(e.price), 0) AS total_price
-        FROM category c
-        LEFT JOIN expenses e ON c.id = e.category_id
-        LEFT JOIN expense_tag et ON e.expenses_id = et.expenses_id
-        GROUP BY c.id, c.name
-        ORDER BY c.name
+        SELECT 
+            c.ID AS CategoryID,
+            c.Name AS CategoryName,
+            COALESCE(COUNT(DISTINCT e.Expenses_id), 0) AS NumberOfExpenses,
+            COALESCE(COUNT(et.Tag_id), 0) AS NumberOfTags,
+            COALESCE(SUM(DISTINCT e.PRICE), 0) AS TotalExpenses
+        FROM Category c
+        LEFT JOIN Expenses e ON c.ID = e.CATEGORY_ID
+        LEFT JOIN Expense_Tag et ON e.Expenses_id = et.Expenses_id
+        GROUP BY c.ID, c.Name
+        ORDER BY c.Name;
     """)
     results = cur.fetchall()
     return render_template('main_category.html', results=results)
@@ -731,7 +732,7 @@ def category_expenses():
             return redirect('/category_expenses')
 
         page = int(request.form.get('pageInput', 1))
-        offset = (page - 1) * 10
+        offset = (page - 1) * 5
         query_res = category_expenses_query(cur, category_id, offset=offset)
         results = [{
             'description': i[0],

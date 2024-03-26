@@ -144,21 +144,23 @@
         }
         .pageButton {
             margin: 0 5px;
-            padding: 5px 10px;
+            padding: 10px 20px;
             border: none;
-            border-radius: 4px;
-            background-color: #007BFF;
+            border-radius: 20px;
+            background-color: #357e4e;
             color: white;
             cursor: pointer;
             transition: background-color 0.3s ease;
+            font-size: 16px;
         }
-
-        .pageButton:hover {
-            background-color: #0056b3;
-        }
-
         .pageButton.current {
-            background-color: #0056b3;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .pageButton.current:hover {
+            background-color: #4CAF50;
+            cursor: default;
         }
     </style>
 </head>
@@ -219,53 +221,53 @@
         {% endif %}
     {% endwith %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var currentPage = 1;
-        var rowsPerPage = 10;
+        document.addEventListener('DOMContentLoaded', function() {
+            var currentPage = 1;
+            var rowsPerPage = 10;
 
-        updateTable(currentPage);
+            updateTable(currentPage);
 
-        function updateTable(page) {
-            var table = document.querySelector("table");
-            var rows = Array.from(table.rows).slice(1); // Convert rows to array and remove header
+            function updateTable(page) {
+                var table = document.querySelector("table");
+                var rows = Array.from(table.rows).slice(1); // Convert rows to array and remove header
 
-            // Display rows based on current page and rows per page
-            for (var i = 0; i < rows.length; i++) {
-                if (i >= (page - 1) * rowsPerPage && i < page * rowsPerPage) {
-                    rows[i].style.display = "";
-                } else {
-                    rows[i].style.display = "none";
+                // Display rows based on current page and rows per page
+                for (var i = 0; i < rows.length; i++) {
+                    if (i >= (page - 1) * rowsPerPage && i < page * rowsPerPage) {
+                        rows[i].style.display = "";
+                    } else {
+                        rows[i].style.display = "none";
+                    }
                 }
-            }
 
-            // Update pagination buttons
-            var maxPages = Math.ceil(rows.length / rowsPerPage);
+                // Update pagination buttons
+                var maxPages = Math.ceil(rows.length / rowsPerPage);
 
-            var pagination = document.getElementById("pagination");
-            pagination.innerHTML = '';
+                var pagination = document.getElementById("pagination");
+                pagination.innerHTML = '';
 
-            // Add First, Previous, Current, Next, and Last buttons
-            if (currentPage > 1) {
-                pagination.innerHTML += '<button class="pageButton" data-page="1">First</button>';
-                pagination.innerHTML += '<button class="pageButton" data-page="' + (currentPage - 1) + '">Previous</button>';
-            }
+                // Add First, Previous, Current, Next, and Last buttons
+                if (currentPage > 1) {
+                    pagination.innerHTML += '<button class="pageButton" data-page="1">First</button>';
+                    pagination.innerHTML += '<button class="pageButton" data-page="' + (currentPage - 1) + '">Previous</button>';
+                }
 
-            pagination.innerHTML += '<button class="pageButton current" disabled>' + currentPage + '</button>';
+                pagination.innerHTML += '<button class="pageButton current" disabled>' + currentPage + '</button>';
 
-            if (currentPage < maxPages) {
-                pagination.innerHTML += '<button class="pageButton" data-page="' + (currentPage + 1) + '">Next</button>';
-                pagination.innerHTML += '<button class="pageButton" data-page="' + maxPages + '">Last</button>';
-            }
+                if (currentPage < maxPages) {
+                    pagination.innerHTML += '<button class="pageButton" data-page="' + (currentPage + 1) + '">Next</button>';
+                    pagination.innerHTML += '<button class="pageButton" data-page="' + maxPages + '">Last</button>';
+                }
 
-            // Add event listeners for page buttons
-            document.querySelectorAll('.pageButton').forEach(function(button) {
-                button.addEventListener('click', function() {
-                    currentPage = parseInt(this.getAttribute('data-page'));
-                    updateTable(currentPage);
+                // Add event listeners for page buttons
+                document.querySelectorAll('.pageButton').forEach(function(button) {
+                    button.addEventListener('click', function() {
+                        currentPage = parseInt(this.getAttribute('data-page'));
+                        updateTable(currentPage);
+                    });
                 });
-            });
-        }
-    });
+            }
+        });
 </script>
 </body>
 </html>

@@ -14,7 +14,7 @@ def date_expenses(cur, sd_datetime=None, ed_datetime=None, offset=0, limit=2000)
                         LEFT JOIN Tag T ON ET.Tag_id = T.ID
                         WHERE E.TRANSACTION_DATE BETWEEN %s AND %s
                         GROUP BY C.ID, C.NAME, E.TRANSACTION_DATE, E.DESCRIPTION, E.PRICE, E.Expenses_id
-                        ORDER BY E.TRANSACTION_DATE DESC
+                        ORDER BY E.TRANSACTION_DATE
                         LIMIT %s OFFSET %s''',
                     (sd_datetime, ed_datetime, limit, offset))
     elif sd_datetime:
@@ -31,7 +31,7 @@ def date_expenses(cur, sd_datetime=None, ed_datetime=None, offset=0, limit=2000)
                         LEFT JOIN Tag T ON ET.Tag_id = T.ID
                         WHERE E.TRANSACTION_DATE >= %s
                         GROUP BY C.ID, C.NAME, E.TRANSACTION_DATE, E.DESCRIPTION, E.PRICE, E.Expenses_id
-                        ORDER BY E.TRANSACTION_DATE DESC
+                        ORDER BY E.TRANSACTION_DATE
                         LIMIT %s OFFSET %s''',
                     (sd_datetime, limit, offset))
     else:
@@ -48,7 +48,7 @@ def date_expenses(cur, sd_datetime=None, ed_datetime=None, offset=0, limit=2000)
                         LEFT JOIN Tag T ON ET.Tag_id = T.ID
                         WHERE E.TRANSACTION_DATE <= %s
                         GROUP BY C.ID, C.NAME, E.TRANSACTION_DATE, E.DESCRIPTION, E.PRICE, E.Expenses_id
-                        ORDER BY E.TRANSACTION_DATE DESC
+                        ORDER BY E.TRANSACTION_DATE
                         LIMIT %s OFFSET %s''',
                     (ed_datetime, limit, offset))
 
@@ -67,7 +67,7 @@ def date_expenses_exact(cur, ex_datetime, offset=0, limit=2000):
                     LEFT JOIN Tag T ON ET.Tag_id = T.ID
                     WHERE E.TRANSACTION_DATE = %s
                     GROUP BY C.ID, C.NAME, E.TRANSACTION_DATE, E.DESCRIPTION, E.PRICE, E.Expenses_id
-                    ORDER BY E.TRANSACTION_DATE DESC
+                    ORDER BY E.TRANSACTION_DATE
                     LIMIT %s OFFSET %s''',
                 (ex_datetime, limit, offset))
     return cur.fetchall()
