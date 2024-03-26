@@ -167,6 +167,34 @@
             background-color: #ff9c4f;
             cursor: pointer;
         }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+        #pagination {
+            display: inline-block;
+            margin: 0 10px;
+        }
+        .pageButton {
+            margin: 0 5px;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .pageButton:hover {
+            background-color: #0056b3;
+        }
+
+        .pageButton.current {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
@@ -227,49 +255,81 @@
             {% endfor %}
         </tbody>
     </table>
+    <div class="pagination">
+        <div id="pagination"></div>
+    </div>
 {% endif %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var currentPage = 1;
+        var rowsPerPage = 10;
+        var sortOrder = "asc";  // Default sort order changed to "asc"
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var radios = document.querySelectorAll('input[name="sort_order"]');
 
-            radios.forEach(function(radio) {
-                radio.addEventListener('change', function() {
-                    sortTable();
-                });
-            });
-        });
+        updateTable(currentPage);
 
-        function sortTable() {
-            var table, rows, switching, i, x, y, shouldSwitch;
-            table = document.getElementById("priceTable");
-            switching = true;
-            while (switching) {
-                switching = false;
-                rows = table.rows;
-                for (i = 1; i < (rows.length - 1); i++) {
-                    shouldSwitch = false;
-                    x = rows[i].getElementsByTagName("TD")[1].innerHTML.toLowerCase();
-                    y = rows[i + 1].getElementsByTagName("TD")[1].innerHTML.toLowerCase();
-                    var sortOrder = document.querySelector('input[name="sort_order"]:checked').value;
-                    if (sortOrder === "asc") {
-                        if (parseFloat(x) > parseFloat(y)) {
-                            shouldSwitch= true;
-                            break;
-                        }
-                    } else {
-                        if (parseFloat(x) < parseFloat(y)) {
-                            shouldSwitch= true;
-                            break;
-                        }
-                    }
+        function updateTable(page) {
+            var table = document.getElementById("priceTable");
+            var rows = Array.from(table.rows).slice(1); // Convert rows to array and remove header
+
+            // Sort rows based on selected sort order and Price column
+            rows.sort(function(rowA, rowB) {
+                var priceA = parseFloat(rowA.cells[1].innerText);
+                var priceB = parseFloat(rowB.cells[1].innerText);
+
+                if (sortOrder === "asc") {
+                    return priceA - priceB;
+                } else {
+                    return priceB - priceA;
                 }
-                if (shouldSwitch) {
-                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-                    switching = true;
+            });
+
+            console.log("Sorted rows:", rows.map(row => parseFloat(row.cells[1].innerText)));
+            // Display rows based on current page and rows per page
+            for (var i = 0; i < rows.length; i++) {
+                if (i >= (page - 1) * rowsPerPage && i < page * rowsPerPage) {
+                    rows[i].style.display = "";
+                } else {
+                    rows[i].style.display = "none";
                 }
             }
+
+            // Update pagination buttons
+            var maxPages = Math.ceil(rows.length / rowsPerPage);
+
+            var pagination = document.getElementById("pagination");
+            pagination.innerHTML = '';
+
+            // Add First, Previous, Current, Next, and Last buttons
+            if (currentPage > 1) {
+                pagination.innerHTML += '<button class="pageButton" data-page="1">First</button>';
+                pagination.innerHTML += '<button class="pageButton" data-page="' + (currentPage - 1) + '">Previous</button>';
+            }
+
+            pagination.innerHTML += '<button class="pageButton current" disabled>' + currentPage + '</button>';
+
+            if (currentPage < maxPages) {
+                pagination.innerHTML += '<button class="pageButton" data-page="' + (currentPage + 1) + '">Next</button>';
+                pagination.innerHTML += '<button class="pageButton" data-page="' + maxPages + '">Last</button>';
+            }
+
+            // Add event listeners for page buttons
+            document.querySelectorAll('.pageButton').forEach(function(button) {
+                button.addEventListener('click', function() {
+                    currentPage = parseInt(this.getAttribute('data-page'));
+                    updateTable(currentPage);
+                });
+            });
         }
-    </script>
+
+        // Event listener for radio buttons
+        document.querySelectorAll('input[name="sort_order"]').forEach(function(radio) {
+            radio.addEventListener('change', function() {
+                sortOrder = this.value;
+                updateTable(currentPage);
+            });
+        });
+    });
+</script>
 </body>
 </html>

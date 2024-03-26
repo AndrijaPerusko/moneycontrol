@@ -133,28 +133,33 @@
             cursor: pointer;
         }
         .pagination {
-            display: block;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             margin-top: 20px;
-            text-align: center;
-            margin-left: auto;
-            margin-right: auto;
-            clear: both;
         }
-        .pagination a {
-            color: white;
+        #pagination {
             display: inline-block;
-            padding: 8px 16px;
-            text-decoration: none;
-            transition: background-color .3s;
-            border-radius: 50%;
-            background-color: #357e4e;
-
+            margin: 0 10px;
         }
-        .pagination a.active {
-            background-color: #4CAF50;
+        .pageButton {
+            margin: 0 5px;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007BFF;
             color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
         }
-        .pagination a:hover:not(.active) {background-color: #ddd;}
+
+        .pageButton:hover {
+            background-color: #0056b3;
+        }
+
+        .pageButton.current {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
@@ -202,6 +207,9 @@
                 {% endfor %}
             </tbody>
         </table>
+    <div class="pagination">
+        <div id="pagination"></div>
+    </div>
     {% endif %}
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
@@ -210,5 +218,54 @@
             {% endfor %}
         {% endif %}
     {% endwith %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var currentPage = 1;
+        var rowsPerPage = 10;
+
+        updateTable(currentPage);
+
+        function updateTable(page) {
+            var table = document.querySelector("table");
+            var rows = Array.from(table.rows).slice(1); // Convert rows to array and remove header
+
+            // Display rows based on current page and rows per page
+            for (var i = 0; i < rows.length; i++) {
+                if (i >= (page - 1) * rowsPerPage && i < page * rowsPerPage) {
+                    rows[i].style.display = "";
+                } else {
+                    rows[i].style.display = "none";
+                }
+            }
+
+            // Update pagination buttons
+            var maxPages = Math.ceil(rows.length / rowsPerPage);
+
+            var pagination = document.getElementById("pagination");
+            pagination.innerHTML = '';
+
+            // Add First, Previous, Current, Next, and Last buttons
+            if (currentPage > 1) {
+                pagination.innerHTML += '<button class="pageButton" data-page="1">First</button>';
+                pagination.innerHTML += '<button class="pageButton" data-page="' + (currentPage - 1) + '">Previous</button>';
+            }
+
+            pagination.innerHTML += '<button class="pageButton current" disabled>' + currentPage + '</button>';
+
+            if (currentPage < maxPages) {
+                pagination.innerHTML += '<button class="pageButton" data-page="' + (currentPage + 1) + '">Next</button>';
+                pagination.innerHTML += '<button class="pageButton" data-page="' + maxPages + '">Last</button>';
+            }
+
+            // Add event listeners for page buttons
+            document.querySelectorAll('.pageButton').forEach(function(button) {
+                button.addEventListener('click', function() {
+                    currentPage = parseInt(this.getAttribute('data-page'));
+                    updateTable(currentPage);
+                });
+            });
+        }
+    });
+</script>
 </body>
 </html>

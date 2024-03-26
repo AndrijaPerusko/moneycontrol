@@ -62,7 +62,7 @@
             border: 1px solid #ddd;
             padding: 8px;
             text-align: center;
-            width: 15%;
+            width: 17%;
         }
         th {
             background-color: #f2f2f2;
@@ -150,6 +150,34 @@
             background-color: #ff9c4f;
             cursor: pointer;
         }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+        #pagination {
+            display: inline-block;
+            margin: 0 10px;
+        }
+        .pageButton {
+            margin: 0 5px;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .pageButton:hover {
+            background-color: #0056b3;
+        }
+
+        .pageButton.current {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
@@ -181,40 +209,43 @@
         {% endif %}
     {% endwith %}
 
-{% if results %}
-    <table id="priceTable">
-        <thead>
-            <tr>
-                <th>Description</th>
-                <th>Date</th>
-                <th>Category</th>
-                <th>Price</th>
-                <th>Tags</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for result in results %}
+    {% if results %}
+        <table id="priceTable">
+            <thead>
                 <tr>
-                    <td><a href="{{ url_for('main_expenses_description', description=result.description) }}" class="category-link-expenses">{{ result.description }}</a></td>
-                    <td>{{ result.date }}</td>
-                    <td><a href="{{ url_for('main_category_id', category_id=result.category_id) }}" class="category-link">{{ result.name }}</a></td>
-                    <td>{{ result.price }}</td>
-                    <td>
-                    {% if result.tag_ids %}
-                        {% for i in range(0, result.tag|length) %}
-                            {% if result.tag_ids[i] %}
-                                <a href="{{ url_for('main_tag_id', tag_id=result.tag_ids[i]) }}" class="category-tag">{{ result.tag[i] }}</a>
-                            {% endif %}
-                        {% endfor %}
-                    {% else %}
-                        <p>No tags</p>
-                    {% endif %}
-                    </td>
+                    <th>Description</th>
+                    <th>Date</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Tags</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-{% endif %}
+            </thead>
+            <tbody>
+                {% for result in results %}
+                    <tr>
+                        <td><a href="{{ url_for('main_expenses_description', description=result.description) }}" class="category-link-expenses">{{ result.description }}</a></td>
+                        <td>{{ result.date }}</td>
+                        <td><a href="{{ url_for('main_category_id', category_id=result.category_id) }}" class="category-link">{{ result.name }}</a></td>
+                        <td>{{ result.price }}</td>
+                        <td>
+                        {% if result.tag_ids %}
+                            {% for i in range(0, result.tag|length) %}
+                                {% if result.tag_ids[i] %}
+                                    <a href="{{ url_for('main_tag_id', tag_id=result.tag_ids[i]) }}" class="category-tag">{{ result.tag[i] }}</a>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <p>No tags</p>
+                        {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+    <div class="pagination">
+        <div class="pagination" id="pagination"></div>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -242,51 +273,82 @@
                 }
             });
 
-            var radios = document.querySelectorAll('input[name="sort_order"]');
+            var currentPage = 1;
+            var rowsPerPage = 10;
+            var sortOrder = "asc";  // Default sort order
 
-            radios.forEach(function(radio) {
-                radio.addEventListener('change', function() {
-                    sortTable();
-                });
+            updateTable(currentPage);
+
+            function updateTable(page) {
+                var table = document.getElementById("priceTable");
+                var rows = Array.from(table.rows).slice(1); // Convert rows to array and remove header
+
+                // Sort rows based on selected sort order and Price column
+            rows.sort(function(rowA, rowB) {
+                var dateA = new Date(rowA.cells[3].innerText);
+                console.log("Date A:", dateA);
+                var dateB = new Date(rowB.cells[3].innerText);
+                console.log("Date B:", dateB);
+
+
+                if (sortOrder === "asc") {
+                    console.log("Sorting in ascending order");
+                    return dateA - dateB;
+                } else {
+                    console.log("Sorting in descending order");
+                    return dateB - dateA;
+                }
             });
-        });
 
-        function sortTable() {
-            var table, rows, switching, i, x, y, shouldSwitch;
-            table = document.getElementById("priceTable");
-            switching = true;
-
-            while (switching) {
-                switching = false;
-                rows = table.rows;
-
-                for (i = 1; i < (rows.length - 1); i++) {
-                    shouldSwitch = false;
-
-                    x = rows[i].getElementsByTagName("TD")[1].innerHTML;
-                    y = rows[i + 1].getElementsByTagName("TD")[1].innerHTML;
-
-                    var sortOrder = document.querySelector('input[name="sort_order"]:checked').value;
-
-                    if (sortOrder === "asc") {
-                        if (new Date(x) > new Date(y)) {
-                            shouldSwitch = true;
-                            break;
-                        }
+                // Display rows based on current page and rows per page
+                for (var i = 0; i < rows.length; i++) {
+                    if (i >= (page - 1) * rowsPerPage && i < page * rowsPerPage) {
+                        rows[i].style.display = "";
                     } else {
-                        if (new Date(x) < new Date(y)) {
-                            shouldSwitch = true;
-                            break;
-                        }
+                        rows[i].style.display = "none";
                     }
                 }
 
-                if (shouldSwitch) {
-                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-                    switching = true;
+                // Update pagination buttons
+            var maxPages = Math.ceil(rows.length / rowsPerPage);
+            var pagination = document.getElementById("pagination");
+            pagination.innerHTML = '';
+
+                // Add First, Previous, Current, Next, and Last buttons
+                if (currentPage > 1) {
+                    pagination.innerHTML += '<button class="pageButton" data-page="1">First</button>';
+                    pagination.innerHTML += '<button class="pageButton" data-page="' + (currentPage - 1) + '">Previous</button>';
                 }
+
+                pagination.innerHTML += '<button class="pageButton current" disabled>' + currentPage + '</button>';
+
+                if (currentPage < maxPages) {
+                    pagination.innerHTML += '<button class="pageButton" data-page="' + (currentPage + 1) + '">Next</button>';
+                    pagination.innerHTML += '<button class="pageButton" data-page="' + maxPages + '">Last</button>';
+                }
+
+                // Add event listeners for page buttons
+                document.querySelectorAll('.pageButton').forEach(function(button) {
+                    button.addEventListener('click', function() {
+                        currentPage = parseInt(this.getAttribute('data-page'));
+                        updateTable(currentPage);
+                    });
+                });
             }
+
+            // Event listener for radio buttons
+document.querySelectorAll('input[name="sort_order"]').forEach(function(radio) {
+    radio.addEventListener('change', function() {
+        if (this.checked) {
+            console.log("Radio button changed:", this.value); // Dodajte ovu liniju
+            console.log("Sort order before change:", sortOrder);
+            sortOrder = this.value;
+            console.log("Sort order after change:", sortOrder);
+            updateTable(currentPage);
         }
+                });
+            });
+        });
     </script>
 </body>
 </html>

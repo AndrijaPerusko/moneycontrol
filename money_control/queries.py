@@ -1,5 +1,5 @@
 
-def date_expenses(cur, sd_datetime=None, ed_datetime=None):
+def date_expenses(cur, sd_datetime=None, ed_datetime=None, offset=0, limit=2000):
     if sd_datetime and ed_datetime:
         cur.execute('''SELECT C.ID as category_id,
                             C.NAME,
@@ -14,8 +14,9 @@ def date_expenses(cur, sd_datetime=None, ed_datetime=None):
                         LEFT JOIN Tag T ON ET.Tag_id = T.ID
                         WHERE E.TRANSACTION_DATE BETWEEN %s AND %s
                         GROUP BY C.ID, C.NAME, E.TRANSACTION_DATE, E.DESCRIPTION, E.PRICE, E.Expenses_id
-                        ORDER BY E.TRANSACTION_DATE DESC''',
-                    (sd_datetime, ed_datetime))
+                        ORDER BY E.TRANSACTION_DATE DESC
+                        LIMIT %s OFFSET %s''',
+                    (sd_datetime, ed_datetime, limit, offset))
     elif sd_datetime:
         cur.execute('''SELECT C.ID as category_id,
                             C.NAME,
@@ -30,8 +31,9 @@ def date_expenses(cur, sd_datetime=None, ed_datetime=None):
                         LEFT JOIN Tag T ON ET.Tag_id = T.ID
                         WHERE E.TRANSACTION_DATE >= %s
                         GROUP BY C.ID, C.NAME, E.TRANSACTION_DATE, E.DESCRIPTION, E.PRICE, E.Expenses_id
-                        ORDER BY E.TRANSACTION_DATE DESC''',
-                    (sd_datetime,))
+                        ORDER BY E.TRANSACTION_DATE DESC
+                        LIMIT %s OFFSET %s''',
+                    (sd_datetime, limit, offset))
     else:
         cur.execute('''SELECT C.ID as category_id,
                             C.NAME,
@@ -46,11 +48,12 @@ def date_expenses(cur, sd_datetime=None, ed_datetime=None):
                         LEFT JOIN Tag T ON ET.Tag_id = T.ID
                         WHERE E.TRANSACTION_DATE <= %s
                         GROUP BY C.ID, C.NAME, E.TRANSACTION_DATE, E.DESCRIPTION, E.PRICE, E.Expenses_id
-                        ORDER BY E.TRANSACTION_DATE DESC''',
-                    (ed_datetime,))
+                        ORDER BY E.TRANSACTION_DATE DESC
+                        LIMIT %s OFFSET %s''',
+                    (ed_datetime, limit, offset))
 
     return cur.fetchall()
-def date_expenses_exact(cur, ex_datetime):
+def date_expenses_exact(cur, ex_datetime, offset=0, limit=2000):
     cur.execute('''SELECT C.ID as category_id,
                         C.NAME,
                         E.TRANSACTION_DATE,
@@ -64,10 +67,11 @@ def date_expenses_exact(cur, ex_datetime):
                     LEFT JOIN Tag T ON ET.Tag_id = T.ID
                     WHERE E.TRANSACTION_DATE = %s
                     GROUP BY C.ID, C.NAME, E.TRANSACTION_DATE, E.DESCRIPTION, E.PRICE, E.Expenses_id
-                    ORDER BY E.TRANSACTION_DATE DESC''',
-                (ex_datetime,))
+                    ORDER BY E.TRANSACTION_DATE DESC
+                    LIMIT %s OFFSET %s''',
+                (ex_datetime, limit, offset))
     return cur.fetchall()
-def price_query(cur, start_price=None, max_price=None):
+def price_query(cur, start_price=None, max_price=None, offset=0, limit=2000):
     if start_price and max_price:
         cur.execute('''SELECT C.ID as category_id,
                             C.NAME,
@@ -81,8 +85,10 @@ def price_query(cur, start_price=None, max_price=None):
                         LEFT JOIN Expense_Tag ET ON E.Expenses_id = ET.Expenses_id
                         LEFT JOIN Tag T ON ET.Tag_id = T.ID
                         WHERE E.PRICE BETWEEN %s AND %s
-                        GROUP BY C.ID, C.NAME, E.PRICE, E.DESCRIPTION, E.TRANSACTION_DATE, E.Expenses_id''',
-                    (start_price, max_price))
+                        GROUP BY C.ID, C.NAME, E.PRICE, E.DESCRIPTION, E.TRANSACTION_DATE, E.Expenses_id
+                        ORDER BY E.PRICE
+                        LIMIT %s OFFSET %s''',
+                    (start_price, max_price, limit, offset))
     elif max_price:
         cur.execute('''SELECT C.ID as category_id,
                             C.NAME,
@@ -96,8 +102,10 @@ def price_query(cur, start_price=None, max_price=None):
                         LEFT JOIN Expense_Tag ET ON E.Expenses_id = ET.Expenses_id
                         LEFT JOIN Tag T ON ET.Tag_id = T.ID
                         WHERE E.PRICE <= %s
-                        GROUP BY C.ID, C.NAME, E.PRICE, E.DESCRIPTION, E.TRANSACTION_DATE, E.Expenses_id''',
-                    (max_price,))
+                        GROUP BY C.ID, C.NAME, E.PRICE, E.DESCRIPTION, E.TRANSACTION_DATE, E.Expenses_id
+                        ORDER BY E.PRICE
+                        LIMIT %s OFFSET %s
+                        ''', (max_price, limit, offset))
     else:
         cur.execute('''SELECT C.ID as category_id,
                             C.NAME,
@@ -111,11 +119,13 @@ def price_query(cur, start_price=None, max_price=None):
                         LEFT JOIN Expense_Tag ET ON E.Expenses_id = ET.Expenses_id
                         LEFT JOIN Tag T ON ET.Tag_id = T.ID
                         WHERE E.PRICE >= %s
-                        GROUP BY C.ID, C.NAME, E.PRICE, E.DESCRIPTION, E.TRANSACTION_DATE, E.Expenses_id''',
-                    (start_price,))
+                        GROUP BY C.ID, C.NAME, E.PRICE, E.DESCRIPTION, E.TRANSACTION_DATE, E.Expenses_id
+                        ORDER BY E.PRICE
+                        LIMIT %s OFFSET %s
+                        ''', (start_price, limit, offset))
 
     return cur.fetchall()
-def exact_price_query(cur, exact_price):
+def exact_price_query(cur, exact_price, offset=0, limit=2000):
     cur.execute('''SELECT C.ID as category_id,
                         C.NAME,
                         E.PRICE,
@@ -127,11 +137,13 @@ def exact_price_query(cur, exact_price):
                     JOIN EXPENSES E ON C.ID = E.CATEGORY_ID
                     LEFT JOIN Expense_Tag ET ON E.Expenses_id = ET.Expenses_id
                     LEFT JOIN Tag T ON ET.Tag_id = T.ID
-                    WHERE E.PRICE >= %s
-                    GROUP BY C.ID, C.NAME, E.PRICE, E.DESCRIPTION, E.TRANSACTION_DATE, E.Expenses_id''',
-                (exact_price,))
+                    WHERE E.PRICE = %s
+                    GROUP BY C.ID, C.NAME, E.PRICE, E.DESCRIPTION, E.TRANSACTION_DATE, E.Expenses_id
+                    ORDER BY E.PRICE
+                    LIMIT %s OFFSET %s
+                ''', (exact_price, limit, offset))
     return cur.fetchall()
-def category_expenses_query(cur, category_id):
+def category_expenses_query(cur, category_id, offset=0, limit=2000):
     cur.execute('''
         SELECT
             E.DESCRIPTION,
@@ -145,7 +157,8 @@ def category_expenses_query(cur, category_id):
         WHERE E.CATEGORY_ID = %s
         GROUP BY E.Expenses_id
         ORDER BY E.TRANSACTION_DATE DESC
-    ''', (category_id,))
+        LIMIT %s OFFSET %s
+    ''', (category_id, limit, offset))
     return cur.fetchall()
 
 def generate_query(cur,page,per_page):

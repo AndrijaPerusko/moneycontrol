@@ -730,7 +730,9 @@ def category_expenses():
             flash('Please select a category!', 'error')
             return redirect('/category_expenses')
 
-        query_res = category_expenses_query(cur, category_id)
+        page = int(request.form.get('pageInput', 1))
+        offset = (page - 1) * 10
+        query_res = category_expenses_query(cur, category_id, offset=offset)
         results = [{
             'description': i[0],
             'price': float(i[1]),
@@ -768,14 +770,17 @@ def price_filter():
             flash('You have to choose either max price or exact price ', 'error')
             return redirect('/price_filter')
 
+        page = int(request.form.get('pageInput', 1))
+        offset = (page - 1) * 10
+
         if exact_price:
-            sql_query = exact_price_query(cur, exact_price)
+            sql_query = exact_price_query(cur, exact_price, offset=offset)
         elif start_price and max_price:
-            sql_query = price_query(cur, start_price, max_price)
+            sql_query = price_query(cur, start_price, max_price, offset=offset)
         elif max_price:
-            sql_query = price_query(cur, max_price=max_price)
+            sql_query = price_query(cur, max_price=max_price, offset=offset)
         else:
-            sql_query = price_query(cur, start_price=start_price)
+            sql_query = price_query(cur, start_price=start_price, offset=offset)
 
         results = [{
             'category_id': i[0],
@@ -832,16 +837,17 @@ def date_fiter():
             return redirect('/date_filter')
 
         query_res = None
-
+        page = int(request.form.get('pageInput', 1))
+        offset = (page - 1) * 10
 
         if exact_date:
-            query_res = date_expenses_exact(cur, ex_datatime)
+            query_res = date_expenses_exact(cur, ex_datatime, offset=offset)
         elif start_date and end_date:
-            query_res = date_expenses(cur, sd_datetime, ed_datetime)
+            query_res = date_expenses(cur, sd_datetime, ed_datetime, offset=offset)
         elif start_date:
-            query_res = date_expenses(cur, sd_datetime)
+            query_res = date_expenses(cur, sd_datetime, offset=offset)
         elif end_date:
-            query_res = date_expenses(cur, ed_datetime)
+            query_res = date_expenses(cur, ed_datetime, offset=offset)
         if not query_res:
             flash('No data for this date range or exact date!', 'neutral')
             return redirect('/date_filter')
