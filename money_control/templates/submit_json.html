@@ -132,13 +132,13 @@
                         <ul class="tags-list">
                             {% for tag in all_data.tags %}
                                 <li>
-                                    <input type="checkbox" id="{{ tag }}" name="selected_tag_{{ all_data.expenses_id }}" value="{{ tag }}">
+                                    <input type="checkbox" id="{{ tag }}" name="selected_tag_{{ all_data.expenses_id }}" value="{{ tag }}" tabindex="{{ loop.index }}>
                                     <label for="{{ tag }}">{{ tag }}</label>
                                 </li>
                             {% endfor %}
                         </ul>
                         <label for="custom_tag">Custom Tag:</label>
-                        <input type="text" id="custom_tag" name="custom_tag_{{ all_data.expenses_id }}" placeholder="Enter custom tag">
+                        <input type="text" id="custom_tag" name="custom_tag_{{ all_data.expenses_id }}" placeholder="Enter custom tag" tabindex="{{ loop.length + loop.index }}">
                         <p class="message">Separate your custom tags with comma attribute</p>
                     </div>
                     {% set index = index + 1 %}

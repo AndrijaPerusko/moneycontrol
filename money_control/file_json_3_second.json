@@ -1,21 +1,21 @@
 [
     {
       "category": "Food order",
-      "description": "Nova Godina",
+      "description": "nova godina Sijemo duboko",
       "price":  "1250",
       "date": "01.02.2025",
       "expenses_id":""
     },
       {
       "category": "Vacation",
-      "description": "Nova Godina",
+      "description": "#@ova Godina",
       "price": 7000,
       "date": "02.02.2025",
       "expenses_id":""
     },
       {
       "category": "Other",
-      "description": "Nova Godina",
+      "description": " Nova Godina AaaAAaaaAAAaaa",
       "price": 3500,
       "date": "03.02.2025",
       "expenses_id":""

@@ -3,7 +3,7 @@ from flask import request, render_template, flash, redirect, send_file
 from money_control import app, db_conn, cur
 from money_control.utils import (get_categories, load_json, check_expenses_id,
                                  category_id_name, suggested_tags, is_valid_custom_tag,
-                                 check_category_name, generate_new_json)
+                                 check_category_name, generate_new_json, capitalize_first_letter)
 from money_control.queries import (date_expenses, price_query, category_expenses_query, generate_query,
                                    generate_category_tag_chart_query, generate_category_chart_query,
                                    calculate_pagination, get_tag_by_name, count_tag_usage, get_total_count_expenses,
@@ -24,6 +24,7 @@ import base64
 import os
 import json
 import matplotlib.pyplot as plt
+import re
 
 
 @app.route('/', methods=['GET','POST'])
@@ -229,6 +230,7 @@ def update_transaction(expenses_id):
         if date_time is not None and description:
             try:
                 with db_conn:
+                    description = capitalize_first_letter(description)
                     # Updating expense in tale Expenses
                     cur.execute(
                         'UPDATE Expenses SET CATEGORY_ID = %s, PRICE = %s, DESCRIPTION = %s, TRANSACTION_DATE = %s WHERE Expenses_id = %s',
@@ -250,6 +252,7 @@ def update_transaction(expenses_id):
                         custom_tag_names = custom_tag.split(',')
                         for custom_tag_name in custom_tag_names:
                             custom_tag_name = custom_tag_name.strip().lower()
+                            custom_tag_name = re.sub(r'[^a-zA-Z0-9\s]', '', custom_tag_name)
                             if custom_tag_name and is_valid_custom_tag(custom_tag_name):
                                 if custom_tag_name not in added_tags:
                                     added_tags.add(custom_tag_name)
@@ -263,9 +266,6 @@ def update_transaction(expenses_id):
                                         tag_id = tag_row[0]
                                     cur.execute('INSERT INTO EXPENSE_TAG (EXPENSES_ID, TAG_ID) VALUES (%s, %s)',
                                                 (expenses_id, tag_id))
-                            else:
-                                flash(f'Invalid tag: {custom_tag_name}. Update unsuccessful!', 'error')
-                                return redirect('/main_expenses')
             except psycopg2.Error as e:
                 db_conn.rollback()
                 print('Error updating expense:', e)
@@ -558,6 +558,7 @@ def import_json():
                         flash(f'One or more required keys are missing in transaction {index}', 'error')
                         return redirect('/import_json')
                     description = item['description']
+                    description = capitalize_first_letter(description)
                     category_name = item['category']
                     price = item['price']
                     date = item['date']
@@ -656,6 +657,7 @@ def submit_json():
                         custom_tag_names = custom_tag_str.split(',')
                         for custom_tag_name in custom_tag_names:
                             custom_tag_name = custom_tag_name.strip().lower()
+                            custom_tag_name = re.sub(r'[^a-zA-Z0-9\s]', '', custom_tag_name)
                             if custom_tag_name:
                                 if is_valid_custom_tag(custom_tag_name):
                                     if custom_tag_name not in added_tags:

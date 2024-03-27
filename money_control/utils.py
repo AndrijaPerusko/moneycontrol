@@ -103,3 +103,7 @@ def generate_new_json(user_input):
         print(user_input)
     return data
 
+def capitalize_first_letter(description):
+    words = description.split()
+    capitalized_words = [words[0].capitalize()] + [word.lower() for word in words[1:]]
+    return ' '.join(capitalized_words)
