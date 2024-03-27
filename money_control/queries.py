@@ -244,3 +244,30 @@ def get_total_count_expenses(cur):
        """)
     total_count = cur.fetchone()[0]
     return total_count
+
+def update_transaction_query(cur, expenses_id):
+    cur.execute('''SELECT 
+                        E.EXPENSES_ID,
+                        C.NAME,
+                        E.PRICE,
+                        E.DESCRIPTION,
+                        E.TRANSACTION_DATE,
+                        array_agg(T.Name) as tags
+                    FROM CATEGORY C
+                    JOIN EXPENSES E ON C.ID = E.CATEGORY_ID
+                    LEFT JOIN Expense_Tag ET ON E.Expenses_id = ET.Expenses_id
+                    LEFT JOIN Tag T ON ET.Tag_id = T.ID
+                    WHERE E.EXPENSES_ID = %s
+                    GROUP BY E.EXPENSES_ID, C.NAME, E.PRICE, E.DESCRIPTION, E.TRANSACTION_DATE''', (expenses_id,))
+
+    return cur.fetchall()
+
+def generate_tag_chart_query(cur, selected_category):
+    cur.execute("""SELECT T.NAME, COUNT(ET.EXPENSES_ID)
+                    FROM TAG T
+                    LEFT JOIN EXPENSE_TAG ET ON T.ID = ET.TAG_ID
+                    LEFT JOIN EXPENSES E ON ET.EXPENSES_ID = E.EXPENSES_ID
+                    WHERE E.CATEGORY_ID = %s
+                    GROUP BY T.NAME;""", (selected_category,))
+    tag_data = cur.fetchall()
+    return tag_data

@@ -7,7 +7,8 @@ from money_control.utils import (get_categories, load_json, check_expenses_id,
 from money_control.queries import (date_expenses, price_query, category_expenses_query, generate_query,
                                    generate_category_tag_chart_query, generate_category_chart_query,
                                    calculate_pagination, get_tag_by_name, count_tag_usage, get_total_count_expenses,
-                                   exact_price_query, date_expenses_exact)
+                                   exact_price_query, date_expenses_exact, update_transaction_query,
+                                   generate_tag_chart_query)
 from money_control.charts import (generate_expense_chart,  generate_tag_expense_chart,
                                   generate_price_description_chart_for_category,
                                   generate_price_tag_chart_for_category, generate_price_tag_category_chart,
@@ -15,6 +16,9 @@ from money_control.charts import (generate_expense_chart,  generate_tag_expense_
                                   generate_price_chart_for_tag_last_30_days, generate_description_chart_by_category,
                                   generate_description_chart_by_tag, generate_last_seven_days_description,
                                   generate_last_thirty_days_description)
+from money_control.main_queries_category import *
+from money_control.main_queries_tag import *
+from money_control.main_queries_expenses import *
 from datetime import datetime
 import base64
 import os
@@ -171,129 +175,19 @@ def main_expenses():
 
 @app.route('/main_expenses_description/<description>', methods=['GET'])
 def main_expenses_description(description):
-    cur.execute("""
-    SELECT COUNT(et.Tag_id)
-        FROM Expenses e
-        JOIN Expense_Tag et ON e.Expenses_id = et.Expenses_id
-        WHERE e.DESCRIPTION = %s;
-        """, (description,))
+    tag_count = main_expense_tag_count(cur, description)
+    top_tags = main_expense_top_tags(cur, description)
+    past_7_days_tag = main_expense_tag_seven_days(cur, description)
 
-    tag_count = cur.fetchone()[0]
+    category_count = main_expense_category_count(cur, description)
+    popular_categories = main_expense_category_top(cur, description)
+    recent_categories = main_expense_category_seven_days(cur, description)
 
-    cur.execute("""
-        SELECT COUNT(et.Tag_id) as tag_count, t.Name, t.ID as tag_id
-        FROM Expenses e
-        JOIN Expense_Tag et ON e.Expenses_id = et.Expenses_id
-        JOIN Tag t ON et.Tag_id = t.ID
-        WHERE e.DESCRIPTION = %s
-        GROUP BY t.Name, t.ID
-        ORDER BY tag_count DESC
-        LIMIT 10;
-        """, (description,))
-
-    top_tags = cur.fetchall()
-
-    cur.execute("""
-        SELECT et.Tag_id, t.Name
-        FROM Expenses e
-        JOIN Expense_Tag et ON e.Expenses_id = et.Expenses_id
-        JOIN Tag t ON et.Tag_id = t.ID
-        WHERE e.DESCRIPTION = %s
-        AND e.TRANSACTION_DATE >= CURRENT_DATE - INTERVAL '7 days'
-        AND e.TRANSACTION_DATE <= CURRENT_DATE
-        ORDER BY e.TRANSACTION_DATE DESC
-        LIMIT 10;
-    """, (description,))
-    past_7_days_tag = cur.fetchall()
-
-    cur.execute("""
-        SELECT COUNT(DISTINCT c.ID)
-        FROM Expenses e
-        JOIN Category c ON e.CATEGORY_ID = c.ID
-        WHERE e.DESCRIPTION = %s;
-    """, (description,))
-
-    category_count = cur.fetchone()[0]
-
-    cur.execute("""
-        SELECT c.ID, c.Name, COUNT(*) as count
-        FROM Expenses e
-        JOIN Category c ON e.CATEGORY_ID = c.ID
-        WHERE e.DESCRIPTION = %s
-        GROUP BY c.ID, c.Name
-        ORDER BY count DESC
-        LIMIT 4;
-    """, (description,))
-
-    popular_categories = cur.fetchall()
-
-    cur.execute("""
-        SELECT c.ID, c.Name
-        FROM Expenses e
-        JOIN Category c ON e.CATEGORY_ID = c.ID
-        WHERE e.DESCRIPTION = %s
-        AND e.TRANSACTION_DATE >= CURRENT_DATE - INTERVAL '7 days'
-        AND e.TRANSACTION_DATE <= CURRENT_DATE
-        GROUP BY c.ID, c.Name;
-    """, (description,))
-
-    recent_categories = cur.fetchall()
-
-    cur.execute("""
-        SELECT COALESCE(SUM(e.PRICE), 0) as total_price
-        FROM Expenses e
-        WHERE e.DESCRIPTION = %s;
-    """, (description,))
-
-    total_price = cur.fetchone()[0]
-
-    cur.execute("""
-        SELECT ROUND(AVG(e.PRICE), 2) as avg_price
-        FROM Expenses e
-        WHERE e.DESCRIPTION = %s;
-    """, (description,))
-
-    avg_price = cur.fetchone()[0]
-
-    cur.execute("""
-        SELECT COUNT(e.Expenses_id) as total_expenses
-        FROM Expenses e
-        WHERE e.DESCRIPTION = %s;
-    """, (description,))
-
-    same_desc = cur.fetchone()[0]
-
-    cur.execute("""
-        SELECT c.ID, c.Name as Category, e.PRICE, e.TRANSACTION_DATE,
-               string_agg(t.Name, ', ') as Tags,
-               string_agg(CAST(t.ID AS TEXT), ', ') as Tag_IDs
-        FROM Expenses e
-        JOIN Category c ON e.CATEGORY_ID = c.ID
-        JOIN Expense_Tag et ON e.Expenses_id = et.Expenses_id
-        JOIN Tag t ON et.Tag_id = t.ID
-        WHERE e.DESCRIPTION = %s
-        GROUP BY c.ID, c.Name, e.PRICE, e.TRANSACTION_DATE
-        ORDER BY e.PRICE DESC
-        LIMIT 3;
-    """, (description,))
-
-    top_price_expenses = cur.fetchall()
-
-    cur.execute("""
-        SELECT c.ID, c.Name as Category, e.PRICE, e.TRANSACTION_DATE,
-               string_agg(t.Name, ', ') as Tags,
-               string_agg(CAST(t.ID AS TEXT), ', ') as Tag_IDs
-        FROM Expenses e
-        JOIN Category c ON e.CATEGORY_ID = c.ID
-        JOIN Expense_Tag et ON e.Expenses_id = et.Expenses_id
-        JOIN Tag t ON et.Tag_id = t.ID
-        WHERE e.DESCRIPTION = %s
-        GROUP BY c.ID, c.Name, e.PRICE, e.TRANSACTION_DATE
-        ORDER BY e.PRICE ASC
-        LIMIT 3;
-    """, (description,))
-
-    cheapest_price = cur.fetchall()
+    total_price = main_expense_total_price(cur, description)
+    avg_price = main_expense_average_price(cur, description)
+    same_desc = main_expense_same_description(cur, description)
+    top_price_expenses = main_expense_table_top(cur, description)
+    cheapest_price = main_expense_table_cheapest(cur, description)
 
     category_chart = generate_description_chart_by_category(description)
     tag_chart = generate_description_chart_by_tag(description)
@@ -369,6 +263,9 @@ def update_transaction(expenses_id):
                                         tag_id = tag_row[0]
                                     cur.execute('INSERT INTO EXPENSE_TAG (EXPENSES_ID, TAG_ID) VALUES (%s, %s)',
                                                 (expenses_id, tag_id))
+                            else:
+                                flash(f'Invalid tag: {custom_tag_name}. Update unsuccessful!', 'error')
+                                return redirect('/main_expenses')
             except psycopg2.Error as e:
                 db_conn.rollback()
                 print('Error updating expense:', e)
@@ -378,22 +275,9 @@ def update_transaction(expenses_id):
                 flash('Expense successfully updated','success')
                 return redirect('/main_expenses')
 
-
-    cur.execute('''SELECT 
-                        E.EXPENSES_ID,
-                        C.NAME,
-                        E.PRICE,
-                        E.DESCRIPTION,
-                        E.TRANSACTION_DATE,
-                        array_agg(T.Name) as tags
-                    FROM CATEGORY C
-                    JOIN EXPENSES E ON C.ID = E.CATEGORY_ID
-                    LEFT JOIN Expense_Tag ET ON E.Expenses_id = ET.Expenses_id
-                    LEFT JOIN Tag T ON ET.Tag_id = T.ID
-                    WHERE E.EXPENSES_ID = %s
-                    GROUP BY E.EXPENSES_ID, C.NAME, E.PRICE, E.DESCRIPTION, E.TRANSACTION_DATE''', (expenses_id,))
+    fetched_data = update_transaction_query(cur, expenses_id)
     expense_data = []
-    for row in cur.fetchall():
+    for row in fetched_data:
         tags = [tag for tag in row[5] if tag is not None] if row[5] else []
         expense_data.append({
             'expenses_id': row[0],
@@ -408,140 +292,25 @@ def update_transaction(expenses_id):
 
 @app.route('/main_category', methods=['GET', 'POST'])
 def main_category():
-    cur.execute("""
-        SELECT 
-            c.ID AS CategoryID,
-            c.Name AS CategoryName,
-            COALESCE(COUNT(DISTINCT e.Expenses_id), 0) AS NumberOfExpenses,
-            COALESCE(COUNT(et.Tag_id), 0) AS NumberOfTags,
-            COALESCE(SUM(DISTINCT e.PRICE), 0) AS TotalExpenses
-        FROM Category c
-        LEFT JOIN Expenses e ON c.ID = e.CATEGORY_ID
-        LEFT JOIN Expense_Tag et ON e.Expenses_id = et.Expenses_id
-        GROUP BY c.ID, c.Name
-        ORDER BY c.Name;
-    """)
-    results = cur.fetchall()
+    results = main_category_query(cur)
     return render_template('main_category.html', results=results)
+
 @app.route('/main_category_id/<int:category_id>', methods=['GET'])
 def main_category_id(category_id):
     category_name = check_category_name(category_id)
-    cur.execute("""
-        SELECT COUNT(et.tag_id) AS tag_count
-        FROM category c
-        LEFT JOIN expenses e ON c.id = e.category_id
-        LEFT JOIN expense_tag et ON e.expenses_id = et.expenses_id
-        WHERE c.id = %s
-        GROUP BY c.id
-    """, (category_id,))
-    tag_count_result = cur.fetchone()
-    tag_count = tag_count_result[0] if tag_count_result else 0
 
-    cur.execute("""
-        SELECT t.name, t.id, COUNT(et.tag_id) AS tag_usage
-        FROM tag t
-        JOIN expense_tag et ON t.id = et.tag_id
-        JOIN expenses e ON et.expenses_id = e.expenses_id
-        WHERE e.category_id = %s
-        GROUP BY t.id
-        ORDER BY tag_usage DESC
-        LIMIT 3
-    """, (category_id,))
-    top_tags = cur.fetchall()
+    tag_count = main_category_tag_count(cur, category_id)
+    top_tags = main_category_top_tags(cur, category_id)
+    recent_tags = main_category_recent_tags(cur, category_id)
 
-    cur.execute("""
-        SELECT t.id, t.name
-        FROM tag t
-        JOIN expense_tag et ON t.id = et.tag_id
-        JOIN expenses e ON et.expenses_id = e.expenses_id
-        WHERE e.category_id = %s 
-            AND e.TRANSACTION_DATE >= CURRENT_DATE - INTERVAL '7 days'
-            AND e.TRANSACTION_DATE <= CURRENT_DATE
-        GROUP BY t.id
-        ORDER BY MAX(e.transaction_date) ASC
-        LIMIT 10
-    """, (category_id,))
-    recent_tags = cur.fetchall()
+    expense_count = main_category_expense_count(cur, category_id)
+    top_expenses = main_category_top_expense(cur, category_id)
+    latest_expenses = main_category_expense_seven_days(cur, category_id)
 
-    cur.execute("""
-        SELECT COUNT(*)
-        FROM expenses
-        WHERE category_id = %s
-    """, (category_id,))
-    expense_count_result = cur.fetchone()
-    expense_count = expense_count_result[0] if expense_count_result else 0
-
-    cur.execute("""
-        SELECT description
-        FROM expenses
-        WHERE category_id = %s
-        GROUP BY description
-        ORDER BY COUNT(*) DESC
-        LIMIT 3
-    """, (category_id,))
-    top_expenses = cur.fetchall()
-
-    cur.execute("""
-        SELECT DISTINCT description 
-        FROM expenses e
-        WHERE category_id = %s 
-        AND e.TRANSACTION_DATE >= CURRENT_DATE - INTERVAL '7 days'
-        AND e.TRANSACTION_DATE <= CURRENT_DATE
-        LIMIT 5;
-    """, (category_id,))
-    latest_expenses = cur.fetchall()
-
-    cur.execute("""
-        SELECT COALESCE(SUM(price), 0) AS total_expense
-        FROM expenses
-        WHERE category_id = %s
-    """, (category_id,))
-    total_expense_result = cur.fetchone()
-    total_expense = total_expense_result[0]
-
-    cur.execute("""
-        SELECT COALESCE(ROUND(AVG(e.price), 2), 0) AS average_price
-        FROM expenses e
-        WHERE e.category_id = %s;
-    """, (category_id,))
-    average_price_result = cur.fetchone()
-    average_price = average_price_result[0]
-
-    cur.execute("""
-        SELECT e.expenses_id, e.description, e.transaction_date, e.price, 
-               string_agg(t.name, ', ') as tags, 
-               string_agg(CAST(t.id AS TEXT), ', ') as tag_ids
-        FROM expenses e
-        LEFT JOIN (
-            SELECT et.expenses_id, t.name, t.id
-            FROM expense_tag et
-            JOIN tag t ON et.tag_id = t.id
-        ) t ON e.expenses_id = t.expenses_id
-        WHERE e.category_id = %s
-        GROUP BY e.expenses_id, e.description, e.transaction_date, e.price
-        ORDER BY e.price DESC
-        LIMIT 3;
-    """, (category_id,))
-
-    most_expensive_results = cur.fetchall()
-
-    cur.execute("""
-        SELECT e.expenses_id, e.description, e.transaction_date, e.price, 
-               string_agg(t.name, ', ') as tags, 
-               string_agg(CAST(t.id AS TEXT), ', ') as tag_ids
-        FROM expenses e
-        LEFT JOIN (
-            SELECT et.expenses_id, t.name, t.id
-            FROM expense_tag et
-            JOIN tag t ON et.tag_id = t.id
-        ) t ON e.expenses_id = t.expenses_id
-        WHERE e.category_id = %s
-        GROUP BY e.expenses_id, e.description, e.transaction_date, e.price
-        ORDER BY e.price ASC
-        LIMIT 3;
-    """, (category_id,))
-
-    cheapest_expenses = cur.fetchall()
+    total_expense = main_category_sum(cur, category_id)
+    average_price = main_category_average_sum(cur, category_id)
+    most_expensive_results = main_category_most_expensive(cur, category_id)
+    cheapest_expenses = main_category_most_cheap(cur, category_id)
 
     graph_path = generate_expense_chart(category_id)
     path_graph = generate_tag_expense_chart(category_id)
@@ -562,151 +331,25 @@ def main_tag():
     offset = (page - 1) * per_page
 
     total_pages = calculate_pagination(cur, per_page)
-
-    cur.execute("""
-           SELECT t.ID AS Tag_ID,
-                   t.Name AS Tag_Name,
-                   COUNT(DISTINCT c.ID) AS NumberOfCategories,
-                   COUNT(DISTINCT e.Expenses_id) AS NumberOfExpenses,
-                   COALESCE(SUM(e.price), 0) AS total_price
-               FROM 
-                   Tag t
-               LEFT JOIN 
-                   Expense_Tag et ON t.ID = et.Tag_id
-               LEFT JOIN 
-                   Expenses e ON et.Expenses_id = e.Expenses_id
-               LEFT JOIN 
-                   Category c ON e.CATEGORY_ID = c.ID
-               GROUP BY 
-                   t.ID, t.Name
-               ORDER BY 
-                   t.Name ASC
-               LIMIT %s OFFSET %s;
-           """, (per_page, offset))
-    results = cur.fetchall()
+    results = main_tag_with_pagination(cur, per_page, offset)
     return render_template('main_tag.html', results=results, page=page, total_pages=total_pages)
 
 @app.route('/main_tag_id/<int:tag_id>', methods=['GET'])
 def main_tag_id(tag_id):
     tag_name = get_tag_by_name(cur, tag_id)
 
-    cur.execute("""
-        SELECT COALESCE(COUNT(DISTINCT c.ID), 0)
-        FROM Category c
-        JOIN Expenses e ON c.ID = e.CATEGORY_ID
-        JOIN Expense_Tag et ON e.Expenses_id = et.Expenses_id
-        WHERE et.Tag_id = %s;
-    """, (tag_id,))
+    category_count = main_tag_category_count(cur, tag_id)
+    top_categories = main_tag_top_categories(cur, tag_id)
+    last_seven_days = main_tag_categories_seven_days(cur, tag_id)
 
-    category_count = cur.fetchone()[0]
+    expenses_count = main_tag_expense_count(cur, tag_id)
+    top_expenses = main_tag_top_expenses(cur, tag_id)
+    seven_days_expenses = main_tag_expenses_seven_days(cur, tag_id)
 
-    cur.execute("""
-        SELECT c.ID, c.Name, COALESCE(COUNT(DISTINCT e.Expenses_id), 0) as tag_count
-        FROM Category c
-        LEFT JOIN Expenses e ON c.ID = e.CATEGORY_ID
-        LEFT JOIN Expense_Tag et ON e.Expenses_id = et.Expenses_id
-        WHERE et.Tag_id = %s
-        GROUP BY c.ID, c.Name
-        ORDER BY tag_count DESC
-        LIMIT 3;
-    """, (tag_id,))
-
-    top_categories = cur.fetchall()
-
-    cur.execute("""
-        SELECT c.ID, c.Name
-        FROM Category c
-        JOIN Expenses e ON c.ID = e.CATEGORY_ID
-        JOIN Expense_Tag et ON e.Expenses_id = et.Expenses_id
-        WHERE et.Tag_id = %s
-          AND e.TRANSACTION_DATE >= CURRENT_DATE - INTERVAL '7 days'
-          AND e.TRANSACTION_DATE <= CURRENT_DATE
-        GROUP BY c.ID, c.Name
-        ORDER BY MAX(e.TRANSACTION_DATE) DESC
-        LIMIT 5;
-    """, (tag_id,))
-
-    last_seven_days = cur.fetchall()
-
-    cur.execute("""
-        SELECT COALESCE(COUNT(DISTINCT e.Expenses_id), 0)
-        FROM Expenses e
-        JOIN Expense_Tag et ON e.Expenses_id = et.Expenses_id
-        WHERE et.Tag_id = %s;
-    """, (tag_id,))
-
-    expenses_count = cur.fetchone()[0]
-
-    cur.execute("""
-        SELECT e.DESCRIPTION, COUNT(*) as frequency
-        FROM Expenses e
-        JOIN Expense_Tag et ON e.Expenses_id = et.Expenses_id
-        WHERE et.Tag_id = %s
-        GROUP BY e.DESCRIPTION
-        ORDER BY frequency DESC
-        LIMIT 3;
-    """, (tag_id,))
-
-    top_expenses = cur.fetchall()
-
-    cur.execute("""
-        SELECT DISTINCT subquery.DESCRIPTION
-        FROM (
-            SELECT e.DESCRIPTION
-            FROM Expenses e
-            JOIN Expense_Tag et ON e.Expenses_id = et.Expenses_id
-            WHERE et.Tag_id = %s
-            AND e.TRANSACTION_DATE >= CURRENT_DATE - INTERVAL '7 days'
-            AND e.TRANSACTION_DATE <= CURRENT_DATE
-            ORDER BY e.TRANSACTION_DATE ASC
-            LIMIT 5
-        ) AS subquery
-        ORDER BY subquery.DESCRIPTION ASC;
-    """, (tag_id,))
-    seven_days_expenses = cur.fetchall()
-
-
-    cur.execute("""
-        SELECT COALESCE(SUM(e.PRICE), 0) as TotalAmount
-        FROM Expenses e
-        JOIN Expense_Tag et ON e.Expenses_id = et.Expenses_id
-        WHERE et.Tag_id = %s;
-    """, (tag_id,))
-
-    total_cost = cur.fetchone()[0]
-
-    cur.execute("""
-        SELECT COALESCE(ROUND(AVG(e.PRICE), 2), 0) as AveragePrice
-        FROM Expenses e
-        JOIN Expense_Tag et ON e.Expenses_id = et.Expenses_id
-        WHERE et.Tag_id = %s;
-    """, (tag_id,))
-
-    average_price = cur.fetchone()[0]
-
-    cur.execute("""
-        SELECT e.DESCRIPTION,c.ID, c.Name as Category, e.TRANSACTION_DATE, e.PRICE
-        FROM Expenses e
-        JOIN Category c ON e.CATEGORY_ID = c.ID
-        JOIN Expense_Tag et ON e.Expenses_id = et.Expenses_id
-        WHERE et.Tag_id = %s
-        ORDER BY e.PRICE DESC
-        LIMIT 3;
-    """, (tag_id,))
-
-    top_expensive_expenses = cur.fetchall()
-
-    cur.execute("""
-        SELECT e.DESCRIPTION,c.ID, c.Name as Category, e.TRANSACTION_DATE, e.PRICE
-        FROM Expenses e
-        JOIN Category c ON e.CATEGORY_ID = c.ID
-        JOIN Expense_Tag et ON e.Expenses_id = et.Expenses_id
-        WHERE et.Tag_id = %s
-        ORDER BY e.PRICE ASC
-        LIMIT 3;
-    """, (tag_id,))
-
-    top_cheap_expenses = cur.fetchall()
+    total_cost = main_tag_cost(cur, tag_id)
+    average_price = main_tag_average(cur, tag_id)
+    top_expensive_expenses = main_tag_top_prices(cur, tag_id)
+    top_cheap_expenses = main_tag_low_prices(cur, tag_id)
 
     tag_category_chart = generate_price_tag_category_chart(tag_id)
     tag_expense_chart = generate_price_chart_for_tag_expenses(tag_id)
@@ -1066,7 +709,6 @@ def generate_category_chart():
         plt.xlabel('Category')
         plt.ylabel('Price')
         plt.title('Expenses by category')
-        # plt.xticks(rotation=25, fontsize=8, ha='right')
         plt.xticks(rotation=25, fontsize=8)
         plt.tight_layout()
 
@@ -1086,14 +728,7 @@ def generate_tag_chart():
 
         cur.execute('SELECT NAME FROM CATEGORY WHERE ID = %s', (selected_category,))
         selected_category_name = cur.fetchone()[0]
-
-        cur.execute("""SELECT T.NAME, COUNT(ET.EXPENSES_ID)
-                        FROM TAG T
-                        LEFT JOIN EXPENSE_TAG ET ON T.ID = ET.TAG_ID
-                        LEFT JOIN EXPENSES E ON ET.EXPENSES_ID = E.EXPENSES_ID
-                        WHERE E.CATEGORY_ID = %s
-                        GROUP BY T.NAME;""", (selected_category,))
-        tag_data = cur.fetchall()
+        tag_data = generate_tag_chart_query(cur, selected_category)
 
         if not tag_data:
             flash(f"No expenses found for category: {selected_category_name}", 'error')
