@@ -18,11 +18,11 @@ def generate_expense_chart(category_id):
     descriptions = [expense[0] for expense in expenses_data]
     prices = [float(expense[1]) for expense in expenses_data]
 
-    plt.figure(figsize=(10, 5))
+    plt.figure(figsize=(25, 11))
     plt.bar(descriptions, prices, color='blue')
     plt.xlabel('Expenses')
     plt.ylabel('Price')
-    plt.xticks(rotation=45)
+    plt.xticks(rotation=60)
     plt.tight_layout()
 
     graph_dir = os.path.join(app.root_path, 'static')
@@ -46,11 +46,11 @@ def generate_tag_expense_chart(category_id):
     tags = [data[0] for data in tag_expense_data]
     prices = [float(data[1]) for data in tag_expense_data]
 
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(25, 11))
     plt.bar(tags, prices, color='green')
     plt.xlabel('Tags')
     plt.ylabel('Total Price')
-    plt.xticks(rotation=45)
+    plt.xticks(rotation=60)
     plt.tight_layout()
 
     graph_dir = os.path.join(app.root_path, 'static')

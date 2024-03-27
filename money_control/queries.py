@@ -271,3 +271,49 @@ def generate_tag_chart_query(cur, selected_category):
                     GROUP BY T.NAME;""", (selected_category,))
     tag_data = cur.fetchall()
     return tag_data
+
+def expense_search_query(cur, search_query, offset=0, limit=2000):
+    cur.execute(f'''SELECT 
+                         E.EXPENSES_ID,
+                         E.DESCRIPTION,
+                         E.PRICE,       
+                         C.NAME,
+                         C.ID as category_id,
+                         E.TRANSACTION_DATE,
+                         array_agg(T.Name) as tags,
+                         array_agg(T.ID) as tag_ids
+                     FROM CATEGORY C
+                     JOIN EXPENSES E ON C.ID = E.CATEGORY_ID
+                     LEFT JOIN Expense_Tag ET ON E.Expenses_id = ET.Expenses_id
+                     LEFT JOIN Tag T ON ET.Tag_id = T.ID
+                     WHERE 
+                         E.DESCRIPTION ILIKE %s
+                     GROUP BY E.EXPENSES_ID, C.NAME, C.ID, E.PRICE, E.DESCRIPTION, E.TRANSACTION_DATE
+                     ORDER BY E.EXPENSES_ID DESC
+                     LIMIT %s OFFSET %s''', ('%' + search_query + '%', limit, offset))
+    return cur.fetchall()
+
+def tag_search_query(cur,search_query, offset=0, limit=2000):
+    cur.execute("""
+        SELECT t.ID AS Tag_ID,
+               t.Name AS Tag_Name,
+               COUNT(DISTINCT c.ID) AS NumberOfCategories,
+               COUNT(DISTINCT e.Expenses_id) AS NumberOfExpenses
+           FROM 
+               Tag t
+           LEFT JOIN 
+               Expense_Tag et ON t.ID = et.Tag_id
+           LEFT JOIN 
+               Expenses e ON et.Expenses_id = e.Expenses_id
+           LEFT JOIN 
+               Category c ON e.CATEGORY_ID = c.ID
+           WHERE
+               t.Name ILIKE %s
+           GROUP BY 
+               t.ID, t.Name
+           ORDER BY 
+               t.Name ASC
+           LIMIT %s OFFSET %s;
+       """, ('%' + search_query + '%', limit, offset))
+    results = cur.fetchall()
+    return results

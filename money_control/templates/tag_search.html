@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category Expenses</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #ccd8e5;
+        }
+        .back-button {
+            position: absolute;
+            top: 20px;
+            margin-left: 230px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+        }
+        .back-button:hover {
+            background-color: #45a049;
+            cursor: pointer;
+        }
+        .search-container {
+            margin-top: 20px;
+            width: 400px;
+            margin: auto;
+            height: 100px;
+            border-radius: 4px;
+        }
+        .search-input {
+            width: 300px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-right: 5px;
+            margin-left: 5px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        h2{
+            text-align: center;
+            color: #333;
+        }
+        .search-button {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 20px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        .search-button:hover {
+            background-color: #45a049;
+        }
+        table {
+            border-collapse: collapse;
+            width: 60%;
+            margin: 20px 450px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+            width: 17%;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f0f0f0;
+        }
+        tr:nth-child(odd) {
+            background-color: #e6e6e6;
+        }
+        .chip {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: #0039a6;
+            color: white;
+            border-radius: 10px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            text-decoration: none;
+        }
+        .chip:hover {
+            background-color: #4b88ff ;
+            cursor: pointer;
+        }
+        .category-link {
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 20px;
+            background-color: #ff7f0e;
+            color: white;
+        }
+        .category-link:hover {
+            background-color: #ff9c4f;
+            cursor: pointer;
+        }
+        .category-link-expenses {
+            text-decoration: none;
+            padding: 5px 5px;
+            border-radius: 20px;
+            background-color: #FFD700;
+            color: #000000;
+            display: inline-block;
+            margin-right: 2px;
+            margin-bottom: 5px;
+        }
+        .category-link-expenses:hover {
+            background-color: #FFC107;
+            cursor: pointer;
+        }
+        .alert.error {
+            background-color: #ffcccc;
+            border: 1px solid #ffcccc;
+            color: #333;
+            padding: 10px;
+            margin: 0 auto;
+            width: 425px;
+            text-align: center;
+            border-radius:8px;
+        }
+        .alert.neutral {
+            background-color: #ffffcc;
+            border: 1px solid #ffeb3b;
+            color: #333;
+            padding: 10px;
+            margin: 0 auto;
+            width: 425px;
+            text-align: center;
+            border-radius:8px;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+        #pagination {
+            display: inline-block;
+            margin: 0 10px;
+        }
+        .pageButton {
+            margin: 0 5px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            background-color: #357e4e;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 16px;
+        }
+        .pageButton.current {
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .pageButton.current:hover {
+            background-color: #4CAF50;
+            cursor: default;
+        }
+    </style>
+</head>
+<body>
+    {% include 'sidebar.html' %}
+    <button class="back-button" onclick="window.history.back();">Back</button>
+    <h1>Search tags</h1>
+    <div class="search-container">
+        <form action="/tag_search" method="POST">
+            <input type="text" class="search-input" name="search_query" placeholder="Search tag">
+            <button type="submit" class="search-button">Search</button>
+        </form>
+    </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    {% if results %}
+        <h2>Results for: {{ search_query }}</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Tag Name</th>
+                    <th>Number of Categories</th>
+                    <th>Number of Expenses</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tag in results %}
+                    <tr>
+                        <td><a href="{{ url_for('main_tag_id', tag_id=tag[0]) }}" class="chip">{{ tag[1] }}</a></td>
+                        <td>{{ tag[2] }}</td>
+                        <td>{{ tag[3] }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+    <div class="pagination">
+        <div id="pagination"></div>
+    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var currentPage = 1;
+        var rowsPerPage = 10;
+
+        updateTable(currentPage);
+
+        function updateTable(page) {
+            var table = document.querySelector("table");
+            var rows = Array.from(table.rows).slice(1); // Convert rows to array and remove header
+
+            // Display rows based on current page and rows per page
+            for (var i = 0; i < rows.length; i++) {
+                if (i >= (page - 1) * rowsPerPage && i < page * rowsPerPage) {
+                    rows[i].style.display = "";
+                } else {
+                    rows[i].style.display = "none";
+                }
+            }
+
+            // Update pagination buttons
+            var maxPages = Math.ceil(rows.length / rowsPerPage);
+
+            var pagination = document.getElementById("pagination");
+            pagination.innerHTML = '';
+
+            // Add First button
+            pagination.innerHTML += '<button class="pageButton" data-page="1"><<</button>';
+
+            // Add Previous button
+            if (currentPage > 1) {
+                pagination.innerHTML += '<button class="pageButton" data-page="' + (currentPage - 1) + '"><</button>';
+            }
+
+            // Show only current page and its neighbors
+            var startPage = Math.max(1, currentPage - 1);
+            var endPage = Math.min(maxPages, currentPage + 1);
+            for (var i = startPage; i <= endPage; i++) {
+                pagination.innerHTML += '<button class="pageButton ' + (currentPage === i ? 'current' : '') + '" data-page="' + i + '">' + i + '</button>';
+            }
+
+            // Add Next button
+            if (currentPage < maxPages) {
+                pagination.innerHTML += '<button class="pageButton" data-page="' + (currentPage + 1) + '">></button>';
+            }
+
+            // Add Last button
+            pagination.innerHTML += '<button class="pageButton" data-page="' + maxPages + '">>></button>';
+
+            // Add event listeners for page buttons
+            document.querySelectorAll('.pageButton').forEach(function(button) {
+                button.addEventListener('click', function() {
+                    currentPage = parseInt(this.getAttribute('data-page'));
+                    updateTable(currentPage);
+                });
+            });
+        }
+    });
+    </script>
+</body>
+</html>

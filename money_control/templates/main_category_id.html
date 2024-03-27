@@ -229,7 +229,7 @@
                     </tbody>
                 </table>
             {% else %}
-                <p class="error">There are no expenses for this category. </p>
+                <p style="color:red; font-weight: bold">There are no expenses for this category. </p>
             {% endif %}
         </div>
         <hr>
@@ -268,17 +268,17 @@
                     </tbody>
                 </table>
             {% else %}
-                <p class="error">There are no expenses for this category. </p>
+                <p style="color:red; font-weight: bold">There are no expenses for this category. </p>
             {% endif %}
         </div>
     </div>
-    <div class="chart-container">
+    <div class="chart-container" style="margin-left: 230px">
         {% if graph_path %}
             <h2>Expenses for category: {{ category_name }}</h2>
             <img src="{{ url_for('static', filename='category_chart.png') }}" alt="Chart">
         {% endif %}
     </div>
-    <div class="chart-container">
+    <div class="chart-container" style="margin-left: 230px">
         {% if path_graph %}
             <h2>Tag price for category: {{ category_name }}</h2>
             <img src="{{ url_for('static', filename='tag_price.png') }}" alt="Chart">

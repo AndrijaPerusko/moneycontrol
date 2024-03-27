@@ -8,7 +8,7 @@ from money_control.queries import (date_expenses, price_query, category_expenses
                                    generate_category_tag_chart_query, generate_category_chart_query,
                                    calculate_pagination, get_tag_by_name, count_tag_usage, get_total_count_expenses,
                                    exact_price_query, date_expenses_exact, update_transaction_query,
-                                   generate_tag_chart_query)
+                                   generate_tag_chart_query, expense_search_query, tag_search_query)
 from money_control.charts import (generate_expense_chart,  generate_tag_expense_chart,
                                   generate_price_description_chart_for_category,
                                   generate_price_tag_chart_for_category, generate_price_tag_category_chart,
@@ -173,6 +173,53 @@ def main_expenses():
 
     return render_template('main_expenses.html', results=results, page=page,
                            total_pages=total_pages,per_page=per_page)
+
+
+@app.route('/expense_search', methods=['GET', 'POST'])
+def expense_search():
+    if request.method == 'POST':
+        search_query = request.form.get('search_query')
+        if len(search_query)<1:
+            flash('Please enter at least two character for the search', 'error')
+            return redirect('/expense_search')
+        page = int(request.form.get('pageInput', 1))
+        offset = (page - 1) * 10
+
+        query_res = expense_search_query(cur, search_query, offset=offset)
+        if not query_res:
+            flash('No results found for the search.', 'neutral')
+            return render_template('expense_search.html')
+
+        results = [{
+            'expenses_id': row[0],
+            'description': row[1],
+            'price': float(row[2]),
+            'category': row[3],
+            'category_id': row[4],
+            'date': row[5].strftime('%d.%m.%Y'),
+            'tags': row[6] if row[6] else [],
+            'tag_ids': row[7] if row[7] else []
+        } for row in query_res]
+        return render_template('expense_search.html', results=results, search_query=search_query)
+    return render_template('expense_search.html')
+
+@app.route('/tag_search', methods=['GET', 'POST'])
+def tag_search():
+    if request.method == 'POST':
+        search_query = request.form.get('search_query')
+        if len(search_query) < 1:
+            flash('Please enter at least one character for the search', 'error')
+            return redirect('/tag_search')
+        page = int(request.form.get('pageInput', 1))
+        offset = (page - 1) * 10
+
+        results = tag_search_query(cur, search_query, offset=offset)
+        if not results:
+            flash('No results found for the search.', 'neutral')
+            return render_template('tag_search.html')
+        return render_template('tag_search.html', results=results, search_query=search_query)
+    return render_template('tag_search.html')
+
 
 @app.route('/main_expenses_description/<description>', methods=['GET'])
 def main_expenses_description(description):
