@@ -180,7 +180,7 @@ def expense_search():
     if request.method == 'POST':
         search_query = request.form.get('search_query')
         if len(search_query)<1:
-            flash('Please enter at least two character for the search', 'error')
+            flash('Please enter at least one character for the search', 'error')
             return redirect('/expense_search')
         page = int(request.form.get('pageInput', 1))
         offset = (page - 1) * 10
@@ -397,6 +397,7 @@ def main_tag_id(tag_id):
     average_price = main_tag_average(cur, tag_id)
     top_expensive_expenses = main_tag_top_prices(cur, tag_id)
     top_cheap_expenses = main_tag_low_prices(cur, tag_id)
+    tag_ids, tag_names = get_related_tags(cur, tag_id)
 
     tag_category_chart = generate_price_tag_category_chart(tag_id)
     tag_expense_chart = generate_price_chart_for_tag_expenses(tag_id)
@@ -409,7 +410,7 @@ def main_tag_id(tag_id):
                            average_price=average_price, top_expensive_expenses=top_expensive_expenses,
                            top_cheap_expenses=top_cheap_expenses, tag_category_chart=tag_category_chart,
                            tag_expense_chart=tag_expense_chart, tag_category_day_chart=tag_category_day_chart,
-                           tag_category_30_days=tag_category_30_days)
+                           tag_category_30_days=tag_category_30_days,tag_ids=tag_ids, tag_names=tag_names)
 
 @app.route('/category_expenses', methods=['GET', 'POST'])
 def category_expenses():

@@ -132,7 +132,7 @@
                         <ul class="tags-list">
                             {% for tag in all_data.tags %}
                                 <li>
-                                    <input type="checkbox" id="{{ tag }}" name="selected_tag_{{ all_data.expenses_id }}" value="{{ tag }}" tabindex="{{ loop.index }}>
+                                    <input type="checkbox" id="{{ tag }}" name="selected_tag_{{ all_data.expenses_id }}" value="{{ tag }}" >
                                     <label for="{{ tag }}">{{ tag }}</label>
                                 </li>
                             {% endfor %}

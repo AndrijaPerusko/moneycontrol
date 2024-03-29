@@ -196,6 +196,11 @@
             background-color: #4CAF50;
             cursor: default;
         }
+        .separator {
+            text-align: center;
+            margin: 10px 0;
+            color: #555;
+        }
     </style>
 </head>
 <body>
@@ -207,6 +212,8 @@
         <input type="text" id="start_price" placeholder="Select start price" name="start_price" value="{{ request.form.get('start_price', '') }}">
         <label for="max_price">Max Price:</label>
         <input type="text" id="max_price" placeholder="Select max price" name="max_price" value="{{ request.form.get('max_price', '') }}">
+        <br>
+        <div class="separator">or</div>
         <label for="exact_price">Exact Price:</label>
         <input type="text" id="exact_price" placeholder="Select exact price" name="exact_price" value="{{ request.form.get('exact_price', '') }}">
         <button type="submit">Submit</button>

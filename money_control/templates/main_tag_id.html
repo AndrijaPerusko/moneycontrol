@@ -131,6 +131,23 @@
             margin: 0 auto;
             max-width: 100%;
         }
+        .chip {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: #0039a6;
+            color: white;
+            border-radius: 10px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            text-decoration: none;
+        }
+        .chip:hover {
+            background-color: #4b88ff ;
+            cursor: pointer;
+        }
+        .center-chip{
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -220,6 +237,21 @@
         <hr>
         <p class="center">Average price for tag {{ tag_name }}: <strong>{{ average_price }}</strong></p>
         <hr>
+        <div class="center-chip">
+            {% if tag_ids %}
+            <p>Tags paired with <strong>{{ tag_name }}</strong>:</p>
+                <div class="chip-container">
+                    {% for i in range(tag_ids|length) %}
+                        <a href="{{ url_for('main_tag_id', tag_id=tag_ids[i]) }}" class="chip" style="text-decoration: none;">{{ tag_names[i] }}</a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div>
+                    <p>There are no related tags.</p>
+                </div>
+            {% endif %}
+        </div>
+        <hr>
         <strong><p>Most Expensive Transactions:</p></strong>
         <div>
             {% if top_expensive_expenses %}
@@ -278,11 +310,11 @@
     </div>
     <div class="chart-container">
         {% if tag_category_chart %}
-            <h2>Expenses for tag: {{ tag_name }}</h2>
+            <h2>Category expense for tag: {{ tag_name }}</h2>
             <img src="{{ url_for('static', filename='generate_price_tag_category_chart.png') }}" alt="Chart">
         {% endif %}
     </div>
-    <div class="chart-container">
+    <div class="chart-container" style="margin-left: 250px">
         {% if tag_expense_chart %}
             <h2>Expenses for tag: {{ tag_name }}</h2>
             <img src="{{ url_for('static', filename='generate_price_chart_for_tag_expenses.png') }}" alt="Chart">

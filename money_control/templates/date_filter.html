@@ -180,6 +180,11 @@
             background-color: #4CAF50;
             cursor: default;
         }
+        .separator {
+            text-align: center;
+            margin: 10px 0;
+            color: #555;
+        }
     </style>
 </head>
 <body>
@@ -193,6 +198,7 @@
         <label for="end_date">End Date:</label>
         <input type="text" id="end_date" name="end_date" placeholder="Select end date" data-input value="{{ request.form.end_date if request.form.end_date }}">
         <br>
+        <div class="separator">or</div>
         <label for="exact_date">Exact Date:</label>
         <input type="text" id="exact_date" name="exact_date" placeholder="Select exact date" data-input value="{{ request.form.exact_date if request.form.exact_date }}">
         <br>

@@ -74,8 +74,7 @@ def generate_price_description_chart_for_category(category_id):
 
     # Generisanje liste datuma unutar poslednjih 7 dana
     end_date = datetime.date.today()
-    start_date = end_date - timedelta(days=7)
-    all_dates = [(start_date + timedelta(days=i)).strftime('%Y-%m-%d') for i in range(7)]
+    all_dates = [(end_date - timedelta(days=i)).strftime('%Y-%m-%d') for i in range(6, -1, -1)]
 
     # Obrada rezultata upita i izdvajanje datuma i sumiranih cena
     dates = []
@@ -193,7 +192,7 @@ def generate_price_chart_for_tag_expenses(tag_id):
     descriptions = [row[0] for row in tag_data]
     total_prices = [float(row[1]) for row in tag_data]
 
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(25, 10))
     plt.bar(descriptions, total_prices, color='green')
     plt.xlabel('Expenses')
     plt.ylabel('Total Price')

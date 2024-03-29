@@ -240,7 +240,9 @@
             pagination.innerHTML = '';
 
             // Add First button
-            pagination.innerHTML += '<button class="pageButton" data-page="1"><<</button>';
+            if (currentPage > 1) {
+                pagination.innerHTML += '<button class="pageButton" data-page="1"><<</button>';
+            }
 
             // Add Previous button
             if (currentPage > 1) {
@@ -260,7 +262,9 @@
             }
 
             // Add Last button
-            pagination.innerHTML += '<button class="pageButton" data-page="' + maxPages + '">>></button>';
+            if (currentPage < maxPages) {
+                pagination.innerHTML += '<button class="pageButton" data-page="' + maxPages + '">>></button>';
+            }
 
             // Add event listeners for page buttons
             document.querySelectorAll('.pageButton').forEach(function(button) {

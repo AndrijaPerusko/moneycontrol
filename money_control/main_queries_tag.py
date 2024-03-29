@@ -158,3 +158,22 @@ def main_tag_low_prices(cur, tag_id):
 
     top_cheap_expenses = cur.fetchall()
     return top_cheap_expenses
+
+
+def get_related_tags(cur, tag_id):
+    cur.execute("""
+        SELECT DISTINCT t2.ID, t2.Name
+        FROM Expense_Tag et1
+        JOIN Expense_Tag et2 ON et1.Expenses_id = et2.Expenses_id
+        JOIN Tag t1 ON et1.Tag_id = t1.ID
+        JOIN Tag t2 ON et2.Tag_id = t2.ID
+        WHERE t1.ID = %s
+          AND t2.ID != et1.Tag_id
+        LIMIT 3;
+    """, (tag_id,))
+    results = cur.fetchall()
+
+    tag_ids = [row[0] for row in results]
+    tag_names = [row[1] for row in results]
+
+    return tag_ids, tag_names
